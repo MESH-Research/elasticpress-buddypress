@@ -25,21 +25,6 @@ function ep_bp_init() {
 add_action( 'bp_init', 'ep_bp_init' );
 
 /**
- * use our own search template to accommodate groups & members as well as posts.
- * default search template assumes everything is a post. we need to support other contents types too.
- */
-function ep_bp_filter_template_include($template){
-	global $wp_query;
-
-	if ( $wp_query->is_search ) {
-		$template = dirname( __FILE__ ) . '/templates/search.php';
-	}
-
-	return $template;
-}
-//add_filter( 'template_include', 'ep_bp_filter_template_include' );
-
-/**
  * styles to clean up search results
  */
 function ep_bp_enqueue_style() {
