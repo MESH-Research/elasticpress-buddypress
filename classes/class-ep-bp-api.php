@@ -185,17 +185,16 @@ class EP_BP_API {
 
 		$members = [];
 
-		$args = array_merge( $args, [
+		$args = array_merge( [
 			'user_id' => 1,
-		] );
+		], $args );
 
 		extract( $args );
 
 		$max_user_id = $wpdb->get_var( 'SELECT MAX(ID) FROM wp_users' );
-		$max_user_id = 10;
 
 		if ( $user_id <= $max_user_id ) {
-			while ( $user_id < $args['user_id'] + 350 ) {
+			while ( $user_id <= $args['user_id'] + 350 ) {
 				$user = get_userdata( $user_id );
 
 				if ( $user ) {
@@ -207,7 +206,10 @@ class EP_BP_API {
 				$user_id++;
 			}
 
-			$this->send_request( 'member', $members );
+			// we skip a big range of IDs in wp_user, don't bother sending the request if there's no data.
+			if ( count( $members ) ) {
+				$this->send_request( 'member', $members );
+			}
 
 			$this->bulk_index_members( [
 				'user_id' => $user_id + 1,
