@@ -13,8 +13,13 @@ require_once dirname( __FILE__ ) . '/classes/class-ep-bp-api.php';
  * Sync BP content after EP has synced posts
  * TODO dashboard and other sync contexts besides cli?
  */
-//add_action( 'ep_cli_post_bulk_index', 'ep_bp_bulk_index_groups' );
-add_action( 'ep_cli_post_bulk_index', 'ep_bp_bulk_index_members' );
+function ep_bp_bulk_index() {
+	WP_CLI::line( 'Indexing groups...' );
+	ep_bp_bulk_index_groups();
+	WP_CLI::line( 'Indexing members...' );
+	ep_bp_bulk_index_members();
+}
+add_action( 'ep_cli_post_bulk_index', 'ep_bp_bulk_index' );
 
 /**
  * Initialize custom feature etc.
