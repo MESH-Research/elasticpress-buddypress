@@ -47,7 +47,7 @@ class EP_BP_API {
 			'post_parent'       => 0,
 			'post_type'         => 'group',
 			'post_mime_type'    => '',
-			'permalink'         => bp_get_permalink( $group ),
+			'permalink'         => bp_get_group_permalink( $group ),
 			'terms'             => [],
 			'post_meta'         => [],
 			'date_terms'        => [],
@@ -55,7 +55,7 @@ class EP_BP_API {
 			'comment_status'    => 0,
 			'ping_status'       => 0,
 			'menu_order'        => 0,
-			'guid'              => bp_get_permalink( $group ),
+			'guid'              => bp_get_group_permalink( $group ),
 		];
 
 		return $args;
