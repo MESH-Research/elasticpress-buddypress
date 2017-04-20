@@ -1,0 +1,4 @@
+/* hide meta for non-post types as it's often wrong */
+.search-results .type-group footer {
+  display: none;
+}
