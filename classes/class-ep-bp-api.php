@@ -70,7 +70,7 @@ class EP_BP_API {
 			'post_parent'       => 0,
 			'post_type'         => 'group',
 			'post_mime_type'    => '',
-			'permalink'         => bp_get_group_permalink( $group_id ),
+			'permalink'         => bp_get_group_permalink( $group ),
 			'terms'             => [],
 			'post_meta'         => [],
 			'date_terms'        => [],
@@ -78,7 +78,7 @@ class EP_BP_API {
 			'comment_status'    => $comment_status,
 			'ping_status'       => $ping_status,
 			'menu_order'        => $menu_order,
-			'guid'              => bp_get_group_permalink( $group_id ),
+			'guid'              => bp_get_group_permalink( $group ),
 		];
 
 		return $group_args;
@@ -174,7 +174,7 @@ class EP_BP_API {
 		$groups = [];
 
 		$querystring = bp_ajax_querystring( 'groups' ) . '&' . http_build_query( [
-			'per_page' => 1,
+			'per_page' => 999, // TODO
 		] );
 
 		if ( bp_has_groups( $querystring ) ) {
@@ -185,7 +185,6 @@ class EP_BP_API {
 				$groups[ bp_get_group_id() ][] = addcslashes( wp_json_encode( $group_args ), "\n" );
 			}
 		}
-		var_dump( $groups );
 
 		$flatten = [];
 
