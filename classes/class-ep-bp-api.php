@@ -181,38 +181,29 @@ class EP_BP_API {
 	 * See also bulk_index_groups()
 	 */
 	public function bulk_index_members( $args = [] ) {
-		global $wpdb;
+		global $members_template;
 
 		$members = [];
 
 		$args = array_merge( [
-			'user_id' => 1,
+			'per_page' => 350,
+			'page' => 1,
 		], $args );
 
-		extract( $args );
+		$querystring = bp_ajax_querystring( 'members' ) . '&' . http_build_query( $args );
 
-		$max_user_id = $wpdb->get_var( 'SELECT MAX(ID) FROM wp_users' );
-
-		if ( $user_id <= $max_user_id ) {
-			while ( $user_id <= $args['user_id'] + 350 ) {
-				$user = get_userdata( $user_id );
-
-				if ( $user ) {
-					$member_args = $this->prepare_member( $user );
-					$members[ $user_id ][] = '{ "index": { "_id": "' . $user_id . '" } }';
-					$members[ $user_id ][] = addcslashes( wp_json_encode( $member_args ), "\n" );
-				}
-
-				$user_id++;
+		if ( bp_has_members( $querystring ) ) {
+			while ( bp_members() ) {
+				bp_the_member();
+				$member_args = $this->prepare_member( $members_template->member );
+				$members[ $members_template->member->id ][] = '{ "index": { "_id": "' . $members_template->member->id . '" } }';
+				$members[ $members_template->member->id ][] = addcslashes( wp_json_encode( $member_args ), "\n" );
 			}
 
-			// we skip a big range of IDs in wp_user, don't bother sending the request if there's no data.
-			if ( count( $members ) ) {
-				$this->send_request( 'member', $members );
-			}
+			$this->send_request( 'member', $members );
 
 			$this->bulk_index_members( [
-				'user_id' => $user_id + 1,
+				'page' => $args['page'] + 1,
 			] );
 		}
 	}
