@@ -67,6 +67,7 @@ function ep_bp_filter_ep_formatted_args( $formatted_args ) {
 			unset( $formatted_args['post_filter']['bool']['must'][ $i ] );
 		}
 	}
+	return $formatted_args;
 }
 add_filter( 'ep_formatted_args', 'ep_bp_filter_ep_formatted_args' );
 
