@@ -65,6 +65,8 @@ function ep_bp_filter_ep_formatted_args( $formatted_args ) {
 	foreach ( $formatted_args['post_filter']['bool']['must'] as $i => $must ) {
 		if ( isset( $must['terms']['post_type.raw'] ) ) {
 			unset( $formatted_args['post_filter']['bool']['must'][ $i ] );
+			// re-index 'must' array keys using array_values (non-sequential keys pose problems for elasticpress)
+			$formatted_args['post_filter']['bool']['must'] = array_values( $formatted_args['post_filter']['bool']['must'] );
 		}
 	}
 	return $formatted_args;
