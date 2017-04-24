@@ -53,7 +53,8 @@ add_filter( 'ep_search_request_path', 'ep_bp_filter_ep_search_request_path' );
  * TODO results in a 400 error from elasticsearch when too many shards ( > 1000 ) are searched.
  */
 function ep_bp_filter_ep_index_name( $index_name, $blog_id ) {
-	//return '_all'; // much faster shortcut, but results in 400 error due to > 1000 shards being searched
+	// depends on the number of shards being sufficiently low. see ep_bp_filter_ep_default_index_number_of_shards
+	return '_all'; // much faster shortcut, but results in 400/413 error if > 1000 shards being searched
 
 	// since we call ep_get_index_name() which uses this filter,
 	// we need to disable the filter while this function runs.
@@ -85,6 +86,15 @@ function ep_bp_filter_ep_index_name( $index_name, $blog_id ) {
 	return implode( ',', $index_names );
 }
 add_filter( 'ep_index_name', 'ep_bp_filter_ep_index_name', 10, 2 );
+
+/**
+ * this is an attempt at limiting the total number of shards to make searching lots of sites in multinetwork feasible
+ */
+function ep_bp_filter_ep_default_index_number_of_shards( $number_of_shards ) {
+	$number_of_shards = 1;
+	return $number_of_shards;
+}
+add_filter( 'ep_default_index_number_of_shards', 'ep_bp_filter_ep_default_index_number_of_shards' );
 
 /**
  * Filter search request post_filter post_type to search groups & members as well as posts.
