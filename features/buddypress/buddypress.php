@@ -171,7 +171,7 @@ function ep_bp_whitelist_taxonomies( $taxonomies ) {
  * Setup all feature filters
  */
 function ep_bp_setup() {
-	add_action( 'ep_cli_post_bulk_index', 'ep_bp_bulk_index' );
+	//add_action( 'ep_cli_post_bulk_index', 'ep_bp_bulk_index' );
 	add_action( 'pre_get_posts', 'ep_bp_translate_args' );
 	add_action( 'wp_enqueue_scripts', 'ep_bp_enqueue_style' );
 
