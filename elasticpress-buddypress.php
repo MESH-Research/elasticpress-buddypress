@@ -62,7 +62,8 @@ function ep_bp_filter_ep_index_name( $index_name, $blog_id ) {
 
 	$index_names = [ $index_name ];
 
-	if ( bp_is_root_blog() ) {
+	// checking is_search() prevents changing index name while indexing
+	if ( bp_is_root_blog() && is_search() ) {
 		$querystring =  bp_ajax_querystring( 'blogs' ) . '&' . http_build_query( [
 			'type' => 'active',
 			'search_terms' => false, // do not limit results based on current search query
