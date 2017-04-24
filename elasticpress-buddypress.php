@@ -47,6 +47,46 @@ function ep_bp_filter_ep_search_request_path( $path ) {
 add_filter( 'ep_search_request_path', 'ep_bp_filter_ep_search_request_path' );
 
 /**
+ * Filter index name to include all sub-blogs when on a root blog.
+ * This is optional and only affects multinetwork installs.
+ * TODO this is slow and creates a giant query url. change indexing so we can search in a single index for root blogs instead.
+ * TODO results in a 400 error from elasticsearch when too many shards ( > 1000 ) are searched.
+ */
+function ep_bp_filter_ep_index_name( $index_name, $blog_id ) {
+	//return '_all'; // much faster shortcut, but results in 400 error due to > 1000 shards being searched
+
+	// since we call ep_get_index_name() which uses this filter,
+	// we need to disable the filter while this function runs.
+	remove_filter( 'ep_index_name', 'ep_bp_filter_ep_index_name', 10, 2 );
+
+	$index_names = [ $index_name ];
+
+	if ( bp_is_root_blog() ) {
+		$querystring =  bp_ajax_querystring( 'blogs' ) . '&' . http_build_query( [
+			'type' => 'active',
+			'search_terms' => false, // do not limit results based on current search query
+			'per_page' => 50, // TODO setting this too high results in a query url which is too long (400, 413 errors)
+		] );
+
+		if ( bp_has_blogs( $querystring ) ) {
+			while ( bp_blogs() ) {
+				bp_the_blog();
+				switch_to_blog( bp_get_blog_id() );
+				$index_names[] = ep_get_index_name();
+				restore_current_blog();
+			}
+		}
+
+	}
+
+	// restore filter now that we're done abusing ep_get_index_name()
+	add_filter( 'ep_index_name', 'ep_bp_filter_ep_index_name', 10, 2 );
+
+	return implode( ',', $index_names );
+}
+add_filter( 'ep_index_name', 'ep_bp_filter_ep_index_name', 10, 2 );
+
+/**
  * Filter search request post_filter post_type to search groups & members as well as posts.
  * These aren't real post types in WP, but they are in EP because of the way EP_BP_API indexes.
  * TODO doesn't work. when post_type is in the filter, no results are returned regardless of what types we pass.
