@@ -157,7 +157,7 @@ function ep_bp_post_types( $post_types = [] ) {
  * @param   array $post Post properties array.
  * @return  array
  */
-function ep_bp_whitelist_taxonomies( $taxonomies, $post ) {
+function ep_bp_whitelist_taxonomies( $taxonomies ) {
 	return array_merge( $taxonomies, [
 		get_taxonomy( bp_get_member_type_tax_name() )
 	] );
