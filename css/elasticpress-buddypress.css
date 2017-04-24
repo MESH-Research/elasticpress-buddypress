@@ -2,3 +2,8 @@
 .search-results .type-group footer {
   display: none;
 }
+
+/* members don't have comments */
+.search-results .type-member .comments-link {
+  display: none;
+}
