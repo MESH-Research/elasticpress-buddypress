@@ -34,6 +34,10 @@ function ep_bp_filter_ep_search_request_path( $path ) {
  * This is optional and only affects multinetwork installs.
  */
 function ep_bp_filter_ep_index_name( $index_name, $blog_id ) {
+	if ( ! is_search() ) {
+		return $index_name;
+	}
+
 	// depends on the number of shards being sufficiently low. see ep_bp_filter_ep_default_index_number_of_shards
 	return '_all'; // much faster shortcut, but results in 400/413 error if > 1000 shards being searched
 
@@ -44,7 +48,7 @@ function ep_bp_filter_ep_index_name( $index_name, $blog_id ) {
 	$index_names = [ $index_name ];
 
 	// checking is_search() prevents changing index name while indexing
-	if ( bp_is_root_blog() && is_search() ) {
+	if ( bp_is_root_blog() ) {
 		$querystring =  bp_ajax_querystring( 'blogs' ) . '&' . http_build_query( [
 			'type' => 'active',
 			'search_terms' => false, // do not limit results based on current search query
