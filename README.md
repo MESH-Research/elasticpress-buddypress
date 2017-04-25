@@ -1,4 +1,8 @@
-Initial setup:
+# ElasticPress BuddyPress
+
+This plugin provides a custom feature for ElasticPress which adds index & query support for BuddyPress groups & members.
+
+# Initial setup:
 
 Install & activate these plugins:
 
