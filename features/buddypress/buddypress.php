@@ -34,46 +34,61 @@ function ep_bp_filter_ep_search_request_path( $path ) {
  * This is optional and only affects multinetwork installs.
  */
 function ep_bp_filter_ep_index_name( $index_name, $blog_id ) {
-	if ( ! is_search() ) {
-		return $index_name;
-	}
-
-	// depends on the number of shards being sufficiently low. see ep_bp_filter_ep_default_index_number_of_shards
-	return '_all'; // much faster shortcut, but results in 400/413 error if > 1000 shards being searched
-
-	// since we call ep_get_index_name() which uses this filter,
-	// we need to disable the filter while this function runs.
+	// since we call ep_get_index_name() which uses this filter, we need to disable the filter while this function runs.
 	remove_filter( 'ep_index_name', 'ep_bp_filter_ep_index_name', 10, 2 );
 
 	$index_names = [ $index_name ];
 
 	// checking is_search() prevents changing index name while indexing
-	if ( bp_is_root_blog() ) {
-		$querystring =  bp_ajax_querystring( 'blogs' ) . '&' . http_build_query( [
-			'type' => 'active',
-			'search_terms' => false, // do not limit results based on current search query
-			'per_page' => 50, // TODO setting this too high results in a query url which is too long (400, 413 errors)
-		] );
+	// only one of the below methods should be active. the others are left here for reference.
+	if ( is_search() ) {
+		/**
+		 * METHOD 1: all indices
+		 * only works if the number of shards being sufficiently low
+		 * results in 400/413 error if > 1000 shards being searched
+		 * see ep_bp_filter_ep_default_index_number_of_shards()
+		 */
+		//$index_names = [ '_all' ];
 
-		if ( bp_has_blogs( $querystring ) ) {
-			while ( bp_blogs() ) {
-				bp_the_blog();
-				switch_to_blog( bp_get_blog_id() );
-				$index_names[] = ep_get_index_name();
-				restore_current_blog();
-			}
+		/**
+		 * METHOD 2: all main sites for all networks
+		 * most practical if there are lots of sites (enough to worry about exceeded the shard query limit of 1000)
+		 */
+		foreach ( get_networks() as $network ) {
+			$network_main_site_id = get_main_site_for_network( $network );
+			$index_names[] = ep_get_index_name( $network_main_site_id );
 		}
 
+		/**
+		 * METHOD 3: some blogs, e.g. 50 most recently active
+		 * compromise if one of the prior two methods doesn't work for some reason.
+		 */
+		//if ( bp_is_root_blog() ) {
+		//	$querystring =  bp_ajax_querystring( 'blogs' ) . '&' . http_build_query( [
+		//		'type' => 'active',
+		//		'search_terms' => false, // do not limit results based on current search query
+		//		'per_page' => 50, // TODO setting this too high results in a query url which is too long (400, 413 errors)
+		//	] );
+
+		//	if ( bp_has_blogs( $querystring ) ) {
+		//		while ( bp_blogs() ) {
+		//			bp_the_blog();
+		//			$index_names[] = ep_get_index_name( bp_get_blog_id() );
+		//		}
+		//	}
+		//}
 	}
 
 	// restore filter now that we're done abusing ep_get_index_name()
 	add_filter( 'ep_index_name', 'ep_bp_filter_ep_index_name', 10, 2 );
 
-	return implode( ',', $index_names );
+	return implode( ',', array_unique( $index_names ) );
 }
 
 /**
  * this is an attempt at limiting the total number of shards to make searching lots of sites in multinetwork feasible
+ * not necessary unless querying lots of sites at once.
+ * doesn't seem to hurt to leave it enabled in any case though.
  */
 function ep_bp_filter_ep_default_index_number_of_shards( $number_of_shards ) {
 	$number_of_shards = 1;
