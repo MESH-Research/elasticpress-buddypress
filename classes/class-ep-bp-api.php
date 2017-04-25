@@ -174,6 +174,8 @@ class EP_BP_API {
 				'page' => $args['page'] + 1,
 			] );
 		}
+
+		return true;
 	}
 
 	/**
@@ -206,6 +208,8 @@ class EP_BP_API {
 				'page' => $args['page'] + 1,
 			] );
 		}
+
+		return true;
 	}
 
 	/**
