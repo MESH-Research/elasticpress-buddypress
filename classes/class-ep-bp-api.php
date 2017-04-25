@@ -119,7 +119,7 @@ class EP_BP_API {
 			$flatten[] = $object[1];
 		}
 
-		$path = trailingslashit( ep_get_index_name() ) . "$type/_bulk";
+		$path = trailingslashit( ep_get_index_name( bp_get_root_blog_id() ) ) . "$type/_bulk";
 
 		// make sure to add a new line at the end or the request will fail
 		$body = rtrim( implode( "\n", $flatten ) ) . "\n";
