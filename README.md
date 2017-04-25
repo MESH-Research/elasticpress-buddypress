@@ -1,11 +1,14 @@
 # ElasticPress BuddyPress
 
-This plugin provides a custom feature for ElasticPress which adds index & query support for BuddyPress groups & members.
+This plugin provides a custom feature for [ElasticPress](https://github.com/10up/ElasticPress) which adds index & query support for BuddyPress groups & members.
+
+Built for [Humanities Commons](https://hcommons.org).
 
 # Initial setup:
 
 Install & activate these plugins:
 
+    buddypress
     elasticpress
     elasticpress-buddypress
     debug-bar-elasticpress ( if you use debug-bar - recommended )
