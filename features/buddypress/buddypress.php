@@ -213,6 +213,6 @@ function ep_bp_register_feature() {
 		'setup_cb' => 'ep_bp_setup',
 		'requirements_status_cb' => 'ep_bp_requirements_status',
 		'feature_box_summary_cb' => 'ep_bp_feature_box_summary',
-		'requires_install_reindex' => true,
+		'requires_install_reindex' => false,
 	] );
 }
