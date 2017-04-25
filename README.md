@@ -1,10 +1,9 @@
 Initial setup:
 
-Activate these plugins:
-elasticpress
-elasticpress-buddypress
-
-( debug-bar-elasticpress, if you have it - recommended )
+Install & activate these plugins:
+    elasticpress
+    elasticpress-buddypress
+    debug-bar-elasticpress ( if you use debug-bar - recommended )
 
 Index posts:
 
