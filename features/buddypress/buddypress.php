@@ -124,18 +124,16 @@ function ep_bp_filter_the_permalink( $permalink ) {
  * @param WP_Query $query
  */
 function ep_bp_translate_args( $query ) {
-	if ( defined( 'WP_CLI' ) && WP_CLI ) {
-		return;
+	if (
+		is_search() &&
+		! ( defined( 'WP_CLI' ) && WP_CLI ) &&
+		! apply_filters( 'ep_skip_query_integration', false, $query )
+	) {
+		$query->set( 'post_type', array_unique( array_merge(
+			(array) $query->get( 'post_type' ),
+			ep_bp_post_types()
+		) ) );
 	}
-
-	if ( apply_filters( 'ep_skip_query_integration', false, $query ) ) {
-		return;
-	}
-
-	$query->set( 'post_type', array_unique( array_merge(
-		(array) $query->get( 'post_type' ),
-		ep_bp_post_types()
-	) ) );
 }
 
 /**
