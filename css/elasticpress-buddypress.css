@@ -3,3 +3,8 @@
 .search-results .type-member footer {
   display: none;
 }
+
+/* TODO remove this (move to child theme) when plugin is finalized */
+#titlebar-search {
+  display: table-cell !important;
+}
