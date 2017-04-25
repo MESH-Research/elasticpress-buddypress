@@ -1,9 +1,5 @@
 /* hide meta for non-post types as it's often wrong */
-.search-results .type-group footer {
-  display: none;
-}
-
-/* members don't have comments */
-.search-results .type-member .comments-link {
+.search-results .type-group footer,
+.search-results .type-member footer {
   display: none;
 }

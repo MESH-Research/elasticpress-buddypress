@@ -75,6 +75,8 @@ class EP_BP_API {
 			'id'           => $user->ID,
 		);
 
+		$permalink = trailingslashit( get_site_url() ) . 'members/' . $user->user_login;
+
 		$args = [
 			'post_id'           => $user->ID,
 			'ID'                => $user->ID,
@@ -82,7 +84,7 @@ class EP_BP_API {
 			'post_date'         => $user->user_registered,
 			'post_date_gmt'     => $user->user_registered,
 			'post_title'        => $this->prepare_text_content( $user->display_name ),
-			'post_excerpt'      => null,
+			'post_excerpt'      => $this->prepare_text_content( make_clickable( $permalink ) ),
 			'post_content'      => null,
 			'post_status'       => 'publish',
 			'post_name'         => $this->prepare_text_content( $user->display_name ),
@@ -91,7 +93,7 @@ class EP_BP_API {
 			'post_parent'       => 0,
 			'post_type'         => 'member',
 			'post_mime_type'    => '',
-			'permalink'         => trailingslashit( get_site_url() ) . 'members/' . $user->user_login,
+			'permalink'         => $permalink,
 			'terms'             => [],
 			'post_meta'         => [],
 			'date_terms'        => [],
@@ -99,7 +101,7 @@ class EP_BP_API {
 			'comment_status'    => 0,
 			'ping_status'       => 0,
 			'menu_order'        => 0,
-			'guid'              => trailingslashit( get_site_url() ) . 'members/' . $user->user_login,
+			'guid'              => $permalink,
 		];
 
 		return $args;
@@ -219,7 +221,7 @@ class EP_BP_API {
 	 * @return string
 	 */
 	private function prepare_text_content( $content ) {
-		$content = strip_tags( $content );
+		//$content = strip_tags( $content ); // preserve links in results.
 		$content = preg_replace( '#[\n\r]+#s', ' ', $content );
 
 		return $content;
