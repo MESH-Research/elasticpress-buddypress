@@ -1,6 +1,7 @@
 Initial setup:
 
 Install & activate these plugins:
+
     elasticpress
     elasticpress-buddypress
     debug-bar-elasticpress ( if you use debug-bar - recommended )
