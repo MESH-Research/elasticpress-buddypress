@@ -14,28 +14,10 @@ class EP_BP_API {
 	public function prepare_group( $group ) {
 		$groupmeta = groups_get_groupmeta( $group->id );
 
-		$user = get_userdata( $group->creator_id );
-
-		if ( $user instanceof WP_User ) {
-			$user_data = [
-				'raw'          => $user->user_login,
-				'login'        => $user->user_login,
-				'display_name' => $user->display_name,
-				'id'           => $user->ID,
-			];
-		} else {
-			$user_data = [
-				'raw'          => '',
-				'login'        => '',
-				'display_name' => '',
-				'id'           => '',
-			];
-		}
-
 		$args = [
 			'post_id'           => $group->id,
 			'ID'                => $group->id,
-			'post_author'       => $user_data,
+			'post_author'       => $this->get_user_data( get_userdata( $group->creator_id ) ),
 			'post_date'         => $group->date_created,
 			'post_date_gmt'     => $group->date_created,
 			'post_title'        => $this->prepare_text_content( $group->name ),
@@ -70,17 +52,10 @@ class EP_BP_API {
 	 * @return bool|array
 	 */
 	public function prepare_member( $user ) {
-		$user_data = array(
-			'raw'          => $user->user_login,
-			'login'        => $user->user_login,
-			'display_name' => $user->display_name,
-			'id'           => $user->ID,
-		);
-
 		$args = [
 			'post_id'           => $user->ID,
 			'ID'                => $user->ID,
-			'post_author'       => $user_data,
+			'post_author'       => $this->get_user_data( $user ),
 			'post_date'         => $user->user_registered,
 			'post_date_gmt'     => $user->user_registered,
 			'post_title'        => $this->prepare_text_content( $user->display_name ),
@@ -105,6 +80,32 @@ class EP_BP_API {
 		];
 
 		return $args;
+	}
+
+	/**
+	 * Normalized author data for any object type.
+	 *
+	 * @param WP_User $user
+	 * @return array user data
+	 */
+	private function get_user_data( $user ) {
+		if ( $user instanceof WP_User ) {
+			$user_data = [
+				'raw'          => $user->user_login,
+				'login'        => $user->user_login,
+				'display_name' => $user->display_name,
+				'id'           => $user->ID,
+			];
+		} else {
+			$user_data = [
+				'raw'          => '',
+				'login'        => '',
+				'display_name' => '',
+				'id'           => '',
+			];
+		}
+
+		return $user_data;
 	}
 
 	/**
