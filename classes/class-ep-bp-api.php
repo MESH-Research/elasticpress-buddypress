@@ -4,6 +4,38 @@
  * Inspired by EP_API.
  */
 class EP_BP_API {
+
+	/**
+	 * Maximum number of members to include per elasticpress POST request when bulk syncing.
+	 */
+	const MAX_BULK_MEMBERS_PER_PAGE = 350;
+
+	/**
+	 * Maximum number of groups to include per elasticpress POST request when bulk syncing.
+	 */
+	const MAX_BULK_GROUPS_PER_PAGE = 350;
+
+	/**
+	 * Used in ElasticSearch URLs e.g.
+	 *                          v
+	 * GET /examplecom-1/post,member/_search...
+	 *                          ^
+	 */
+	const MEMBER_TYPE_NAME = 'member';
+
+	/**
+	 * Used in ElasticSearch URLs e.g.
+	 *                          v
+	 * GET /examplecom-1/post,group/_search...
+	 *                          ^
+	 */
+	const GROUP_TYPE_NAME = 'group';
+
+	/**
+	 * Type of object currently being processed, e.g. 'member' or 'group'
+	 */
+	private $type;
+
 	/**
 	 * Prepare a group for syncing
 	 * Must be inside the groups loop.
@@ -116,7 +148,7 @@ class EP_BP_API {
 	 * @param array $objects see prepare_member() and prepare_group() for expected array format
 	 * @return object decoded response
 	 */
-	private function send_request( $type, $objects ) {
+	private function send_request( $objects ) {
 		$flatten = [];
 
 		foreach ( $objects as $object ) {
@@ -124,7 +156,7 @@ class EP_BP_API {
 			$flatten[] = $object[1];
 		}
 
-		$path = trailingslashit( ep_get_index_name( bp_get_root_blog_id() ) ) . "$type/_bulk";
+		$path = trailingslashit( ep_get_index_name( bp_get_root_blog_id() ) ) . "{$this->type}/_bulk";
 
 		// make sure to add a new line at the end or the request will fail
 		$body = rtrim( implode( "\n", $flatten ) ) . "\n";
@@ -161,10 +193,12 @@ class EP_BP_API {
 	public function bulk_index_groups( $args = [] ) {
 		global $groups_template;
 
+		$this->type = self::GROUP_TYPE_NAME;
+
 		$groups = [];
 
 		$args = array_merge( [
-			'per_page' => 350,
+			'per_page' => self::MAX_BULK_GROUPS_PER_PAGE,
 			'page' => 1,
 		], $args );
 
@@ -178,7 +212,7 @@ class EP_BP_API {
 				$groups[ $groups_template->group->id ][] = addcslashes( wp_json_encode( $group_args ), "\n" );
 			}
 
-			$this->send_request( 'group', $groups );
+			$this->send_request( $groups );
 
 			$this->bulk_index_groups( [
 				'page' => $args['page'] + 1,
@@ -198,10 +232,12 @@ class EP_BP_API {
 	public function bulk_index_members( $args = [] ) {
 		global $members_template;
 
+		$this->type = self::MEMBER_TYPE_NAME;
+
 		$members = [];
 
 		$args = array_merge( [
-			'per_page' => 350,
+			'per_page' => self::MAX_BULK_MEMBERS_PER_PAGE,
 			'page' => 1,
 		], $args );
 
@@ -215,7 +251,7 @@ class EP_BP_API {
 				$members[ $members_template->member->id ][] = addcslashes( wp_json_encode( $member_args ), "\n" );
 			}
 
-			$this->send_request( 'member', $members );
+			$this->send_request( $members );
 
 			$this->bulk_index_members( [
 				'page' => $args['page'] + 1,
@@ -252,6 +288,7 @@ class EP_BP_API {
 
 		return $instance;
 	}
+
 }
 
 /**
