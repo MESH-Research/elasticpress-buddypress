@@ -6,6 +6,7 @@
 class EP_BP_API {
 	/**
 	 * Prepare a group for syncing
+	 * Must be inside the groups loop.
 	 *
 	 * @param int $group_id
 	 * @return bool|array
@@ -47,7 +48,7 @@ class EP_BP_API {
 			'post_parent'       => 0,
 			'post_type'         => 'group',
 			'post_mime_type'    => '',
-			'permalink'         => bp_get_group_permalink( $group ),
+			'permalink'         => bp_get_group_permalink(),
 			'terms'             => [],
 			'post_meta'         => [],
 			'date_terms'        => [],
@@ -55,7 +56,7 @@ class EP_BP_API {
 			'comment_status'    => 0,
 			'ping_status'       => 0,
 			'menu_order'        => 0,
-			'guid'              => bp_get_group_permalink( $group ),
+			'guid'              => bp_get_group_permalink(),
 		];
 
 		return $args;
@@ -63,6 +64,7 @@ class EP_BP_API {
 
 	/**
 	 * Prepare a member for syncing
+	 * Must be inside the members loop.
 	 *
 	 * @param int $group_id
 	 * @return bool|array
@@ -75,8 +77,6 @@ class EP_BP_API {
 			'id'           => $user->ID,
 		);
 
-		$permalink = trailingslashit( get_site_url() ) . 'members/' . $user->user_login;
-
 		$args = [
 			'post_id'           => $user->ID,
 			'ID'                => $user->ID,
@@ -84,7 +84,7 @@ class EP_BP_API {
 			'post_date'         => $user->user_registered,
 			'post_date_gmt'     => $user->user_registered,
 			'post_title'        => $this->prepare_text_content( $user->display_name ),
-			'post_excerpt'      => $this->prepare_text_content( make_clickable( $permalink ) ),
+			'post_excerpt'      => $this->prepare_text_content( make_clickable( bp_get_member_permalink() ) ),
 			'post_content'      => null,
 			'post_status'       => 'publish',
 			'post_name'         => $this->prepare_text_content( $user->display_name ),
@@ -93,7 +93,7 @@ class EP_BP_API {
 			'post_parent'       => 0,
 			'post_type'         => 'member',
 			'post_mime_type'    => '',
-			'permalink'         => $permalink,
+			'permalink'         => bp_get_member_permalink(),
 			'terms'             => [],
 			'post_meta'         => [],
 			'date_terms'        => [],
@@ -101,7 +101,7 @@ class EP_BP_API {
 			'comment_status'    => 0,
 			'ping_status'       => 0,
 			'menu_order'        => 0,
-			'guid'              => $permalink,
+			'guid'              => bp_get_member_permalink(),
 		];
 
 		return $args;
