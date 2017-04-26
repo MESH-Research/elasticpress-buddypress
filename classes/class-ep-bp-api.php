@@ -110,6 +110,10 @@ class EP_BP_API {
 	/**
 	 * Send a request to EP_API.
 	 * Allows bulk_index_* functions to loop through objects and fire off successive requests of a reasonable size.
+	 *
+	 * @param string $type type of object e.g. 'member' or 'group'
+	 * @param array $objects see prepare_member() and prepare_group() for expected array format
+	 * @return object decoded response
 	 */
 	private function send_request( $type, $objects ) {
 		$flatten = [];
@@ -149,6 +153,9 @@ class EP_BP_API {
 	 * Bulk index all groups.
 	 * The equivalent functionality for posts in EP_API is spread out over several functions.
 	 * This is a "condensed" adapted version that handles all required preparation as well as indexing.
+	 *
+	 * @param array $args passed to bp_has_groups()
+	 * @return bool success
 	 */
 	public function bulk_index_groups( $args = [] ) {
 		global $groups_template;
@@ -183,6 +190,9 @@ class EP_BP_API {
 	/**
 	 * Bulk index all members.
 	 * See also bulk_index_groups()
+	 *
+	 * @param array $args passed to bp_has_members()
+	 * @return bool success
 	 */
 	public function bulk_index_members( $args = [] ) {
 		global $members_template;
