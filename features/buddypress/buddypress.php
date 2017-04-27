@@ -176,7 +176,8 @@ function ep_bp_post_types( $post_types = [] ) {
  */
 function ep_bp_whitelist_taxonomies( $taxonomies ) {
 	return array_merge( $taxonomies, [
-		get_taxonomy( bp_get_member_type_tax_name() )
+		get_taxonomy( bp_get_member_type_tax_name() ),
+		get_taxonomy( 'bp_group_type' ),
 	] );
 }
 

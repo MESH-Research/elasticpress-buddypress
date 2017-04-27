@@ -16,20 +16,14 @@ class EP_BP_API {
 	const MAX_BULK_GROUPS_PER_PAGE = 350;
 
 	/**
-	 * Used in ElasticSearch URLs e.g.
-	 *                          v
-	 * GET /examplecom-1/post,member/_search...
-	 *                          ^
+	 * Object type name used to fetch taxonomies and index/query elasticsearch
 	 */
-	const MEMBER_TYPE_NAME = 'member';
+	const MEMBER_TYPE_NAME = 'user';
 
 	/**
-	 * Used in ElasticSearch URLs e.g.
-	 *                          v
-	 * GET /examplecom-1/post,group/_search...
-	 *                          ^
+	 * Object type name used to fetch taxonomies and index/query elasticsearch
 	 */
-	const GROUP_TYPE_NAME = 'group';
+	const GROUP_TYPE_NAME = 'bp_group';
 
 	/**
 	 * Type of object currently being processed, e.g. 'member' or 'group'
@@ -63,7 +57,7 @@ class EP_BP_API {
 			'post_type'         => 'group',
 			'post_mime_type'    => '',
 			'permalink'         => bp_get_group_permalink(),
-			'terms'             => [],
+			'terms'             => $this->prepare_terms( $group ),
 			'post_meta'         => [],
 			'date_terms'        => [],
 			'comment_count'     => 0,
@@ -101,7 +95,7 @@ class EP_BP_API {
 			'post_type'         => 'member',
 			'post_mime_type'    => '',
 			'permalink'         => bp_get_member_permalink(),
-			'terms'             => [],
+			'terms'             => $this->prepare_terms( $user ),
 			'post_meta'         => [],
 			'date_terms'        => [],
 			'comment_count'     => 0,
@@ -272,6 +266,69 @@ class EP_BP_API {
 		$content = preg_replace( '#[\n\r]+#s', ' ', $content );
 
 		return $content;
+	}
+
+	/**
+	 * Prepare terms to send to ES.
+	 * Modified from EP_API.
+	 *
+	 * @param WP_User|BP_Groups_Group $object user or group
+	 *
+	 * @since 0.1.0
+	 * @return array
+	 */
+	private function prepare_terms( $object ) {
+		$taxonomy_names = get_object_taxonomies( $this->type );
+
+		$selected_taxonomies = array();
+
+		foreach ( $taxonomy_names as $taxonomy_name ) {
+			$taxonomy = get_taxonomy( $taxonomy_name );
+			if ( $taxonomy->public ) {
+				$selected_taxonomies[] = $taxonomy;
+			}
+		}
+
+		$selected_taxonomies = apply_filters( 'ep_sync_taxonomies', $selected_taxonomies, $object );
+
+		if ( empty( $selected_taxonomies ) ) {
+			return array();
+		}
+
+		$terms = array();
+
+		$allow_hierarchy = apply_filters( 'ep_sync_terms_allow_hierarchy', false );
+
+		foreach ( $selected_taxonomies as $taxonomy ) {
+
+			$object_terms = wpmn_get_object_terms(
+				( isset( $object->ID ) ) ? $object->ID : $object->id, // groups have lowercase id property, members upper
+				$taxonomy->name
+			);
+
+			if ( ! $object_terms || is_wp_error( $object_terms ) ) {
+				continue;
+			}
+
+			$terms_dic = array();
+
+			foreach ( $object_terms as $term ) {
+				if( ! isset( $terms_dic[ $term->term_id ] ) ) {
+					$terms_dic[ $term->term_id ] = array(
+						'term_id'  => $term->term_id,
+						'slug'     => $term->slug,
+						'name'     => $term->name,
+						'parent'   => $term->parent
+					);
+					if( $allow_hierarchy ){
+						$terms_dic = $this->get_parent_terms( $terms_dic, $term, $taxonomy->name );
+					}
+				}
+			}
+			$terms[ $taxonomy->name ] = array_values( $terms_dic );
+		}
+
+		return $terms;
 	}
 
 	/**
