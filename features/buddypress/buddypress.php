@@ -144,10 +144,19 @@ function ep_bp_translate_args( $query ) {
 		! ( defined( 'WP_CLI' ) && WP_CLI ) &&
 		! apply_filters( 'ep_skip_query_integration', false, $query )
 	) {
+
+		// add bp "post" types
 		$query->set( 'post_type', array_unique( array_merge(
 			(array) $query->get( 'post_type' ),
 			ep_bp_post_types()
 		) ) );
+
+		// search xprofile field values
+		$query->set( 'search_fields', array_unique( array_merge_recursive(
+			(array) $query->get( 'search_fields' ),
+			[ 'taxonomies' => [ 'xprofile' ] ]
+		) ) );
+
 	}
 }
 
@@ -186,7 +195,7 @@ function ep_bp_whitelist_taxonomies( $taxonomies ) {
  */
 function ep_bp_setup() {
 	//add_action( 'ep_cli_post_bulk_index', 'ep_bp_bulk_index' );
-	add_action( 'pre_get_posts', 'ep_bp_translate_args' );
+	add_action( 'pre_get_posts', 'ep_bp_translate_args', 20 ); // after elasticpress ep_improve_default_search()
 	add_action( 'wp_enqueue_scripts', 'ep_bp_enqueue_style' );
 
 	//add_filter( 'ep_searchable_post_types', 'ep_bp_filter_ep_searchable_post_types' );

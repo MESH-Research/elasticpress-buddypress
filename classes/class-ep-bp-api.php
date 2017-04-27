@@ -78,6 +78,36 @@ class EP_BP_API {
 	 * @return bool|array
 	 */
 	public function prepare_member( $user ) {
+		$xprofile_terms = ( function() use ( $user ) {
+			$fields = [];
+
+			if ( bp_has_profile( [ 'user_id' => $user->ID ] ) ) {
+				while ( bp_profile_groups() ) {
+					bp_the_profile_group();
+
+					if (
+						bp_profile_group_has_fields() &&
+						apply_filters( 'ep_bp_index_xprofile_group_' . bp_get_the_profile_group_slug(), true )
+					) {
+						while ( bp_profile_fields() ) {
+							bp_the_profile_field();
+
+							if ( apply_filters( 'ep_bp_index_xprofile_field_' . bp_get_the_profile_field_id(), true ) ) {
+								$fields[] = [
+									'term_id' => bp_get_the_profile_field_id(),
+									'slug' => bp_get_the_profile_field_name(),
+									'name' => bp_get_the_profile_field_value(),
+									'parent' => bp_get_the_profile_group_name(),
+								];
+							}
+						}
+					}
+				}
+			}
+
+			return [ 'xprofile' => $fields ];
+		} )();
+
 		$args = [
 			'post_id'           => $user->ID,
 			'ID'                => $user->ID,
@@ -95,7 +125,7 @@ class EP_BP_API {
 			'post_type'         => 'member',
 			'post_mime_type'    => '',
 			'permalink'         => bp_get_member_permalink(),
-			'terms'             => $this->prepare_terms( $user ),
+			'terms'             => array_merge( $this->prepare_terms( $user ), $xprofile_terms ),
 			'post_meta'         => [],
 			'date_terms'        => [],
 			'comment_count'     => 0,
