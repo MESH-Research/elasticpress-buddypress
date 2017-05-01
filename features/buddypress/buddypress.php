@@ -15,7 +15,19 @@ function ep_bp_enqueue_style() {
  * Filter search request path to search groups & members as well as posts.
  */
 function ep_bp_filter_ep_search_request_path( $path ) {
-	return str_replace( '/post/', '/post,' . EP_BP_API::GROUP_TYPE_NAME . ',' . EP_BP_API::MEMBER_TYPE_NAME . '/', $path );
+	if ( isset( $_REQUEST['post_type'] ) ) {
+		if ( in_array( EP_BP_API::GROUP_TYPE_NAME, $_REQUEST['post_type'] ) ) {
+			$replace .= ',' . EP_BP_API::GROUP_TYPE_NAME;
+		}
+
+		if ( in_array( EP_BP_API::MEMBER_TYPE_NAME, $_REQUEST['post_type'] ) ) {
+			$replace .= ',' . EP_BP_API::MEMBER_TYPE_NAME;
+		}
+	} else {
+		$replace .= 'post,' . EP_BP_API::GROUP_TYPE_NAME . ',' . EP_BP_API::MEMBER_TYPE_NAME;
+	}
+
+	return str_replace( '/post/', "/$replace/", $path );
 }
 
 /**
