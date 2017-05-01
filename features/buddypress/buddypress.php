@@ -4,17 +4,6 @@
  */
 
 /**
- * Sync BP content after EP has synced posts
- * TODO dashboard and other sync contexts besides cli?
- */
-function ep_bp_bulk_index() {
-	WP_CLI::line( 'Indexing groups...' );
-	ep_bp_bulk_index_groups();
-	WP_CLI::line( 'Indexing members...' );
-	ep_bp_bulk_index_members();
-}
-
-/**
  * styles to clean up search results
  */
 function ep_bp_enqueue_style() {
@@ -194,7 +183,6 @@ function ep_bp_whitelist_taxonomies( $taxonomies ) {
  * Setup all feature filters
  */
 function ep_bp_setup() {
-	//add_action( 'ep_cli_post_bulk_index', 'ep_bp_bulk_index' );
 	add_action( 'pre_get_posts', 'ep_bp_translate_args', 20 ); // after elasticpress ep_improve_default_search()
 	add_action( 'wp_enqueue_scripts', 'ep_bp_enqueue_style' );
 
