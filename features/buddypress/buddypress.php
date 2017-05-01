@@ -102,7 +102,7 @@ function ep_bp_filter_ep_default_index_number_of_shards( $number_of_shards ) {
  * disable post_type filter instead for now.
  */
 function ep_bp_filter_ep_searchable_post_types( $post_types ) {
-	return array_unique( array_merge( $post_types, [ 'group', 'member' ] ) );
+	return array_unique( array_merge( $post_types, [ EP_BP_API::GROUP_TYPE_NAME, EP_BP_API::MEMBER_TYPE_NAME ] ) );
 }
 
 /**
@@ -126,7 +126,7 @@ function ep_bp_filter_ep_formatted_args( $formatted_args ) {
 function ep_bp_filter_the_permalink( $permalink ) {
 	global $wp_query, $post;
 
-	if ( $wp_query->is_search && in_array( $post->post_type,  [ 'group', 'member' ] ) ) {
+	if ( $wp_query->is_search && in_array( $post->post_type,  [ EP_BP_API::GROUP_TYPE_NAME, EP_BP_API::MEMBER_TYPE_NAME ] ) ) {
 		$permalink = $post->permalink;
 	}
 

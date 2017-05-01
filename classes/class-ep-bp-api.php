@@ -26,7 +26,7 @@ class EP_BP_API {
 	const GROUP_TYPE_NAME = 'bp_group';
 
 	/**
-	 * Type of object currently being processed, e.g. 'member' or 'group'
+	 * Type of object currently being processed
 	 */
 	private $type;
 
