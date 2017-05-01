@@ -66,6 +66,11 @@ function ep_bp_filter_ep_index_name( $index_name, $blog_id ) {
 		//		}
 		//	}
 		//}
+
+		// handle facets
+		if ( isset( $_REQUEST['index'] ) ) {
+			$index_names = $_REQUEST['index'];
+		}
 	}
 
 	// restore filter now that we're done abusing ep_get_index_name()
@@ -123,6 +128,61 @@ function ep_bp_filter_the_permalink( $permalink ) {
 }
 
 /**
+ * Add search facets to sidebar.
+ * TODO widgetize?
+ * TODO belongs in bp-custom?
+ */
+function ep_bp_get_sidebar() {
+	// short-circuit our own index name filter to build the list
+	remove_filter( 'ep_index_name', 'ep_bp_filter_ep_index_name', 10, 2 );
+
+	?>
+		<aside id="ep-bp-facets" role="complementary">
+			<h3>Search Facets</h3>
+			<form class="ep-bp-search-facets">
+				<h5>Query</h5>
+				<input type="text" name="s" value="<?php echo get_search_query(); ?>">
+				<h5>Filter by type</h5>
+				<?php /* TODO dynamic and filterable */ ?>
+				<select multiple name="post_types[]">
+					<option value="<?php echo EP_BP_API::GROUP_TYPE_NAME; ?>">Group</option>
+					<option value="<?php echo EP_BP_API::MEMBER_TYPE_NAME; ?>">Member</option>
+					<option value="bp_doc">Document</option>
+					<option value="bp_docs_folder">Document Folder</option>
+					<option value="forum">Forum</option>
+					<option value="reply">Reply</option>
+					<option value="topic">Topic</option>
+				</select>
+				<h5>Filter by network</h5>
+				<select multiple name="index[]">
+					<?php foreach ( get_networks() as $network ) {
+						switch_to_blog( get_main_site_for_network( $network ) );
+						echo '<option value="' . ep_get_index_name() . '">' . get_bloginfo() . '</option>';
+						restore_current_blog();
+					} ?>
+				</select>
+				<!--
+				<h5>Sort by</h5>
+				<select>
+					<option name="relevance">Relevance</option>
+					<option name="date">Date</option>
+				</select>
+				-->
+				<br><br>
+				<input type="submit">
+			</form>
+		</aside>
+	<?php
+
+	// only once. TODO
+	remove_action( 'is_active_sidebar', '__return_true' );
+	remove_action( 'dynamic_sidebar_before', 'ep_bp_get_sidebar' );
+
+	// restore index name filter
+	add_filter( 'ep_index_name', 'ep_bp_filter_ep_index_name', 10, 2 );
+}
+
+/**
  * Translate args to ElasticPress compat format.
  *
  * @param WP_Query $query
@@ -134,11 +194,17 @@ function ep_bp_translate_args( $query ) {
 		! apply_filters( 'ep_skip_query_integration', false, $query )
 	) {
 
-		// add bp "post" types
-		$query->set( 'post_type', array_unique( array_merge(
-			(array) $query->get( 'post_type' ),
-			ep_bp_post_types()
-		) ) );
+		if ( isset( $_REQUEST['post_type'] ) ) {
+			$post_type = $_REQUEST['post_type'];
+		} else {
+			// add bp "post" types
+			$post_type = array_unique( array_merge(
+				(array) $query->get( 'post_type' ),
+				ep_bp_post_types()
+			) );
+		}
+
+		$query->set( 'post_type', $post_type );
 
 		// search xprofile field values
 		$query->set( 'search_fields', array_unique( array_merge_recursive(
@@ -185,6 +251,13 @@ function ep_bp_whitelist_taxonomies( $taxonomies ) {
 function ep_bp_setup() {
 	add_action( 'pre_get_posts', 'ep_bp_translate_args', 20 ); // after elasticpress ep_improve_default_search()
 	add_action( 'wp_enqueue_scripts', 'ep_bp_enqueue_style' );
+
+	add_action( 'pre_get_posts', function() {
+		if ( is_search() ) {
+			add_action( 'is_active_sidebar', '__return_true' );
+			add_action( 'dynamic_sidebar_before', 'ep_bp_get_sidebar' );
+		}
+	} );
 
 	//add_filter( 'ep_searchable_post_types', 'ep_bp_filter_ep_searchable_post_types' );
 	add_filter( 'ep_indexable_post_types', 'ep_bp_post_types' );
