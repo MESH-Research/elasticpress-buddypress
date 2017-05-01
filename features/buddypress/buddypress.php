@@ -144,14 +144,13 @@ function ep_bp_get_sidebar() {
 				<input type="text" name="s" value="<?php echo get_search_query(); ?>">
 				<h5>Filter by type</h5>
 				<?php /* TODO dynamic and filterable */ ?>
-				<select multiple name="post_types[]">
-					<option value="<?php echo EP_BP_API::GROUP_TYPE_NAME; ?>">Group</option>
-					<option value="<?php echo EP_BP_API::MEMBER_TYPE_NAME; ?>">Member</option>
-					<option value="bp_doc">Document</option>
-					<option value="bp_docs_folder">Document Folder</option>
-					<option value="forum">Forum</option>
-					<option value="reply">Reply</option>
-					<option value="topic">Topic</option>
+				<select multiple name="post_type[]">
+					<option value="<?php echo EP_BP_API::GROUP_TYPE_NAME; ?>">Groups</option>
+					<option value="<?php echo EP_BP_API::MEMBER_TYPE_NAME; ?>">Members</option>
+					<?php foreach ( ep_get_indexable_post_types() as $post_type ) {
+						$post_type_object = get_post_type_object( $post_type );
+						echo "<option value=\"{$post_type_object->name}\">{$post_type_object->label}</option>";
+					} ?>
 				</select>
 				<h5>Filter by network</h5>
 				<select multiple name="index[]">
