@@ -140,8 +140,7 @@ function ep_bp_get_sidebar() {
 		<aside id="ep-bp-facets" role="complementary">
 			<h3>Search Facets</h3>
 			<form class="ep-bp-search-facets">
-				<h5>Query</h5>
-				<input type="text" name="s" value="<?php echo get_search_query(); ?>">
+				<input type="hidden" name="s" value="<?php echo get_search_query(); ?>">
 				<h5>Filter by type</h5>
 				<?php /* TODO dynamic and filterable */ ?>
 				<select multiple name="post_type[]">
