@@ -1,6 +1,6 @@
 /* hide meta for non-post types as it's often wrong */
-.search .type-group footer,
-.search .type-member footer {
+.search .type-bp_group footer,
+.search .type-user footer {
   display: none;
 }
 
