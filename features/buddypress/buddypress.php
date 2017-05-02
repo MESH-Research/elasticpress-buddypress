@@ -140,56 +140,91 @@ function ep_bp_filter_the_permalink( $permalink ) {
 }
 
 /**
- * Add search facets to sidebar.
- * TODO widgetize?
- * TODO belongs in bp-custom?
+ * output HTML for post type facet <select>
+ * TODO filterable
  */
-function ep_bp_get_sidebar() {
-	// short-circuit our own index name filter to build the list
-	remove_filter( 'ep_index_name', 'ep_bp_filter_ep_index_name', 10, 2 );
+function ep_bp_post_type_select() {
+	// buddypress fake "post" types
+	$post_types = [
+		EP_BP_API::GROUP_TYPE_NAME => 'Groups',
+		EP_BP_API::MEMBER_TYPE_NAME => 'Members',
+	];
+
+	// actual post types
+	foreach ( ep_get_indexable_post_types() as $post_type ) {
+		$post_type_object = get_post_type_object( $post_type );
+		$post_types[ $post_type_object->name ] = $post_type_object->label;
+	}
 
 	?>
-		<aside id="ep-bp-facets" class="widget" role="complementary">
-			<h3 class="widgettitle">Search Facets</h3>
-			<form class="ep-bp-search-facets">
-				<input type="hidden" name="s" value="<?php echo get_search_query(); ?>">
-				<h5>Filter by type</h5>
-				<?php /* TODO dynamic and filterable */ ?>
-				<select multiple name="post_type[]">
-					<option value="<?php echo EP_BP_API::GROUP_TYPE_NAME; ?>">Groups</option>
-					<option value="<?php echo EP_BP_API::MEMBER_TYPE_NAME; ?>">Members</option>
-					<?php foreach ( ep_get_indexable_post_types() as $post_type ) {
-						$post_type_object = get_post_type_object( $post_type );
-						echo "<option value=\"{$post_type_object->name}\">{$post_type_object->label}</option>";
-					} ?>
-				</select>
-				<h5>Filter by network</h5>
-				<select multiple name="index[]">
-					<?php foreach ( get_networks() as $network ) {
-						switch_to_blog( get_main_site_for_network( $network ) );
-						echo '<option value="' . ep_get_index_name() . '">' . get_bloginfo() . '</option>';
-						restore_current_blog();
-					} ?>
-				</select>
-				<!--
-				<h5>Sort by</h5>
-				<select>
-					<option name="relevance">Relevance</option>
-					<option name="date">Date</option>
-				</select>
-				-->
-				<br><br>
-				<input type="submit">
-			</form>
-		</aside>
+	<select multiple name="post_type[]" size="<?php echo count( $post_types ); ?>">
+		<?php foreach ( $post_types as $name => $label ) {
+		$selected = ( ! isset( $_REQUEST['post_type'] ) || in_array( $name, $_REQUEST['post_type'] ) );
+			printf( '<option value="%1$s"%3$s>%2$s</option>',
+				$name,
+				$label,
+				( $selected ) ? ' selected' : ''
+			);
+		} ?>
+	</select>
+	<?php
+}
+
+/**
+ * output HTML for network facet
+ * TODO filterable
+ * TODO find a way to avoid removing/adding index name filter
+ */
+function ep_bp_network_select() {
+	// short-circuit our own index name filter to build the list
+	remove_filter( 'ep_index_name', 'ep_bp_filter_ep_index_name', 10, 2 );
+	?>
+		<select multiple name="index[]" size="<?php echo count( get_networks() ); ?>">
+		<?php foreach ( get_networks() as $network ) {
+			switch_to_blog( get_main_site_for_network( $network ) );
+			$selected = ( ! isset( $_REQUEST['index'] ) || in_array( ep_get_index_name(), $_REQUEST['index'] ) );
+			printf( '<option value="%1$s"%3$s>%2$s</option>',
+				ep_get_index_name(),
+				get_bloginfo(),
+				( $selected ) ? ' selected' : ''
+			);
+			restore_current_blog();
+		} ?>
+	</select>
+	<?php
+	// restore index name filter
+	add_filter( 'ep_index_name', 'ep_bp_filter_ep_index_name', 10, 2 );
+}
+
+/**
+ * Add search facets to sidebar.
+ * TODO widgetize?
+ */
+function ep_bp_get_sidebar() {
+	?>
+	<aside id="ep-bp-facets" class="widget" role="complementary">
+		<form class="ep-bp-search-facets">
+			<input type="hidden" name="s" value="<?php echo get_search_query(); ?>">
+			<h5>Filter by type</h5>
+			<?php ep_bp_post_type_select(); ?>
+			<h5>Filter by network</h5>
+			<?php ep_bp_network_select(); ?>
+			<!--
+			<h5>Sort by</h5>
+			<select>
+				<option name="relevance">Relevance</option>
+				<option name="date">Date</option>
+			</select>
+			-->
+			<br><br>
+			<input type="submit">
+		</form>
+	</aside>
 	<?php
 
 	// only once. TODO
 	remove_action( 'is_active_sidebar', '__return_true' );
 	remove_action( 'dynamic_sidebar_before', 'ep_bp_get_sidebar' );
-
-	// restore index name filter
-	add_filter( 'ep_index_name', 'ep_bp_filter_ep_index_name', 10, 2 );
 }
 
 /**
