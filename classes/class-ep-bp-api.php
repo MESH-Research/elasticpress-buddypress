@@ -58,6 +58,7 @@ class EP_BP_API {
 			'post_mime_type'    => '',
 			'permalink'         => bp_get_group_permalink(),
 			'terms'             => $this->prepare_terms( $group ),
+			//'post_meta'         => $this->prepare_meta( $group ),
 			'post_meta'         => [],
 			'date_terms'        => [],
 			'comment_count'     => 0,
@@ -66,6 +67,8 @@ class EP_BP_API {
 			'menu_order'        => 0,
 			'guid'              => bp_get_group_permalink(),
 		];
+
+		//$args['meta'] = EP_API::factory()->prepare_meta_types( $args['post_meta'] );
 
 		return $args;
 	}
@@ -126,6 +129,7 @@ class EP_BP_API {
 			'post_mime_type'    => '',
 			'permalink'         => bp_get_member_permalink(),
 			'terms'             => array_merge( $this->prepare_terms( $user ), $xprofile_terms ),
+			//'post_meta'         => $this->prepare_meta( $user ),
 			'post_meta'         => [],
 			'date_terms'        => [],
 			'comment_count'     => 0,
@@ -134,6 +138,8 @@ class EP_BP_API {
 			'menu_order'        => 0,
 			'guid'              => bp_get_member_permalink(),
 		];
+
+		//$args['meta'] = EP_API::factory()->prepare_meta_types( $args['post_meta'] );
 
 		return $args;
 	}
@@ -283,6 +289,78 @@ class EP_BP_API {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Ripped straight from EP_API.
+	 *
+	 * @param object $object group or member. must match $this->type
+	 * @return array
+	 */
+	public function prepare_meta( $object ) {
+		switch ( $this->type ) {
+			case self::MEMBER_TYPE_NAME:
+				$meta = get_user_meta( $object->ID );
+				break;
+			case self::GROUP_TYPE_NAME:
+				$meta = groups_get_groupmeta( $object->id );
+				break;
+		}
+
+		if ( empty( $meta ) ) {
+			return array();
+		}
+
+		$prepared_meta = array();
+
+		/**
+		 * Filter index-able private meta
+		 *
+		 * Allows for specifying private meta keys that may be indexed in the same manor as public meta keys.
+		 *
+		 * @since 1.7
+		 *
+		 * @param         array Array of index-able private meta keys.
+		 * @param WP_Post $post The current post to be indexed.
+		 */
+		$allowed_protected_keys = apply_filters( 'ep_prepare_meta_allowed_protected_keys', array(), $post );
+
+		/**
+		 * Filter non-indexed public meta
+		 *
+		 * Allows for specifying public meta keys that should be excluded from the ElasticPress index.
+		 *
+		 * @since 1.7
+		 *
+		 * @param         array Array of public meta keys to exclude from index.
+		 * @param WP_Post $post The current post to be indexed.
+		 */
+		$excluded_public_keys = apply_filters( 'ep_prepare_meta_excluded_public_keys', array(), $post );
+
+		foreach ( $meta as $key => $value ) {
+
+			$allow_index = false;
+
+			if ( is_protected_meta( $key ) ) {
+
+				if ( true === $allowed_protected_keys || in_array( $key, $allowed_protected_keys ) ) {
+					$allow_index = true;
+				}
+			} else {
+
+				if ( true !== $excluded_public_keys && ! in_array( $key, $excluded_public_keys )  ) {
+					$allow_index = true;
+				}
+			}
+
+			if ( true === $allow_index || apply_filters( 'ep_prepare_meta_whitelist_key', false, $key, $post ) ) {
+				$prepared_meta[ $key ] = maybe_unserialize( $value );
+			}
+		}
+
+		var_dump( $prepared_meta );die;
+		return $prepared_meta;
+
 	}
 
 	/**

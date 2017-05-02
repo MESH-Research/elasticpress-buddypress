@@ -191,6 +191,29 @@ function ep_bp_get_sidebar() {
 }
 
 /**
+ * Remove post_type filter for search queries.
+ * Doing this the EP_API way using "post_type.raw" requires changing mapping for users/groups, this is a workaround.
+ * TODO find a better way using mapping
+ */
+function ep_bp_filter_ep_formatted_args( $formatted_args ) {
+	foreach ( $formatted_args['post_filter']['bool']['must'] as &$must ) {
+		// maybe term, maybe terms - depends on whether or not the value of "post_type.raw" is an array. need to handle both.
+		foreach ( [ 'term', 'terms' ] as $key ) {
+			var_dump( $key );
+			if ( isset( $must[ $key ]['post_type.raw'] ) ) {
+				var_dump( 'yes' );
+				$must[ $key ]['post_type'] = $must[ $key ]['post_type.raw'];
+				unset( $must[ $key ]['post_type.raw'] );
+				// re-index 'must' array keys using array_values (non-sequential keys pose problems for elasticpress)
+				$must = array_values( $must );
+			}
+		}
+		var_dump( $formatted_args );die;
+	}
+	return $formatted_args;
+}
+
+/**
  * Translate args to ElasticPress compat format.
  *
  * @param WP_Query $query
@@ -202,17 +225,19 @@ function ep_bp_translate_args( $query ) {
 		! apply_filters( 'ep_skip_query_integration', false, $query )
 	) {
 
-		if ( isset( $_REQUEST['post_type'] ) ) {
+		if ( isset( $_REQUEST['post_type'] ) && ! empty( $_REQUEST['post_type'] ) ) {
 			$post_type = $_REQUEST['post_type'];
-		} else {
-			// add bp "post" types
-			$post_type = array_unique( array_merge(
-				(array) $query->get( 'post_type' ),
-				ep_bp_post_types()
-			) );
+			$query->set( 'post_type', $post_type );
+	//	} else if ( $query->get( 'post_type' ) ) {
+	//		$post_type = $query->get( 'post_type' );
 		}
 
-		$query->set( 'post_type', $post_type );
+		// add bp "post" types
+		//$post_type = array_unique( array_merge(
+		//	( is_array( $post_type ) ) ? $post_type : [],
+		//	ep_bp_post_types()
+		//) );
+
 
 		// search xprofile field values
 		$query->set( 'search_fields', array_unique( array_merge_recursive(
@@ -267,6 +292,7 @@ function ep_bp_setup() {
 		}
 	} );
 
+	add_filter( 'ep_formatted_args', 'ep_bp_filter_ep_formatted_args' );
 	add_filter( 'ep_indexable_post_types', 'ep_bp_post_types' );
 	add_filter( 'ep_index_name', 'ep_bp_filter_ep_index_name', 10, 2 );
 	add_filter( 'ep_default_index_number_of_shards', 'ep_bp_filter_ep_default_index_number_of_shards' );
