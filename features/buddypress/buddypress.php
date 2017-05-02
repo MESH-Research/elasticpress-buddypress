@@ -149,8 +149,8 @@ function ep_bp_get_sidebar() {
 	remove_filter( 'ep_index_name', 'ep_bp_filter_ep_index_name', 10, 2 );
 
 	?>
-		<aside id="ep-bp-facets" role="complementary">
-			<h3>Search Facets</h3>
+		<aside id="ep-bp-facets" class="widget" role="complementary">
+			<h3 class="widgettitle">Search Facets</h3>
 			<form class="ep-bp-search-facets">
 				<input type="hidden" name="s" value="<?php echo get_search_query(); ?>">
 				<h5>Filter by type</h5>
