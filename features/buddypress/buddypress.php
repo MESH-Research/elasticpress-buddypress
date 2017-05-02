@@ -15,19 +15,7 @@ function ep_bp_enqueue_style() {
  * Filter search request path to search groups & members as well as posts.
  */
 function ep_bp_filter_ep_search_request_path( $path ) {
-	if ( isset( $_REQUEST['post_type'] ) ) {
-		if ( in_array( EP_BP_API::GROUP_TYPE_NAME, $_REQUEST['post_type'] ) ) {
-			$replace .= ',' . EP_BP_API::GROUP_TYPE_NAME;
-		}
-
-		if ( in_array( EP_BP_API::MEMBER_TYPE_NAME, $_REQUEST['post_type'] ) ) {
-			$replace .= ',' . EP_BP_API::MEMBER_TYPE_NAME;
-		}
-	} else {
-		$replace .= 'post,' . EP_BP_API::GROUP_TYPE_NAME . ',' . EP_BP_API::MEMBER_TYPE_NAME;
-	}
-
-	return str_replace( '/post/', "/$replace/", $path );
+	return str_replace( '/post/', '/post,' . EP_BP_API::GROUP_TYPE_NAME . ',' . EP_BP_API::MEMBER_TYPE_NAME . '/', $path );
 }
 
 /**
@@ -99,31 +87,6 @@ function ep_bp_filter_ep_index_name( $index_name, $blog_id ) {
 function ep_bp_filter_ep_default_index_number_of_shards( $number_of_shards ) {
 	$number_of_shards = 1;
 	return $number_of_shards;
-}
-
-/**
- * Filter search request post_filter post_type to search groups & members as well as posts.
- * These aren't real post types in WP, but they are in EP because of the way EP_BP_API indexes.
- * TODO doesn't work. when post_type is in the filter, no results are returned regardless of what types we pass.
- * disable post_type filter instead for now.
- */
-function ep_bp_filter_ep_searchable_post_types( $post_types ) {
-	return array_unique( array_merge( $post_types, [ EP_BP_API::GROUP_TYPE_NAME, EP_BP_API::MEMBER_TYPE_NAME ] ) );
-}
-
-/**
- * Remove post_type filter for search queries.
- * This is a workaround until ep_bp_filter_ep_searchable_post_types() is fixed.
- */
-function ep_bp_filter_ep_formatted_args( $formatted_args ) {
-	foreach ( $formatted_args['post_filter']['bool']['must'] as $i => $must ) {
-		if ( isset( $must['terms']['post_type.raw'] ) ) {
-			unset( $formatted_args['post_filter']['bool']['must'][ $i ] );
-			// re-index 'must' array keys using array_values (non-sequential keys pose problems for elasticpress)
-			$formatted_args['post_filter']['bool']['must'] = array_values( $formatted_args['post_filter']['bool']['must'] );
-		}
-	}
-	return $formatted_args;
 }
 
 /**
@@ -304,13 +267,11 @@ function ep_bp_setup() {
 		}
 	} );
 
-	//add_filter( 'ep_searchable_post_types', 'ep_bp_filter_ep_searchable_post_types' );
 	add_filter( 'ep_indexable_post_types', 'ep_bp_post_types' );
 	add_filter( 'ep_index_name', 'ep_bp_filter_ep_index_name', 10, 2 );
 	add_filter( 'ep_default_index_number_of_shards', 'ep_bp_filter_ep_default_index_number_of_shards' );
 	add_filter( 'ep_sync_taxonomies', 'ep_bp_whitelist_taxonomies' );
 	add_filter( 'ep_search_request_path', 'ep_bp_filter_ep_search_request_path' );
-	add_filter( 'ep_formatted_args', 'ep_bp_filter_ep_formatted_args' );
 	add_filter( 'the_permalink', 'ep_bp_filter_the_permalink' );
 }
 
