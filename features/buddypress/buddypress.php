@@ -160,21 +160,35 @@ function ep_bp_network_select() {
 }
 
 function ep_bp_orderby_select() {
-	?>
-	<select name="orderby">
-		<option value="_score">Relevance</option>
-		<option value="date">Date</option>
-	</select>
-	<?php
+	$options = [
+		'_score' => 'Relevance',
+		'date' => 'Date',
+	];
+	echo '<select name="orderby">';
+	foreach ( $options as $value => $label ) {
+		printf( '<option value="%1$s"%3$s>%2$s</option>',
+			$value,
+			$label,
+			( $selected ) ? ' selected' : ''
+		);
+	}
+	echo '</select>';
 }
 
 function ep_bp_order_select() {
-	?>
-	<select name="order">
-		<option value="asc">Ascending</option>
-		<option value="desc">Descending</option>
-	</select>
-	<?php
+	$options = [
+		'desc' => 'Descending',
+		'asc' => 'Ascending',
+	];
+	echo '<select name="order">';
+	foreach ( $options as $value => $label ) {
+		printf( '<option value="%1$s"%3$s>%2$s</option>',
+			$value,
+			$label,
+			( $selected ) ? ' selected' : ''
+		);
+	}
+	echo '</select>';
 }
 
 /**
