@@ -199,16 +199,16 @@ function ep_bp_filter_ep_formatted_args( $formatted_args ) {
 	foreach ( $formatted_args['post_filter']['bool']['must'] as &$must ) {
 		// maybe term, maybe terms - depends on whether or not the value of "post_type.raw" is an array. need to handle both.
 		foreach ( [ 'term', 'terms' ] as $key ) {
-			var_dump( $key );
 			if ( isset( $must[ $key ]['post_type.raw'] ) ) {
-				var_dump( 'yes' );
 				$must[ $key ]['post_type'] = $must[ $key ]['post_type.raw'];
 				unset( $must[ $key ]['post_type.raw'] );
+
 				// re-index 'must' array keys using array_values (non-sequential keys pose problems for elasticpress)
-				$must = array_values( $must );
+				if ( is_array( $must[ $key ]['post_type'] ) ) {
+					$must[ $key ]['post_type'] = array_values( $must[ $key ]['post_type'] );
+				}
 			}
 		}
-		var_dump( $formatted_args );die;
 	}
 	return $formatted_args;
 }
