@@ -166,8 +166,10 @@ function ep_bp_network_select() {
 function ep_bp_get_sidebar() {
 	?>
 	<aside id="ep-bp-facets" class="widget" role="complementary">
+		<h4>Search Facets</h4>
 		<form class="ep-bp-search-facets">
-			<input type="hidden" name="s" value="<?php echo get_search_query(); ?>">
+			<h5>Query</h5>
+			<input type="text" name="s" value="<?php echo get_search_query(); ?>">
 			<h5>Filter by type</h5>
 			<?php ep_bp_post_type_select(); ?>
 			<h5>Filter by network</h5>
