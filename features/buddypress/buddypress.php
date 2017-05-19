@@ -289,6 +289,10 @@ function ep_bp_setup() {
 	add_filter( 'ep_sync_taxonomies', 'ep_bp_whitelist_taxonomies' );
 	add_filter( 'ep_search_request_path', 'ep_bp_filter_ep_search_request_path' );
 	add_filter( 'the_permalink', 'ep_bp_filter_the_permalink' );
+
+	// this filter can cause infinite loops when titles are empty
+	// TODO can this be added/removed in a more exact way?
+	//remove_filter( 'the_title', 'bbp_get_reply_title_fallback', 2, 2 );
 }
 
 /**
