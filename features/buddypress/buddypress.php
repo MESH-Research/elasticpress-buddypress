@@ -303,6 +303,23 @@ function ep_bp_whitelist_taxonomies( $taxonomies ) {
 }
 
 /**
+ * inject "post" type into search result titles
+ * TODO make configurable via ep feature settings api
+ */
+function ep_bp_filter_result_titles( $title, $id ) {
+	$post = get_post( $post );
+	$post_type_object = get_post_type_object( $post->post_type );
+
+	$title = sprintf( '<span class="post_type %1$s">%2$s</span>: %3$s',
+		$post_type_object->name,
+		$post_type_object->labels->singular_name,
+		$title
+	);
+
+	return $title;
+}
+
+/**
  * Setup all feature filters
  */
 function ep_bp_setup() {
@@ -313,6 +330,8 @@ function ep_bp_setup() {
 		if ( is_search() ) {
 			add_action( 'is_active_sidebar', '__return_true' );
 			add_action( 'dynamic_sidebar_before', 'ep_bp_get_sidebar' );
+
+			add_filter( 'the_title', 'ep_bp_filter_result_titles', 2, 20 );
 		}
 	} );
 
