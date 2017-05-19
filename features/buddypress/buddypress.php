@@ -166,6 +166,7 @@ function ep_bp_orderby_select() {
 	];
 	echo '<select name="orderby">';
 	foreach ( $options as $value => $label ) {
+		$selected = ( ! isset( $_REQUEST['orderby'] ) || in_array( $value, $_REQUEST['orderby'] ) );
 		printf( '<option value="%1$s"%3$s>%2$s</option>',
 			$value,
 			$label,
@@ -182,6 +183,7 @@ function ep_bp_order_select() {
 	];
 	echo '<select name="order">';
 	foreach ( $options as $value => $label ) {
+		$selected = ( ! isset( $_REQUEST['order'] ) || in_array( $value, $_REQUEST['order'] ) );
 		printf( '<option value="%1$s"%3$s>%2$s</option>',
 			$value,
 			$label,
@@ -343,7 +345,7 @@ function ep_bp_setup() {
 	add_filter( 'ep_search_request_path', 'ep_bp_filter_ep_search_request_path' );
 	add_filter( 'the_permalink', 'ep_bp_filter_the_permalink' );
 
-	// this filter can cause infinite loops when titles are empty
+	// this filter can cause infinite loops while indexing posts when titles are empty
 	// TODO can this be added/removed in a more exact way?
 	//remove_filter( 'the_title', 'bbp_get_reply_title_fallback', 2, 2 );
 }
