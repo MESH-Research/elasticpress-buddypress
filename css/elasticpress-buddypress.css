@@ -13,6 +13,18 @@
   width: 100%;
 }
 
+.search .post_type {
+  display: block;
+  font-size: 0.5em;
+  margin-top: 0.5em;
+}
+.search .post_type::before {
+  content: '(';
+}
+.search .post_type::after {
+  content: ')';
+}
+
 /* TODO remove this (move to child theme) when plugin is finalized */
 #titlebar-search {
   display: table-cell !important;

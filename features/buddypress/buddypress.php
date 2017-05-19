@@ -309,12 +309,27 @@ function ep_bp_whitelist_taxonomies( $taxonomies ) {
  * TODO make configurable via ep feature settings api
  */
 function ep_bp_filter_result_titles( $title, $id ) {
-	$post = get_post( $post );
-	$post_type_object = get_post_type_object( $post->post_type );
+	global $post;
 
-	$title = sprintf( '<span class="post_type %1$s">%2$s</span>: %3$s',
-		$post_type_object->name,
-		$post_type_object->labels->singular_name,
+	switch ( $post->post_type ) {
+		case EP_BP_API::GROUP_TYPE_NAME:
+			$name = EP_BP_API::GROUP_TYPE_NAME;
+			$label = 'Group';
+			break;
+		case EP_BP_API::MEMBER_TYPE_NAME:
+			$name = EP_BP_API::MEMBER_TYPE_NAME;
+			$label = 'Member';
+			break;
+		default:
+			$post_type_object = get_post_type_object( $post->post_type );
+			$name = $post_type_object->name;
+			$label = $post_type_object->labels->singular_name;
+			break;
+	}
+
+	$title = sprintf( '%3$s <span class="post_type %1$s">%2$s</span>',
+		$name,
+		$label,
 		$title
 	);
 
