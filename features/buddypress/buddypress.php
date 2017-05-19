@@ -159,6 +159,24 @@ function ep_bp_network_select() {
 	add_filter( 'ep_index_name', 'ep_bp_filter_ep_index_name', 10, 2 );
 }
 
+function ep_bp_orderby_select() {
+	?>
+	<select name="orderby">
+		<option value="_score">Relevance</option>
+		<option value="date">Date</option>
+	</select>
+	<?php
+}
+
+function ep_bp_order_select() {
+	?>
+	<select name="order">
+		<option value="asc">Ascending</option>
+		<option value="desc">Descending</option>
+	</select>
+	<?php
+}
+
 /**
  * Add search facets to sidebar.
  * TODO widgetize?
@@ -174,13 +192,9 @@ function ep_bp_get_sidebar() {
 			<?php ep_bp_post_type_select(); ?>
 			<h5>Filter by network</h5>
 			<?php ep_bp_network_select(); ?>
-			<!--
 			<h5>Sort by</h5>
-			<select>
-				<option name="relevance">Relevance</option>
-				<option name="date">Date</option>
-			</select>
-			-->
+			<?php ep_bp_orderby_select(); ?>
+			<?php ep_bp_order_select(); ?>
 			<br><br>
 			<input type="submit">
 		</form>
@@ -193,11 +207,11 @@ function ep_bp_get_sidebar() {
 }
 
 /**
- * Remove post_type filter for search queries.
- * Doing this the EP_API way using "post_type.raw" requires changing mapping for users/groups, this is a workaround.
- * TODO find a better way using mapping
+ * Adjust args to handle facets
  */
 function ep_bp_filter_ep_formatted_args( $formatted_args ) {
+
+	// not sure why yet but post_type.raw fails to match while post_type matches fine. change accordingly:
 	foreach ( $formatted_args['post_filter']['bool']['must'] as &$must ) {
 		// maybe term, maybe terms - depends on whether or not the value of "post_type.raw" is an array. need to handle both.
 		foreach ( [ 'term', 'terms' ] as $key ) {
@@ -229,6 +243,10 @@ function ep_bp_translate_args( $query ) {
 
 		if ( isset( $_REQUEST['post_type'] ) && ! empty( $_REQUEST['post_type'] ) ) {
 			$query->set( 'post_type', $_REQUEST['post_type'] );
+		}
+
+		if ( isset( $_REQUEST['orderby'] ) && ! empty( $_REQUEST['orderby'] ) ) {
+			$query->set( 'orderby', $_REQUEST['orderby'] );
 		}
 
 		// search xprofile field values
