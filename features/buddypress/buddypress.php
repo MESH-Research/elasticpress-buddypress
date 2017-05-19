@@ -226,18 +226,8 @@ function ep_bp_translate_args( $query ) {
 	) {
 
 		if ( isset( $_REQUEST['post_type'] ) && ! empty( $_REQUEST['post_type'] ) ) {
-			$post_type = $_REQUEST['post_type'];
-			$query->set( 'post_type', $post_type );
-	//	} else if ( $query->get( 'post_type' ) ) {
-	//		$post_type = $query->get( 'post_type' );
+			$query->set( 'post_type', $_REQUEST['post_type'] );
 		}
-
-		// add bp "post" types
-		//$post_type = array_unique( array_merge(
-		//	( is_array( $post_type ) ) ? $post_type : [],
-		//	ep_bp_post_types()
-		//) );
-
 
 		// search xprofile field values
 		$query->set( 'search_fields', array_unique( array_merge_recursive(
