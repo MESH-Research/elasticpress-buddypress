@@ -166,7 +166,7 @@ function ep_bp_orderby_select() {
 	];
 	echo '<select name="orderby">';
 	foreach ( $options as $value => $label ) {
-		$selected = ( ! isset( $_REQUEST['orderby'] ) || $value === $_REQUEST['orderby'] );
+		$selected = ( isset( $_REQUEST['orderby'] ) && $value === $_REQUEST['orderby'] );
 		printf( '<option value="%1$s"%3$s>%2$s</option>',
 			$value,
 			$label,
@@ -183,7 +183,7 @@ function ep_bp_order_select() {
 	];
 	echo '<select name="order">';
 	foreach ( $options as $value => $label ) {
-		$selected = ( ! isset( $_REQUEST['order'] ) || $value === $_REQUEST['order'] );
+		$selected = ( isset( $_REQUEST['order'] ) && $value === $_REQUEST['order'] );
 		printf( '<option value="%1$s"%3$s>%2$s</option>',
 			$value,
 			$label,
