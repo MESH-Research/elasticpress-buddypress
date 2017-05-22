@@ -346,16 +346,30 @@ function ep_bp_filter_result_titles( $title, $id ) {
 }
 
 /**
+ * filter search results page title to include search query
+ */
+function ep_bp_filter_page_title( $title ) {
+	var_dump( __METHOD__ );
+	var_dump( func_get_args() ); die;
+}
+
+/**
  * Setup all feature filters
  */
 function ep_bp_setup() {
 	add_action( 'pre_get_posts', 'ep_bp_translate_args', 20 ); // after elasticpress ep_improve_default_search()
-	add_action( 'wp_enqueue_scripts', 'ep_bp_enqueue_style' );
 
-	add_action( 'pre_get_posts', function() {
+	//add_filter( 'wp_title', 'ep_bp_filter_page_title' );
+
+	// $wp_query->is_search is not set until parse_query
+	add_action( 'parse_query', function() {
 		if ( is_search() ) {
+			add_action( 'wp_enqueue_scripts', 'ep_bp_enqueue_style' );
+
 			add_action( 'is_active_sidebar', '__return_true' );
 			add_action( 'dynamic_sidebar_before', 'ep_bp_get_sidebar' );
+
+			add_filter( 'the_permalink', 'ep_bp_filter_the_permalink' );
 
 			// temporarily filter titles to include post type in results
 			add_action( 'loop_start', function() {
@@ -367,13 +381,13 @@ function ep_bp_setup() {
 		}
 	} );
 
+	// these don't require conditions since they only trigger during ep functions in the first place
 	add_filter( 'ep_formatted_args', 'ep_bp_filter_ep_formatted_args' );
 	add_filter( 'ep_indexable_post_types', 'ep_bp_post_types' );
 	add_filter( 'ep_index_name', 'ep_bp_filter_ep_index_name', 10, 2 );
 	add_filter( 'ep_default_index_number_of_shards', 'ep_bp_filter_ep_default_index_number_of_shards' );
 	add_filter( 'ep_sync_taxonomies', 'ep_bp_whitelist_taxonomies' );
 	add_filter( 'ep_search_request_path', 'ep_bp_filter_ep_search_request_path' );
-	add_filter( 'the_permalink', 'ep_bp_filter_the_permalink' );
 
 	// this filter can cause infinite loops while indexing posts when titles are empty
 	// TODO can this be added/removed in a more exact way?
