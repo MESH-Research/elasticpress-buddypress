@@ -116,19 +116,21 @@ function ep_bp_post_type_select() {
 	// actual post types
 	foreach ( ep_get_indexable_post_types() as $post_type ) {
 		$post_type_object = get_post_type_object( $post_type );
-		$post_types[ $post_type_object->name ] = $post_type_object->label;
+		if ( apply_filters( 'ep_bp_show_post_type_facet_' . $post_type_object->name, true ) ) {
+			$post_types[ $post_type_object->name ] = $post_type_object->label;
+		}
 	}
 
 	?>
 	<select multiple name="post_type[]" size="<?php echo count( $post_types ); ?>">
-		<?php foreach ( $post_types as $name => $label ) {
+	<?php foreach ( $post_types as $name => $label ) {
 		$selected = ( ! isset( $_REQUEST['post_type'] ) || in_array( $name, $_REQUEST['post_type'] ) );
-			printf( '<option value="%1$s"%3$s>%2$s</option>',
-				$name,
-				$label,
-				( $selected ) ? ' selected' : ''
-			);
-		} ?>
+		printf( '<option value="%1$s"%3$s>%2$s</option>',
+			$name,
+			$label,
+			( $selected ) ? ' selected' : ''
+		);
+	} ?>
 	</select>
 	<?php
 }
@@ -141,9 +143,17 @@ function ep_bp_post_type_select() {
 function ep_bp_network_select() {
 	// short-circuit our own index name filter to build the list
 	remove_filter( 'ep_index_name', 'ep_bp_filter_ep_index_name', 10, 2 );
+
+	$networks = [];
+
+	foreach ( get_networks() as $network ) {
+		if ( apply_filters( 'ep_bp_show_network_facet_' . $network->id, true ) ) {
+			$networks[] = $network;
+		}
+	}
 	?>
-		<select multiple name="index[]" size="<?php echo count( get_networks() ); ?>">
-		<?php foreach ( get_networks() as $network ) {
+		<select multiple name="index[]" size="<?php echo count( $networks ); ?>">
+		<?php foreach ( $networks as $network ) {
 			switch_to_blog( get_main_site_for_network( $network ) );
 			$selected = ( ! isset( $_REQUEST['index'] ) || in_array( ep_get_index_name(), $_REQUEST['index'] ) );
 			printf( '<option value="%1$s"%3$s>%2$s</option>',
