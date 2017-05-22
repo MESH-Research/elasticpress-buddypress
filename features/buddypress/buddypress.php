@@ -251,27 +251,26 @@ function ep_bp_filter_ep_formatted_args( $formatted_args ) {
  * @param WP_Query $query
  */
 function ep_bp_translate_args( $query ) {
-	if (
-		is_search() &&
-		! ( defined( 'WP_CLI' ) && WP_CLI ) &&
-		! apply_filters( 'ep_skip_query_integration', false, $query )
-	) {
-
-		if ( isset( $_REQUEST['post_type'] ) && ! empty( $_REQUEST['post_type'] ) ) {
-			$query->set( 'post_type', $_REQUEST['post_type'] );
-		}
-
-		if ( isset( $_REQUEST['orderby'] ) && ! empty( $_REQUEST['orderby'] ) ) {
-			$query->set( 'orderby', $_REQUEST['orderby'] );
-		}
-
-		// search xprofile field values
-		$query->set( 'search_fields', array_unique( array_merge_recursive(
-			(array) $query->get( 'search_fields' ),
-			[ 'taxonomies' => [ 'xprofile' ] ]
-		), SORT_REGULAR ) );
-
+	/**
+	 * Make sure this is an ElasticPress search query
+	 */
+	if ( ! ep_elasticpress_enabled( $query ) || ! $query->is_search() ) {
+		return;
 	}
+
+	if ( isset( $_REQUEST['post_type'] ) && ! empty( $_REQUEST['post_type'] ) ) {
+		$query->set( 'post_type', $_REQUEST['post_type'] );
+	}
+
+	if ( isset( $_REQUEST['orderby'] ) && ! empty( $_REQUEST['orderby'] ) ) {
+		$query->set( 'orderby', $_REQUEST['orderby'] );
+	}
+
+	// search xprofile field values
+	$query->set( 'search_fields', array_unique( array_merge_recursive(
+		(array) $query->get( 'search_fields' ),
+		[ 'taxonomies' => [ 'xprofile' ] ]
+	), SORT_REGULAR ) );
 }
 
 /**
