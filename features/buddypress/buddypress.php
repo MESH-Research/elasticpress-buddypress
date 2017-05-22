@@ -348,7 +348,13 @@ function ep_bp_setup() {
 			add_action( 'is_active_sidebar', '__return_true' );
 			add_action( 'dynamic_sidebar_before', 'ep_bp_get_sidebar' );
 
-			add_filter( 'the_title', 'ep_bp_filter_result_titles', 2, 20 );
+			// temporarily filter titles to include post type in results
+			add_action( 'loop_start', function() {
+				add_filter( 'the_title', 'ep_bp_filter_result_titles', 2, 20 );
+			} );
+			add_action( 'loop_end', function() {
+				remove_filter( 'the_title', 'ep_bp_filter_result_titles', 2, 20 );
+			} );
 		}
 	} );
 
