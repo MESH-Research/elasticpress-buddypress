@@ -368,7 +368,7 @@ function ep_bp_setup() {
 
 	// this filter can cause infinite loops while indexing posts when titles are empty
 	// TODO can this be added/removed in a more exact way?
-	//remove_filter( 'the_title', 'bbp_get_reply_title_fallback', 2, 2 );
+	remove_filter( 'the_title', 'bbp_get_reply_title_fallback', 2, 2 );
 }
 
 /**
