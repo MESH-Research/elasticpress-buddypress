@@ -137,7 +137,6 @@ function ep_bp_post_type_select() {
 
 /**
  * output HTML for network facet
- * TODO filterable
  * TODO find a way to avoid removing/adding index name filter
  */
 function ep_bp_network_select() {
@@ -389,9 +388,10 @@ function ep_bp_setup() {
 	add_filter( 'ep_sync_taxonomies', 'ep_bp_whitelist_taxonomies' );
 	add_filter( 'ep_search_request_path', 'ep_bp_filter_ep_search_request_path' );
 
-	// this filter can cause infinite loops while indexing posts when titles are empty
-	// TODO can this be added/removed in a more exact way?
-	remove_filter( 'the_title', 'bbp_get_reply_title_fallback', 2, 2 );
+	add_action( 'ep_wp_cli_pre_index', function() {
+		// this filter can cause infinite loops while indexing posts when titles are empty
+		remove_filter( 'the_title', 'bbp_get_reply_title_fallback', 2, 2 );
+	} );
 }
 
 /**
