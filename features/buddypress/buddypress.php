@@ -346,20 +346,10 @@ function ep_bp_filter_result_titles( $title, $id ) {
 }
 
 /**
- * filter search results page title to include search query
- */
-function ep_bp_filter_page_title( $title ) {
-	var_dump( __METHOD__ );
-	var_dump( func_get_args() ); die;
-}
-
-/**
  * Setup all feature filters
  */
 function ep_bp_setup() {
 	add_action( 'pre_get_posts', 'ep_bp_translate_args', 20 ); // after elasticpress ep_improve_default_search()
-
-	//add_filter( 'wp_title', 'ep_bp_filter_page_title' );
 
 	// $wp_query->is_search is not set until parse_query
 	add_action( 'parse_query', function() {
