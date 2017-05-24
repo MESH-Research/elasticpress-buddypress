@@ -251,6 +251,7 @@ function ep_bp_filter_ep_formatted_args( $formatted_args ) {
 			}
 		}
 	}
+
 	return $formatted_args;
 }
 
@@ -290,11 +291,11 @@ function ep_bp_translate_args( $query ) {
  */
 function ep_bp_post_types( $post_types = [] ) {
 	return array_unique( array_merge( $post_types, [
-		'bp_doc',
-		'bp_docs_folder',
-		'forum',
-		'reply',
-		'topic',
+		'bp_doc' => 'bp_doc',
+		'bp_docs_folder' => 'bp_docs_folder',
+		'forum' => 'forum',
+		'reply' => 'reply',
+		'topic' => 'topic',
 	] ) );
 }
 
