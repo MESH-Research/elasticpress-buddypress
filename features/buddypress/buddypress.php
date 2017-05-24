@@ -268,9 +268,17 @@ function ep_bp_translate_args( $query ) {
 		return;
 	}
 
-	if ( isset( $_REQUEST['post_type'] ) && ! empty( $_REQUEST['post_type'] ) ) {
-		$query->set( 'post_type', $_REQUEST['post_type'] );
+	if ( ! isset( $_REQUEST['post_type'] ) || empty( $_REQUEST['post_type'] ) ) {
+		$_REQUEST['post_type'] = [
+			'bp_group',
+			'user',
+			'topic',
+			'reply',
+			'humcore_deposit',
+		];
 	}
+
+	$query->set( 'post_type', $_REQUEST['post_type'] );
 
 	if ( isset( $_REQUEST['orderby'] ) && ! empty( $_REQUEST['orderby'] ) ) {
 		$query->set( 'orderby', $_REQUEST['orderby'] );
