@@ -1,6 +1,12 @@
 /* hide meta for non-post types as it's often wrong */
-.search .type-bp_group footer,
-.search .type-user footer {
+.search .type-bp_group .comments-link,
+.search .type-bp_group .entry-actions,
+.search .type-bp_group .post-date,
+.search .type-bp_group .author,
+.search .type-user .comments-link,
+.search .type-user .entry-actions,
+.search .type-user .post-date,
+.search .type-user .author {
   display: none;
 }
 
@@ -28,6 +34,10 @@
 
 .search .post-wrap {
   padding: 20px 70px;
+}
+
+.search .avatar {
+  display: inline;
 }
 
 .search :hover .post_type {
