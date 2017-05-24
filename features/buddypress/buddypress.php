@@ -336,7 +336,7 @@ function ep_bp_filter_result_titles( $title, $id ) {
 			break;
 	}
 
-	$title = sprintf( '%3$s <span class="post_type %1$s">%2$s</span>',
+	$title = sprintf( '<span class="post_type %1$s">%2$s</span>%3$s',
 		$name,
 		$label,
 		$title

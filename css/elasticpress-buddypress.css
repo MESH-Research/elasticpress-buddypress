@@ -13,16 +13,31 @@
   width: 100%;
 }
 
+.search .post-wrap {
+  padding: 20px 70px;
+}
+
+.search :hover .post_type {
+  color: initial;
+  text-decoration: none;
+}
+
+.search .entry-title {
+  margin-bottom: 0;
+}
+
 .search .post_type {
-  display: block;
-  font-size: 0.5em;
-  margin-top: 0.5em;
+  border-radius: 4px;
+  display: inline-block;
+  font-size: 15px;
+  margin: 5px 10px 0 0;
+  padding: 5px;
+  background-color: #ececec;
+  vertical-align: top;
 }
 .search .post_type::before {
-  content: '(';
 }
 .search .post_type::after {
-  content: ')';
 }
 
 /* TODO remove this (move to child theme) when plugin is finalized */
