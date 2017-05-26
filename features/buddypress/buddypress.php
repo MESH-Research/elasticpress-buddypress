@@ -268,14 +268,15 @@ function ep_bp_translate_args( $query ) {
 		return;
 	}
 
+	$fallback_post_types = apply_filters( 'ep_bp_fallback_post_type_facet_selection', [
+		'bp_group',
+		'user',
+		'topic',
+		'reply',
+	] );
+
 	if ( ! isset( $_REQUEST['post_type'] ) || empty( $_REQUEST['post_type'] ) ) {
-		$_REQUEST['post_type'] = [
-			'bp_group',
-			'user',
-			'topic',
-			'reply',
-			'humcore_deposit',
-		];
+		$_REQUEST['post_type'] = $fallback_post_types;
 	}
 
 	$query->set( 'post_type', $_REQUEST['post_type'] );
