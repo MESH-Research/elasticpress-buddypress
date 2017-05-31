@@ -14,7 +14,14 @@ $( function() {
     $( targetElement ).tabSelect( {
       tabElements: tabElements,
       selectedTabs: selectedTabs,
-      formElement: formElement
+      formElement: formElement,
+      onChange: function( selected ) {
+        $( formElement ).children().each( function( i, el ) {
+          if ( $.inArray( el.innerHTML, selected ) !== -1 ) {
+            $( el ).attr( 'selected', true );
+          }
+        } );
+      }
     } );
   }
 
