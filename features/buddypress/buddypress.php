@@ -11,6 +11,22 @@ function ep_bp_enqueue_style() {
 	wp_enqueue_style( 'elasticpress-buddypress' );
 }
 
+function ep_bp_enqueue_scripts() {
+	wp_register_script(
+		'elasticpress-buddypress-jquery-tabselect',
+		plugins_url( 'js/jquery.tabselect-0.2.js',  dirname( __FILE__ ) . '/../../..'  ),
+		[ 'jquery' ]
+	);
+	wp_enqueue_script( 'elasticpress-buddypress-jquery-tabselect' );
+
+	wp_register_script(
+		'elasticpress-buddypress',
+		plugins_url( 'js/elasticpress-buddypress.js', dirname( __FILE__ ) . '/../../..' ),
+		[ 'elasticpress-buddypress-jquery-tabselect' ]
+	);
+	wp_enqueue_script( 'elasticpress-buddypress', [ 'elasticpress-buddypress-jquery-tabselect' ] );
+}
+
 /**
  * Filter search request path to search groups & members as well as posts.
  */
@@ -132,6 +148,7 @@ function ep_bp_post_type_select() {
 		);
 	} ?>
 	</select>
+	<span id="ep_bp_post_type_facet"></span>
 	<?php
 }
 
@@ -163,6 +180,7 @@ function ep_bp_network_select() {
 			restore_current_blog();
 		} ?>
 	</select>
+	<span id="ep_bp_index_facet"></span>
 	<?php
 	// restore index name filter
 	add_filter( 'ep_index_name', 'ep_bp_filter_ep_index_name', 10, 2 );
@@ -364,6 +382,7 @@ function ep_bp_setup() {
 	add_action( 'parse_query', function() {
 		if ( is_search() ) {
 			add_action( 'wp_enqueue_scripts', 'ep_bp_enqueue_style' );
+			add_action( 'wp_enqueue_scripts', 'ep_bp_enqueue_scripts' );
 
 			add_action( 'is_active_sidebar', '__return_true' );
 			add_action( 'dynamic_sidebar_before', 'ep_bp_get_sidebar' );

@@ -67,3 +67,41 @@
 #titlebar-search {
   display: table-cell !important;
 }
+
+
+
+/**
+ * tabselect css
+ * adjusted from http://fredibach.ch/jquery-plugins/tabselect.php#styling
+ */
+.search #ep-bp-facets select {
+  display: none;
+}
+
+.search #ep-bp-facets span span {
+  cursor: pointer;
+  padding: 0 5px;
+  margin: 5px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.search #ep-bp-facets span.active {
+  background: yellow;
+  color: black;
+  border: 1px #66aa00 solid;
+}
+.search #ep-bp-facets span.active:hover {
+  border: 1px #338800 solid;
+}
+
+.search #ep-bp-facets span.inactive {
+  background: #ddd;
+  color: #888;
+  border: 1px #bbb solid;
+}
+.search #ep-bp-facets span.inactive:hover {
+  background: #bbb;
+  color: #fff;
+  border: 1px #888 solid;
+}
