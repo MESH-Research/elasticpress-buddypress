@@ -74,7 +74,7 @@
  * tabselect css
  * adjusted from http://fredibach.ch/jquery-plugins/tabselect.php#styling
  */
-.search #ep-bp-facets select {
+.search #ep-bp-facets select[multiple] {
   display: none;
 }
 
