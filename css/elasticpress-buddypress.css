@@ -68,6 +68,11 @@
   display: table-cell !important;
 }
 
+/* TODO hidden by ajax anyway in boss, but belongs in theme */
+.search .page-header {
+  display: none;
+}
+
 
 
 /**
@@ -104,4 +109,8 @@
   background: #bbb;
   color: #fff;
   border: 1px #888 solid;
+}
+
+.search .in-progress {
+  opacity: 0.5;
 }

@@ -238,8 +238,6 @@ function ep_bp_get_sidebar() {
 			<h5>Sort by</h5>
 			<?php ep_bp_orderby_select(); ?>
 			<?php ep_bp_order_select(); ?>
-			<br><br>
-			<input type="submit">
 		</form>
 	</aside>
 	<?php
