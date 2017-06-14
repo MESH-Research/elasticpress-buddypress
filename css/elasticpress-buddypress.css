@@ -73,6 +73,29 @@
   display: none;
 }
 
+/* TODO belongs in theme. */
+#titlebar-search #s {
+  border: 1px solid #e1e1e1;
+  border-radius: 4px;
+  float: right;
+  height: 2em;
+  margin: 14px 70px 0 0;
+  padding: 0 1em;
+  width: 80%;
+}
+body #titlebar-search #searchform {
+  width: 50%;
+}
+#searchform {
+  display: block !important;
+}
+#search-close {
+  display: none;
+}
+#searchsubmit {
+  box-shadow: none;
+}
+
 
 
 /**
