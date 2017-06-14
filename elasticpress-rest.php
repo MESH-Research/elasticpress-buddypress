@@ -91,8 +91,6 @@ class EPR_REST_Posts_Controller extends WP_REST_Posts_Controller {
 			'results_html' => $results_html,
 		] );
 
-		ob_end_clean();
-
 		return $response;
 	}
 }
