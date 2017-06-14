@@ -63,41 +63,6 @@
 .search .post_type::after {
 }
 
-/* TODO remove this (move to child theme) when plugin is finalized */
-#titlebar-search {
-  display: table-cell !important;
-}
-
-/* TODO hidden by ajax anyway in boss, but belongs in theme */
-.search .page-header {
-  display: none;
-}
-
-/* TODO belongs in theme. */
-#titlebar-search #s {
-  border: 1px solid #e1e1e1;
-  border-radius: 4px;
-  float: right;
-  height: 2em;
-  margin: 14px 70px 0 0;
-  padding: 0 1em;
-  width: 80%;
-}
-body #titlebar-search #searchform {
-  width: 50%;
-}
-#searchform {
-  display: block !important;
-}
-#search-close {
-  display: none;
-}
-#searchsubmit {
-  box-shadow: none;
-}
-
-
-
 /**
  * tabselect css
  * adjusted from http://fredibach.ch/jquery-plugins/tabselect.php#styling
