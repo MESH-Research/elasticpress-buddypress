@@ -43,6 +43,9 @@ $( function() {
       target.html( data.results_html );
       target.removeClass( 'in-progress' );
     } );
+
+    // TODO this is really a theme thing
+    $( '#s' ).val( $( '#ep-bp-facets [name=s]' ).val() );
   }
 
   $( '#ep-bp-facets' ).find( 'select' ).on( 'change', handleFacetChange );
@@ -63,4 +66,9 @@ $( function() {
 
   initTabSelect( 'select[name=post_type\\[\\]]', '#ep_bp_post_type_facet' );
   initTabSelect( 'select[name=index\\[\\]]', '#ep_bp_index_facet' );
+
+  // TODO move to theme.
+  if ( $( '#ep-bp-facets [name=s]' ).val() !== '' ) {
+    $( '#s' ).val( $( '#ep-bp-facets [name=s]' ).val() );
+  }
 } );
