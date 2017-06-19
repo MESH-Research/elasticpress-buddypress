@@ -27,6 +27,9 @@ class EPR_REST_Posts_Controller extends WP_REST_Posts_Controller {
 		$this->rest_base = '/query';
 
 		$this->meta = new WP_REST_Post_Meta_Fields( $this->post_type );
+
+		// this is not necessary and can cause bad results from elasticsearch, disable it.
+		remove_filter( 'request', 'bbp_request', 10 );
 	}
 
 	/**
