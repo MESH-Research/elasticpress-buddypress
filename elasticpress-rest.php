@@ -8,6 +8,9 @@
 
 class EPR_REST_Posts_Controller extends WP_REST_Posts_Controller {
 
+	// include debug output in REST response
+	const DEBUG = true;
+
 	/**
 	 * Constructor.
 	 *
@@ -49,6 +52,16 @@ class EPR_REST_Posts_Controller extends WP_REST_Posts_Controller {
 	public function get_items( $data ) {
 		global $wp_query;
 
+		$response = [];
+
+		if ( self::DEBUG ) {
+			add_action( 'ep_add_query_log', function( $ep_query ) use ( &$response ) {
+				$response['ep_query'] = $ep_query;
+				$response['ep_query_response_code'] = $ep_query['request']['response']['code'];
+				$response['ep_query_response_message'] = $ep_query['request']['response']['message'];
+			} );
+		}
+
 		// overwrite global in order to get all the same filters & actions on results as when searching the usual way
 		$wp_query = new WP_Query( array_merge(
 			[ 'ep_integrate' => true ],
@@ -87,10 +100,12 @@ class EPR_REST_Posts_Controller extends WP_REST_Posts_Controller {
 
 		ob_end_clean();
 
-		$response = new WP_REST_Response( [
-			'results_html' => $results_html,
-		] );
+		if ( self::DEBUG ) {
+			$response['wp_query'] = $wp_query;
+		}
 
-		return $response;
+		$response['results_html'] = $results_html;
+
+		return new WP_REST_Response( $response );
 	}
 }
