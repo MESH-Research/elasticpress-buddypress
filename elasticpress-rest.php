@@ -66,15 +66,10 @@ class EPR_REST_Posts_Controller extends WP_REST_Posts_Controller {
 		}
 
 		// overwrite global in order to get all the same filters & actions on results as when searching the usual way
-		$wp_query = new WP_Query( array_merge(
+		$wp_query->query( array_merge(
 			[ 'ep_integrate' => true ],
 			$data->get_query_params()
 		) );
-
-		// TODO without this, parse_query has already run on the default empty $wp_query,
-		// and our filters from ep-bp never get added. find a way to avoid calling this,
-		// and/or find a way to avoid actually parsing/populating $wp_query more than once.
-		$wp_query->parse_query_vars();
 
 		ob_start();
 
