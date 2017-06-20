@@ -250,7 +250,6 @@ function ep_bp_get_sidebar() {
  * Adjust args to handle facets
  */
 function ep_bp_filter_ep_formatted_args( $formatted_args ) {
-
 	// not sure why yet but post_type.raw fails to match while post_type matches fine. change accordingly:
 	foreach ( $formatted_args['post_filter']['bool']['must'] as &$must ) {
 		// maybe term, maybe terms - depends on whether or not the value of "post_type.raw" is an array. need to handle both.
@@ -345,7 +344,7 @@ function ep_bp_whitelist_taxonomies( $taxonomies ) {
  * inject "post" type into search result titles
  * TODO make configurable via ep feature settings api
  */
-function ep_bp_filter_result_titles( $title, $id ) {
+function ep_bp_filter_result_titles( $title ) {
 	global $post;
 
 	switch ( $post->post_type ) {
@@ -364,11 +363,14 @@ function ep_bp_filter_result_titles( $title, $id ) {
 			break;
 	}
 
-	$title = sprintf( '<span class="post_type %1$s">%2$s</span>%3$s',
+	$tag = sprintf( '<span class="post_type %1$s">%2$s</span>',
 		$name,
-		$label,
-		$title
+		$label
 	);
+
+	if ( strpos( $title, $tag ) !== 0 ) {
+		$title = $tag . str_replace( $tag, '', $title );
+	}
 
 	return $title;
 }
