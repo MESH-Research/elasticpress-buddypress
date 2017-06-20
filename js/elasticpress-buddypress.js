@@ -75,7 +75,7 @@ window.elasticPressBuddyPress = {
       }
 
       // clear existing results unless we're infinite scrolling
-      if ( elasticPressBuddyPress.page === 1 ) {
+      if ( elasticPressBuddyPress.page === 1 || data.results_html.indexOf( 'no-results' ) !== -1 ) {
         elasticPressBuddyPress.target.html( '' );
       }
 
