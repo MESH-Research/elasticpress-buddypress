@@ -56,10 +56,7 @@ window.elasticPressBuddyPress = {
     params = $.param( params );
 
     elasticPressBuddyPress.loading = true;
-
-    if ( elasticPressBuddyPress.page === 1 ) {
-      elasticPressBuddyPress.target.addClass( 'in-progress' );
-    }
+    elasticPressBuddyPress.target.addClass( 'in-progress' );
 
     // abort pending request, if any, before starting a new one
     if ( elasticPressBuddyPress.xhr && 'abort' in elasticPressBuddyPress.xhr ) {
