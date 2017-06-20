@@ -64,7 +64,7 @@ window.elasticPressBuddyPress = {
     }
 
     // TODO set ajax path with wp_localize_script() from EPR_REST_Posts_Controller property
-    this.xhr = $.getJSON( '/wp-json/epr/v1/query?' + params, function( data ) {
+    elasticPressBuddyPress.xhr = $.getJSON( '/wp-json/epr/v1/query?' + params, function( data ) {
       if ( window.history && window.history.pushState ) {
         window.history.pushState( data, '', window.location.pathname + '?' + params );
       }
