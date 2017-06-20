@@ -64,20 +64,28 @@ window.elasticPressBuddyPress = {
     }
 
     // TODO set ajax path with wp_localize_script() from EPR_REST_Posts_Controller property
-    elasticPressBuddyPress.xhr = $.getJSON( '/wp-json/epr/v1/query?' + params, function( data ) {
-      if ( window.history && window.history.pushState ) {
-        window.history.pushState( data, '', window.location.pathname + '?' + params );
-      }
+    elasticPressBuddyPress.xhr = $.getJSON( '/wp-json/epr/v1/query?' + params )
+      .success( function( data ) {
+        if ( window.history && window.history.pushState ) {
+          window.history.pushState( data, '', window.location.pathname + '?' + params );
+        }
 
-      // clear existing results unless we're infinite scrolling
-      if ( elasticPressBuddyPress.page === 1 || data.results_html.indexOf( 'no-results' ) !== -1 ) {
-        elasticPressBuddyPress.target.html( '' );
-      }
+        // clear existing results unless we're infinite scrolling
+        if ( elasticPressBuddyPress.page === 1 || data.results_html.indexOf( 'no-results' ) !== -1 ) {
+          elasticPressBuddyPress.target.html( '' );
+        }
 
-      elasticPressBuddyPress.target.append( data.results_html );
-      elasticPressBuddyPress.target.removeClass( 'in-progress' );
-      elasticPressBuddyPress.loading = false;
-    } );
+        elasticPressBuddyPress.target.append( data.results_html );
+      } )
+      .error( function() {
+        elasticPressBuddyPress.target.html(
+          '<article class="post no-results not-found"><div class="entry-content"><p>Something went wrong! Please try a different query.</p></div></article>'
+        );
+      } )
+      .complete( function() {
+        elasticPressBuddyPress.target.removeClass( 'in-progress' );
+        elasticPressBuddyPress.loading = false;
+      } );
   },
 
   init: function() {
