@@ -394,10 +394,10 @@ function ep_bp_setup() {
 
 			// temporarily filter titles to include post type in results
 			add_action( 'loop_start', function() {
-				add_filter( 'the_title', 'ep_bp_filter_result_titles', 2, 20 );
+				add_filter( 'the_title', 'ep_bp_filter_result_titles', 1, 20 );
 			} );
 			add_action( 'loop_end', function() {
-				remove_filter( 'the_title', 'ep_bp_filter_result_titles', 2, 20 );
+				remove_filter( 'the_title', 'ep_bp_filter_result_titles', 1, 20 );
 			} );
 		}
 	} );
