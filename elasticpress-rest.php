@@ -78,8 +78,6 @@ class EPR_REST_Posts_Controller extends WP_REST_Posts_Controller {
 				the_post();
 				get_template_part( 'content', get_post_format() );
 			}
-			// TODO don't rely on theme function for pagination
-			buddyboss_pagination();
 		} else {
 			// TODO ripped from search.php - should pull from custom template file instead
 			?>

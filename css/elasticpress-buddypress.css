@@ -63,6 +63,11 @@
 .search .post_type::after {
 }
 
+/* no pagination since we use infinite scroll. first page still has the links, so hide them. */
+.search .pagination-below {
+  display: none;
+}
+
 /**
  * tabselect css
  * adjusted from http://fredibach.ch/jquery-plugins/tabselect.php#styling

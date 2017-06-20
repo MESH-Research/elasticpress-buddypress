@@ -301,6 +301,10 @@ function ep_bp_translate_args( $query ) {
 		$query->set( 'orderby', $_REQUEST['orderby'] );
 	}
 
+	if ( isset( $_REQUEST['paged'] ) && ! empty( $_REQUEST['paged'] ) ) {
+		$query->set( 'paged', $_REQUEST['paged'] );
+	}
+
 	// search xprofile field values
 	$query->set( 'search_fields', array_unique( array_merge_recursive(
 		(array) $query->get( 'search_fields' ),
