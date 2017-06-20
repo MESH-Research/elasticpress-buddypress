@@ -413,8 +413,6 @@ function ep_bp_setup() {
 	add_action( 'ep_wp_cli_pre_index', function() {
 		// this filter can cause infinite loops while indexing posts when titles are empty
 		remove_filter( 'the_title', 'bbp_get_reply_title_fallback', 2, 2 );
-		// this action can cause overzealous sql clauses that prevent some posts from being indexed at all
-		remove_action( 'pre_get_posts', 'bbp_pre_get_posts_normalize_forum_visibility', 4 );
 	} );
 }
 
