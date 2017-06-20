@@ -92,11 +92,20 @@ window.elasticPressBuddyPress = {
     $( '#ep-bp-facets' ).find( 'select' ).on( 'change', elasticPressBuddyPress.handleFacetChange );
     $( '#ep-bp-facets' ).find( 'input' ).on( 'keyup', elasticPressBuddyPress.handleFacetChange );
 
-    $( '#ep-bp-facets [name=s]' ).val( $( '#s' ).val() );
+    $( '#s' ).val( $( '#ep-bp-facets [name=s]' ).val() );
 
     // prevent native form submission since we're running on ajax instead
+    $( '#s' ).on( 'submit', function( e ) {
+      e.preventDefault();
+    } );
     $( '#ep-bp-facets' ).on( 'submit', function( e ) {
       e.preventDefault();
+    } );
+
+    $( '#s' ).on( 'keyup', function( e ) {
+      $( '#ep-bp-facets [name=s]' ).val( $( '#s' ).val() );
+      elasticPressBuddyPress.page = 1;
+      elasticPressBuddyPress.loadResults();
     } );
 
     $( window ).on( 'scroll', function ( event ) {
@@ -108,19 +117,6 @@ window.elasticPressBuddyPress = {
         elasticPressBuddyPress.xhr = elasticPressBuddyPress.loadResults();
       }
     } );
-
-    // TODO handle browser "back" button clicks; refresh results
-    //window.onpopstate = function( e ) {
-    //  console.log( e.state );
-    //  // TODO url changes, but form values don't so results remain the same if we just re-run the change handler.
-    //  // need to set values in the actual form according to the querystring before calling the handler.
-    //  //handleFacetChange();
-    //};
-
-    // TODO move to theme.
-    if ( $( '#ep-bp-facets [name=s]' ).val() !== '' ) {
-      $( '#s' ).val( $( '#ep-bp-facets [name=s]' ).val() );
-    }
   }
 }
 
