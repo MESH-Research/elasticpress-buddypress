@@ -77,14 +77,18 @@ window.elasticPressBuddyPress = {
 
         elasticPressBuddyPress.target.append( data.results_html );
       } )
-      .error( function() {
-        elasticPressBuddyPress.target.html(
-          '<article class="post no-results not-found"><div class="entry-content"><p>Something went wrong! Please try a different query.</p></div></article>'
-        );
+      .error( function( request ) {
+        if ( request.statusText !== 'abort' ) {
+          elasticPressBuddyPress.target.html(
+            '<article class="post no-results not-found"><div class="entry-content"><p>Something went wrong! Please try a different query.</p></div></article>'
+          );
+        }
       } )
-      .complete( function() {
-        elasticPressBuddyPress.target.removeClass( 'in-progress' );
-        elasticPressBuddyPress.loading = false;
+      .complete( function( request ) {
+        if ( request.statusText !== 'abort' ) {
+          elasticPressBuddyPress.target.removeClass( 'in-progress' );
+          elasticPressBuddyPress.loading = false;
+        }
       } );
   },
 
