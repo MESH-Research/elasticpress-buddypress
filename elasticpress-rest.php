@@ -60,6 +60,7 @@ class EPR_REST_Posts_Controller extends WP_REST_Posts_Controller {
 		if ( self::DEBUG ) {
 			add_action( 'ep_add_query_log', function( $ep_query ) use ( &$response ) {
 				$response['ep_query'] = $ep_query;
+				$response['ep_query_request_body'] = $ep_query['args']['body'];
 				$response['ep_query_response_code'] = $ep_query['request']['response']['code'];
 				$response['ep_query_response_message'] = $ep_query['request']['response']['message'];
 			} );
