@@ -68,6 +68,10 @@
   display: none;
 }
 
+.search #ep-bp-facets label {
+  display: inline;
+}
+
 /**
  * tabselect css
  * adjusted from http://fredibach.ch/jquery-plugins/tabselect.php#styling

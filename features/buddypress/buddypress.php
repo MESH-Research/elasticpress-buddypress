@@ -138,7 +138,7 @@ function ep_bp_post_type_select() {
 	}
 
 	?>
-	<select multiple name="post_type[]" size="<?php echo count( $post_types ); ?>">
+	<select multiple name="post_type[]" id="post_type" size="<?php echo count( $post_types ); ?>">
 	<?php foreach ( $post_types as $name => $label ) {
 		$selected = ( ! isset( $_REQUEST['post_type'] ) || in_array( $name, $_REQUEST['post_type'] ) );
 		printf( '<option value="%1$s"%3$s>%2$s</option>',
@@ -168,7 +168,7 @@ function ep_bp_network_select() {
 		}
 	}
 	?>
-		<select multiple name="index[]" size="<?php echo count( $networks ); ?>">
+		<select multiple name="index[]" id="index" size="<?php echo count( $networks ); ?>">
 		<?php foreach ( $networks as $network ) {
 			switch_to_blog( get_main_site_for_network( $network ) );
 			$selected = ( ! isset( $_REQUEST['index'] ) || in_array( ep_get_index_name(), $_REQUEST['index'] ) );
@@ -191,7 +191,7 @@ function ep_bp_orderby_select() {
 		'_score' => 'Relevance',
 		'date' => 'Date',
 	];
-	echo '<select name="orderby">';
+	echo '<select name="orderby" id="orderby">';
 	foreach ( $options as $value => $label ) {
 		$selected = ( isset( $_REQUEST['orderby'] ) && $value === $_REQUEST['orderby'] );
 		printf( '<option value="%1$s"%3$s>%2$s</option>',
@@ -208,7 +208,7 @@ function ep_bp_order_select() {
 		'desc' => 'Descending',
 		'asc' => 'Ascending',
 	];
-	echo '<select name="order">';
+	echo '<select name="order" id="order">';
 	foreach ( $options as $value => $label ) {
 		$selected = ( isset( $_REQUEST['order'] ) && $value === $_REQUEST['order'] );
 		printf( '<option value="%1$s"%3$s>%2$s</option>',
@@ -229,13 +229,12 @@ function ep_bp_get_sidebar() {
 	<aside id="ep-bp-facets" class="widget" role="complementary">
 		<h4>Search Facets</h4>
 		<form class="ep-bp-search-facets">
-			<h5>Query</h5>
-			<input type="text" name="s" value="<?php echo get_search_query(); ?>">
-			<h5>Filter by type</h5>
+			<input type="hidden" name="s" value="<?php echo get_search_query(); ?>">
+			<h5><label for="post_type">Filter by type</label></h5>
 			<?php ep_bp_post_type_select(); ?>
-			<h5>Filter by network</h5>
+			<h5><label for="index">Filter by network</label></h5>
 			<?php ep_bp_network_select(); ?>
-			<h5>Sort by</h5>
+			<h5><label for="order">Sort</label> <label for="orderby">by</label></h5>
 			<?php ep_bp_orderby_select(); ?>
 			<?php ep_bp_order_select(); ?>
 		</form>

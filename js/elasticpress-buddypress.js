@@ -43,8 +43,6 @@ window.elasticPressBuddyPress = {
   handleFacetChange: function( event ) {
     elasticPressBuddyPress.page = 1;
     elasticPressBuddyPress.loadResults();
-    // TODO this is really a theme thing
-    $( '#s' ).val( $( '#ep-bp-facets [name=s]' ).val() );
   },
 
   loadResults: function() {
@@ -93,6 +91,8 @@ window.elasticPressBuddyPress = {
 
     $( '#ep-bp-facets' ).find( 'select' ).on( 'change', elasticPressBuddyPress.handleFacetChange );
     $( '#ep-bp-facets' ).find( 'input' ).on( 'keyup', elasticPressBuddyPress.handleFacetChange );
+
+    $( '#ep-bp-facets [name=s]' ).val( $( '#s' ).val() );
 
     // prevent native form submission since we're running on ajax instead
     $( '#ep-bp-facets' ).on( 'submit', function( e ) {
