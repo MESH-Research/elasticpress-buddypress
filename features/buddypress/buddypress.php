@@ -67,6 +67,7 @@ function ep_bp_setup() {
 	add_filter( 'ep_default_index_number_of_shards', 'ep_bp_filter_ep_default_index_number_of_shards' );
 	add_filter( 'ep_sync_taxonomies', 'ep_bp_whitelist_taxonomies' );
 	add_filter( 'ep_search_request_path', 'ep_bp_filter_ep_search_request_path' );
+	add_filter( 'ep_search_results_array', 'ep_bp_filter_ep_search_results_array' );
 
 	add_action( 'ep_wp_cli_pre_index', function() {
 		// this filter can cause infinite loops while indexing posts when titles are empty

@@ -231,3 +231,24 @@ function ep_bp_filter_result_author_link( $link ) {
 	$link = str_replace( '/author/', '/members/', $link );
 	return $link;
 }
+
+/**
+ * Remove posts from results which are duplicates of other posts in all aspects except network.
+ * e.g. for a member on different network, if both results appear on a given page, only show the first.
+ * No additional results are added to fill in gaps - infinite scroll with potentially < 10 results per page is acceptable.
+ */
+function ep_bp_filter_ep_search_results_array( $results ) {
+	foreach ( $results['posts'] as $this_post ) {
+		foreach ( $results['posts'] as $k => $that_post ) {
+			if (
+				$this_post['ID'] === $that_post['ID'] &&
+				$this_post['post_type'] === $that_post['post_type'] &&
+				$this_post['permalink'] !== $that_post['permalink']
+			) {
+				unset( $results['posts'][ $k ] );
+			}
+		}
+	}
+
+	return $results;
+}
