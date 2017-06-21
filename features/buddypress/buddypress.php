@@ -11,6 +11,9 @@ function ep_bp_enqueue_style() {
 	wp_enqueue_style( 'elasticpress-buddypress' );
 }
 
+/**
+ * javascript powering search facets
+ */
 function ep_bp_enqueue_scripts() {
 	wp_register_script(
 		'elasticpress-buddypress-jquery-tabselect',
@@ -186,6 +189,9 @@ function ep_bp_network_select() {
 	add_filter( 'ep_index_name', 'ep_bp_filter_ep_index_name', 10, 2 );
 }
 
+/**
+ * output HTML for orderby facet
+ */
 function ep_bp_orderby_select() {
 	$options = [
 		'_score' => 'Relevance',
@@ -203,6 +209,9 @@ function ep_bp_orderby_select() {
 	echo '</select>';
 }
 
+/**
+ * output HTML for order facet
+ */
 function ep_bp_order_select() {
 	$options = [
 		'desc' => 'Descending',
