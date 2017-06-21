@@ -8,6 +8,8 @@
 
 require_once dirname( __FILE__ ) . '/classes/class-ep-bp-api.php';
 require_once dirname( __FILE__ ) . '/features/buddypress/buddypress.php';
+require_once dirname( __FILE__ ) . '/features/buddypress/filters.php';
+require_once dirname( __FILE__ ) . '/features/buddypress/facets.php';
 
 require_once dirname( __FILE__ ) . '/elasticpress-rest.php';
 
