@@ -234,7 +234,7 @@ function ep_bp_filter_result_author_link( $link ) {
 
 /**
  * Remove posts from results which are duplicates of other posts in all aspects except network.
- * e.g. for a member on different network, if both results appear on a given page, only show the first.
+ * e.g. for a member of two networks, if both results appear on a given page, only show the first.
  * No additional results are added to fill in gaps - infinite scroll with potentially < 10 results per page is acceptable.
  */
 function ep_bp_filter_ep_search_results_array( $results ) {

@@ -139,7 +139,7 @@ window.elasticPressBuddyPress = {
       if(
         $( window ).scrollTop() >= elasticPressBuddyPress.target.offset().top + elasticPressBuddyPress.target.outerHeight() - window.innerHeight &&
           ! elasticPressBuddyPress.loading &&
-          elasticPressBuddyPress.target.children( 'article' ).length >= 10
+          elasticPressBuddyPress.target.children( 'article' ).length >= 2
       ) {
         elasticPressBuddyPress.page++;
         elasticPressBuddyPress.xhr = elasticPressBuddyPress.loadResults();
