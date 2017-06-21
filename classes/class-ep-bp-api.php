@@ -6,6 +6,11 @@
 class EP_BP_API {
 
 	/**
+	 * enable detailed CLI output while indexing
+	 */
+	const DEBUG_CLI_OUTPUT = true;
+
+	/**
 	 * Maximum number of members to include per elasticpress POST request when bulk syncing.
 	 */
 	const MAX_BULK_MEMBERS_PER_PAGE = 350;
@@ -244,6 +249,13 @@ class EP_BP_API {
 
 			$this->send_request( $groups );
 
+			if ( self::DEBUG_CLI_OUTPUT ) {
+				WP_CLI::log( sprintf( 'Processed %d/%d entries. . .',
+					$groups_template->group_count + self::MAX_BULK_GROUPS_PER_PAGE * ( $args['page'] - 1 ),
+					$groups_template->total_group_count
+				) );
+			}
+
 			$this->bulk_index_groups( [
 				'page' => $args['page'] + 1,
 			] );
@@ -282,6 +294,13 @@ class EP_BP_API {
 			}
 
 			$this->send_request( $members );
+
+			if ( self::DEBUG_CLI_OUTPUT ) {
+				WP_CLI::log( sprintf( 'Processed %d/%d entries. . .',
+					$members_template->member_count + self::MAX_BULK_MEMBERS_PER_PAGE * ( $args['page'] - 1 ),
+					$members_template->total_member_count
+				) );
+			}
 
 			$this->bulk_index_members( [
 				'page' => $args['page'] + 1,
