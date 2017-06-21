@@ -114,6 +114,21 @@ window.elasticPressBuddyPress = {
       e.preventDefault();
     } );
 
+    // makes no sense to offer the option to sort least relevant results first,
+    // so hide order when sorting by score.
+    // boss adds markup to all selects so we must hide those too for now.
+    /* TODO boss blocks this type of thing with the Select mangling. later
+    $( '#orderby' ).on( 'change', function() {
+      if ( $( '#orderby' ).val() === '_score' ) {
+        //$( '#order' ).hide(); // theme-independent, hopefully
+        $( '#order' ).parents( '.buddyboss-select' ).hide(); // boss
+      } else {
+        //$( '#order' ).show();
+        $( '#order' ).parents( '.buddyboss-select' ).show();
+      }
+    } ).trigger( 'change' );
+    */
+
     $( '#s' ).on( 'keyup', function( e ) {
       $( '#ep-bp-facets [name=s]' ).val( $( '#s' ).val() );
       elasticPressBuddyPress.page = 1;
