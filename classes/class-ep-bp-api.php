@@ -460,10 +460,10 @@ class EP_BP_API {
  * Accessor functions for methods in above class. See doc blocks above for function details.
  */
 
-function ep_bp_bulk_index_groups() {
-	return EP_BP_API::factory()->bulk_index_groups();
+function ep_bp_bulk_index_groups( $args ) {
+	return EP_BP_API::factory()->bulk_index_groups( $args );
 }
 
-function ep_bp_bulk_index_members() {
-	return EP_BP_API::factory()->bulk_index_members();
+function ep_bp_bulk_index_members( $args ) {
+	return EP_BP_API::factory()->bulk_index_members( $args );
 }

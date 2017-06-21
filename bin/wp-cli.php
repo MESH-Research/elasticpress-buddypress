@@ -14,7 +14,9 @@ class ElasticPress_BuddyPress_CLI_Command extends WP_CLI_Command {
 		if ( ! isset( $args[0] ) || 'groups' === $args[0] ) {
 			WP_CLI::line( 'Indexing groups...' );
 
-			$result = ep_bp_bulk_index_groups();
+			$index_args = apply_filters( 'ep_bp_group_index_args', [] );
+
+			$result = ep_bp_bulk_index_groups( $index_args );
 
 			if ( $result ) {
 				WP_CLI::success( 'Done!' );
@@ -26,7 +28,9 @@ class ElasticPress_BuddyPress_CLI_Command extends WP_CLI_Command {
 		if ( ! isset( $args[0] ) || 'members' === $args[0] ) {
 			WP_CLI::line( 'Indexing members...' );
 
-			$result = ep_bp_bulk_index_members();
+			$index_args = apply_filters( 'ep_bp_member_index_args', [] );
+
+			$result = ep_bp_bulk_index_members( $index_args );
 
 			if ( $result ) {
 				WP_CLI::success( 'Done!' );
