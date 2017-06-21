@@ -376,6 +376,14 @@ function ep_bp_filter_result_titles( $title ) {
 }
 
 /**
+ * Change author links to point to profiles rather than /author/username
+ */
+function ep_bp_filter_result_author_link( $link ) {
+	$link = str_replace( '/author/', '/members/', $link );
+	return $link;
+}
+
+/**
  * Setup all feature filters
  */
 function ep_bp_setup() {
@@ -395,9 +403,11 @@ function ep_bp_setup() {
 			// temporarily filter titles to include post type in results
 			add_action( 'loop_start', function() {
 				add_filter( 'the_title', 'ep_bp_filter_result_titles', 1, 20 );
+				add_filter( 'author_link', 'ep_bp_filter_result_author_link' );
 			} );
 			add_action( 'loop_end', function() {
 				remove_filter( 'the_title', 'ep_bp_filter_result_titles', 1, 20 );
+				remove_filter( 'author_link', 'ep_bp_filter_result_author_link' );
 			} );
 		}
 	} );
