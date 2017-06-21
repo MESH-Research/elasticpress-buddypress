@@ -123,7 +123,8 @@ window.elasticPressBuddyPress = {
     $( window ).on( 'scroll', function ( event ) {
       if(
         $( window ).scrollTop() >= elasticPressBuddyPress.target.offset().top + elasticPressBuddyPress.target.outerHeight() - window.innerHeight &&
-          ! elasticPressBuddyPress.loading
+          ! elasticPressBuddyPress.loading &&
+          elasticPressBuddyPress.target.children( 'article' ).length >= 10
       ) {
         elasticPressBuddyPress.page++;
         elasticPressBuddyPress.xhr = elasticPressBuddyPress.loadResults();
