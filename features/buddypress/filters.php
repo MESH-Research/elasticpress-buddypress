@@ -98,6 +98,7 @@ function ep_bp_filter_the_permalink( $permalink ) {
 
 /**
  * Remove xprofile from highest priority of matched fields, so other fields have more boost.
+ * TODO this causes a 400 bad request.
  */
 function ep_bp_filter_ep_match_phrase_boost( $boost, $search_fields ) {
 	$search_fields = array_diff( $search_fields, [ 'terms.xprofile.name' ] );
@@ -118,8 +119,8 @@ function ep_bp_translate_args( $query ) {
 	}
 
 	$fallback_post_types = apply_filters( 'ep_bp_fallback_post_type_facet_selection', [
-		'bp_group',
-		'user',
+		EP_BP_API::GROUP_TYPE_NAME,
+		EP_BP_API::MEMBER_TYPE_NAME,
 		'topic',
 		'reply',
 	] );
