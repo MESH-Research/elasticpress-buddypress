@@ -71,10 +71,17 @@ function ep_bp_setup() {
 	add_filter( 'ep_config_mapping', 'ep_bp_filter_ep_config_mapping' );
 
 	add_action( 'ep_wp_cli_pre_index', function() {
-		// this filter can cause infinite loops while indexing posts when titles are empty
-		remove_filter( 'the_title', 'bbp_get_reply_title_fallback', 2, 2 );
 		// this action can cause overzealous sql clauses that prevent some posts from being indexed at all
 		remove_action( 'pre_get_posts', 'bbp_pre_get_posts_normalize_forum_visibility', 4 );
+
+		// prevent infinite loops as bbpress waffles with reply titles
+		add_filter( 'bbp_get_topic_id', function( $bbp_topic_id, $topic_id ) {
+			if ( $bbp_topic_id === 0 && $topic_id === 0 ) {
+				the_post();
+			}
+
+			return $bbp_topic_id;
+		}, 10, 2 );
 	} );
 }
 
