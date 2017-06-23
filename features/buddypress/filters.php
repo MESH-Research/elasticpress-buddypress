@@ -261,3 +261,13 @@ function ep_bp_filter_ep_search_results_array( $results ) {
 
 	return $results;
 }
+
+/**
+ * Add the post mapping to our custom "post" types for members and groups.
+ */
+function ep_bp_filter_ep_config_mapping( $mapping ) {
+	$mapping['mappings'][ EP_BP_API::MEMBER_TYPE_NAME ] = $mapping['mappings']['post'];
+	$mapping['mappings'][ EP_BP_API::GROUP_TYPE_NAME ] = $mapping['mappings']['post'];
+
+	return $mapping;
+}
