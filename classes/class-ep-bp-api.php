@@ -63,7 +63,7 @@ class EP_BP_API {
 			'post_mime_type'    => '',
 			'permalink'         => bp_get_group_permalink(),
 			'terms'             => $this->prepare_terms( $group ),
-			//'post_meta'         => $this->prepare_meta( $group ),
+			'post_meta'         => $this->prepare_meta( $group ),
 			'post_meta'         => [],
 			'date_terms'        => [],
 			'comment_count'     => 0,
@@ -73,7 +73,7 @@ class EP_BP_API {
 			'guid'              => bp_get_group_permalink(),
 		];
 
-		//$args['meta'] = EP_API::factory()->prepare_meta_types( $args['post_meta'] );
+		$args['meta'] = EP_API::factory()->prepare_meta_types( $args['post_meta'] );
 
 		return $args;
 	}
@@ -124,7 +124,7 @@ class EP_BP_API {
 			'post_date_gmt'     => $user->user_registered,
 			'post_title'        => $this->prepare_text_content( $user->display_name ),
 			'post_excerpt'      => $this->prepare_text_content( make_clickable( bp_get_member_permalink() ) ),
-			'post_content'      => null,
+			'post_content'      => $this->prepare_text_content( make_clickable( bp_get_member_permalink() ) ),
 			'post_status'       => 'publish',
 			'post_name'         => $this->prepare_text_content( $user->display_name ),
 			'post_modified'     => null,
@@ -134,7 +134,7 @@ class EP_BP_API {
 			'post_mime_type'    => '',
 			'permalink'         => bp_get_member_permalink(),
 			'terms'             => array_merge( $this->prepare_terms( $user ), $xprofile_terms ),
-			//'post_meta'         => $this->prepare_meta( $user ),
+			'post_meta'         => $this->prepare_meta( $user ),
 			'post_meta'         => [],
 			'date_terms'        => [],
 			'comment_count'     => 0,
@@ -144,7 +144,7 @@ class EP_BP_API {
 			'guid'              => bp_get_member_permalink(),
 		];
 
-		//$args['meta'] = EP_API::factory()->prepare_meta_types( $args['post_meta'] );
+		$args['meta'] = EP_API::factory()->prepare_meta_types( $args['post_meta'] );
 
 		return $args;
 	}
@@ -326,6 +326,8 @@ class EP_BP_API {
 				break;
 		}
 
+		$post = $object;
+
 		if ( empty( $meta ) ) {
 			return array();
 		}
@@ -377,7 +379,6 @@ class EP_BP_API {
 			}
 		}
 
-		var_dump( $prepared_meta );die;
 		return $prepared_meta;
 
 	}
