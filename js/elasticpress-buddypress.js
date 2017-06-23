@@ -66,26 +66,34 @@ window.elasticPressBuddyPress = {
     // TODO set ajax path with wp_localize_script() from EPR_REST_Posts_Controller property
     elasticPressBuddyPress.xhr = $.getJSON( '/wp-json/epr/v1/query?' + params )
       .success( function( data ) {
-        if ( window.history && window.history.pushState ) {
-          window.history.pushState( data, '', window.location.pathname + '?' + params );
-        }
-
         // clear existing results unless we're infinite scrolling
-        if ( elasticPressBuddyPress.page === 1 || data.results_html.indexOf( 'no-results' ) !== -1 ) {
+        if ( elasticPressBuddyPress.page === 1 ) {
           elasticPressBuddyPress.target.html( '' );
         }
 
-        elasticPressBuddyPress.target.append( data.results_html );
+        if ( data.posts.length ) {
+          elasticPressBuddyPress.target.append( data.posts.join( '' ) );
+        } else {
+          if ( elasticPressBuddyPress.page > 1 ) {
+            elasticPressBuddyPress.target.append( '<div class="epbp-msg no-more-results">No more results.</div>' );
+          } else {
+            elasticPressBuddyPress.target.append( '<div class="epbp-msg no-results">No results.</div>' );
+          }
+        }
       } )
       .error( function( request ) {
         if ( request.statusText !== 'abort' ) {
           elasticPressBuddyPress.target.html(
-            '<article class="post no-results not-found"><div class="entry-content"><p>Something went wrong! Please try a different query.</p></div></article>'
+            '<div class="epbp-msg error">Something went wrong! Please try a different query.</div>'
           );
         }
       } )
       .complete( function( request ) {
         if ( request.statusText !== 'abort' ) {
+          if ( window.history && window.history.pushState ) {
+            window.history.pushState( request.responseJSON, '', window.location.pathname + '?' + params );
+          }
+
           elasticPressBuddyPress.target.removeClass( 'in-progress' );
           elasticPressBuddyPress.loading = false;
         }
@@ -139,7 +147,7 @@ window.elasticPressBuddyPress = {
       if(
         $( window ).scrollTop() >= elasticPressBuddyPress.target.offset().top + elasticPressBuddyPress.target.outerHeight() - window.innerHeight &&
           ! elasticPressBuddyPress.loading &&
-          elasticPressBuddyPress.target.children( 'article' ).length >= 2
+          ! elasticPressBuddyPress.target.children( '.epbp-msg' ).length
       ) {
         elasticPressBuddyPress.page++;
         elasticPressBuddyPress.xhr = elasticPressBuddyPress.loadResults();

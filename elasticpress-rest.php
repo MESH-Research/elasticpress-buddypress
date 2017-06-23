@@ -55,54 +55,39 @@ class EPR_REST_Posts_Controller extends WP_REST_Posts_Controller {
 	public function get_items( $data ) {
 		global $wp_query;
 
-		$response = [];
+		$response = new WP_REST_Response;
 
-		if ( self::DEBUG ) {
-			add_action( 'ep_add_query_log', function( $ep_query ) use ( &$response ) {
-				$response['ep_query'] = $ep_query;
-				$response['ep_query_request_body'] = $ep_query['args']['body'];
-				$response['ep_query_response_code'] = $ep_query['request']['response']['code'];
-				$response['ep_query_response_message'] = $ep_query['request']['response']['message'];
-			} );
-		}
+		$debug = [];
+		$posts = [];
 
-		// overwrite global in order to get all the same filters & actions on results as when searching the usual way
+		add_action( 'ep_add_query_log', function( $ep_query ) use ( &$response ) {
+			$debug['ep_query'] = $ep_query;
+
+			$response->set_status( $ep_query['request']['response']['code'] );
+		} );
+
 		$wp_query->query( array_merge(
 			[ 'ep_integrate' => true ],
 			$data->get_query_params()
 		) );
 
-		ob_start();
+		$debug['wp_query'] = $wp_query;
 
 		if ( have_posts() ) {
 			while ( have_posts() ) {
+				ob_start();
 				the_post();
 				get_template_part( 'content', get_post_format() );
+				$posts[] = ob_get_contents();
+				ob_end_clean();
 			}
-		} else {
-			// TODO ripped from search.php - should pull from custom template file instead
-			?>
-			<article id="post-0" class="post no-results not-found">
-				<header class="entry-header">
-					<h1 class="entry-title">Nothing Found</h1>
-				</header>
-				<div class="entry-content">
-					<p>Sorry, but nothing matched your search criteria. Please try again with some different keywords.</p>
-				</div><!-- .entry-content -->
-			</article>
-			<?php
 		}
 
-		$results_html = ob_get_contents();
+		$response->set_data( [
+			'posts' => $posts,
+			'debug' => ( self::DEBUG ) ? $debug : null,
+		] );
 
-		ob_end_clean();
-
-		if ( self::DEBUG ) {
-			$response['wp_query'] = $wp_query;
-		}
-
-		$response['results_html'] = $results_html;
-
-		return new WP_REST_Response( $response );
+		return $response;
 	}
 }
