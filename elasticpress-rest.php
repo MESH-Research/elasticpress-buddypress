@@ -6,7 +6,7 @@
  * Description: ElasticPress custom feature to support live filtering via a custom WordPress REST API endpoint.
  */
 
-class EPR_REST_Posts_Controller extends WP_REST_Posts_Controller {
+class EPR_REST_Posts_Controller extends WP_REST_Controller {
 
 	// include debug output in REST response
 	const DEBUG = true;
@@ -18,15 +18,8 @@ class EPR_REST_Posts_Controller extends WP_REST_Posts_Controller {
 	 * @access public
 	 */
 	public function __construct() {
-		// TODO $wp_query->is_search is false when REST api happens even with 's' param,
-		// so we need some additional action to hook the same filters.
-		// until i find something better this is it
-		do_action( 'epr_init' );
-
 		$this->namespace = 'epr/v1';
 		$this->rest_base = '/query';
-
-		$this->meta = new WP_REST_Post_Meta_Fields( $this->post_type );
 
 		// this is not necessary and can cause bad results from elasticsearch, disable it.
 		remove_filter( 'request', 'bbp_request', 10 );
