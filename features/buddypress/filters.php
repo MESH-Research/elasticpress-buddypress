@@ -8,7 +8,8 @@
  * Filter search request path to search groups & members as well as posts.
  */
 function ep_bp_filter_ep_search_request_path( $path ) {
-	return str_replace( '/post/', '/post,' . EP_BP_API::GROUP_TYPE_NAME . ',' . EP_BP_API::MEMBER_TYPE_NAME . '/', $path );
+	//return str_replace( '/post/', '/post,' . EP_BP_API::GROUP_TYPE_NAME . ',' . EP_BP_API::MEMBER_TYPE_NAME . '/', $path );
+	return str_replace( '/post/', '/', $path );
 }
 
 /**
