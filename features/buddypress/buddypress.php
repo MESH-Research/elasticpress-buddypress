@@ -61,7 +61,6 @@ function ep_bp_setup() {
 	} );
 
 	// these don't require conditions since they only trigger during ep functions in the first place
-	add_filter( 'ep_formatted_args', 'ep_bp_filter_ep_formatted_args' );
 	add_filter( 'ep_indexable_post_types', 'ep_bp_post_types' );
 	add_filter( 'ep_index_name', 'ep_bp_filter_ep_index_name', 10, 2 );
 	add_filter( 'ep_default_index_number_of_shards', 'ep_bp_filter_ep_default_index_number_of_shards' );
