@@ -95,6 +95,15 @@ function ep_bp_filter_the_permalink( $permalink ) {
 	return $permalink;
 }
 
+
+/**
+ * Remove xprofile from highest priority of matched fields, so other fields have more boost.
+ */
+function ep_bp_filter_ep_match_phrase_boost( $boost, $search_fields ) {
+	$search_fields = array_diff( $search_fields, [ 'terms.xprofile.name' ] );
+	return $search_fields;
+}
+
 /**
  * Adjust args to handle facets
  */
