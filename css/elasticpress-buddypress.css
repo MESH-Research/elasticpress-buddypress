@@ -129,6 +129,12 @@
   color: #fff;
   border: 1px #888 solid;
 }
+.search #ep-bp-facets span.inactive::before {
+  content: '✗ ';
+}
+.search #ep-bp-facets span.active::before {
+  content: '✓ ';
+}
 
 .search .in-progress {
   opacity: 0.5;
