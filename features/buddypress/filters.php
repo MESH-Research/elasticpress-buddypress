@@ -89,8 +89,12 @@ function ep_bp_filter_ep_default_index_number_of_shards( $number_of_shards ) {
 function ep_bp_filter_the_permalink( $permalink ) {
 	global $wp_query, $post;
 
-	if ( $wp_query->is_search && in_array( $post->post_type,  [ EP_BP_API::GROUP_TYPE_NAME, EP_BP_API::MEMBER_TYPE_NAME ] ) ) {
-		$permalink = $post->permalink;
+	if ( $wp_query->is_search ) {
+		if ( in_array( $post->post_type,  [ EP_BP_API::GROUP_TYPE_NAME, EP_BP_API::MEMBER_TYPE_NAME ] ) ) {
+			$permalink = $post->permalink;
+		} else if ( in_array( $post->post_type,  [ 'reply' ] ) ) {
+			$permalink = bbp_get_topic_permalink( $post->post_parent ) . "#post-$post_id";
+		}
 	}
 
 	return $permalink;
