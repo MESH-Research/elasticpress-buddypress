@@ -1,4 +1,7 @@
 window.elasticPressBuddyPress = {
+
+  loaderDiv: '<div class="epbp-loader"><img src="/app/plugins/elasticpress-buddypress/img/ajax-loader.gif"></div>',
+
   // are we presently awaiting results?
   loading: false,
 
@@ -43,7 +46,7 @@ window.elasticPressBuddyPress = {
   handleFacetChange: function( event ) {
     $( '.epbp-loader' ).remove();
     // TODO localize
-    $( '.ep-bp-search-facets' ).append( '<div class="epbp-loader"><img src="/app/plugins/elasticpress-buddypress/img/ajax-loader.gif"></div>' );
+    $( '.ep-bp-search-facets' ).append( elasticPressBuddyPress.loaderDiv );
     elasticPressBuddyPress.page = 1;
     elasticPressBuddyPress.loadResults();
   },
@@ -64,7 +67,7 @@ window.elasticPressBuddyPress = {
 
     elasticPressBuddyPress.loading = true;
     if ( elasticPressBuddyPress.page > 1 ) {
-      elasticPressBuddyPress.target.append( '<div class="epbp-loader"><img src="/app/plugins/elasticpress-buddypress/img/ajax-loader.gif"></div>' );
+      elasticPressBuddyPress.target.append( elasticPressBuddyPress.loaderDiv );
     } else {
       elasticPressBuddyPress.target.addClass( 'in-progress' );
     }
@@ -174,7 +177,7 @@ window.elasticPressBuddyPress = {
 
     $( '#s' ).on( 'keyup', function( e ) {
       $( '.epbp-loader' ).remove();
-      $( '.ep-bp-search-facets' ).append( '<div class="epbp-loader"><img src="/app/plugins/elasticpress-buddypress/img/ajax-loader.gif"></div>' );
+      $( '.ep-bp-search-facets' ).append( elasticPressBuddyPress.loaderDiv );
       $( '#ep-bp-facets [name=s]' ).val( $( '#s' ).val() );
       elasticPressBuddyPress.page = 1;
       elasticPressBuddyPress.loadResults();
