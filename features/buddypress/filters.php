@@ -123,6 +123,11 @@ function ep_bp_filter_ep_formatted_args( $formatted_args ) {
 		[ 'terms.xprofile.name' ]
 	) );
 
+	// if search query is empty, remove "should" clause entirely since results are incomplete otherwise
+	if ( empty( $_REQUEST['s'] ) ) {
+		$formatted_args['query']['bool']['should'] = [];
+	}
+
 	return $formatted_args;
 }
 
