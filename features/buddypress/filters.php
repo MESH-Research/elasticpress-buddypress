@@ -110,7 +110,7 @@ function ep_bp_filter_ep_match_phrase_boost( $boost, $search_fields ) {
  * Adjust args to handle facets
  */
 function ep_bp_filter_ep_formatted_args( $formatted_args ) {
-	// not sure why yet but post_type.raw fails to match while post_type matches fine. change accordingly:
+	// because we changed the mapping for post_type with ep_bp_filter_ep_config_mapping(), change query accordingly
 	foreach ( $formatted_args['post_filter']['bool']['must'] as &$must ) {
 		// maybe term, maybe terms - depends on whether or not the value of "post_type.raw" is an array. need to handle both.
 		foreach ( [ 'term', 'terms' ] as $key ) {
@@ -262,11 +262,11 @@ function ep_bp_filter_ep_search_results_array( $results ) {
 }
 
 /**
- * Add the post mapping to our custom "post" types for members and groups.
+ * Unless we change post_type from text to keyword, searches for some of our buddypress fake "post" types return no results.
  */
 function ep_bp_filter_ep_config_mapping( $mapping ) {
-	$mapping['mappings'][ EP_BP_API::MEMBER_TYPE_NAME ] = $mapping['mappings']['post'];
-	$mapping['mappings'][ EP_BP_API::GROUP_TYPE_NAME ] = $mapping['mappings']['post'];
-
+	$mapping['mappings']['post']['properties']['post_type'] = [
+		'type' => 'keyword',
+	];
 	return $mapping;
 }
