@@ -119,7 +119,7 @@ window.elasticPressBuddyPress = {
     $.fx.off = true;
 
     // prevent native form submission since we're running on ajax instead
-    $( '#s' ).on( 'submit', function( e ) {
+    $( '#searchform' ).on( 'submit', function( e ) {
       e.preventDefault();
     } );
     $( '#ep-bp-facets' ).on( 'submit', function( e ) {
