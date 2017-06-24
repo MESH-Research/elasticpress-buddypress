@@ -12,9 +12,20 @@
   display: none;
 }
 
-.search .epbp-msg {
+.search .epbp-msg,
+.search #content .epbp-loader {
   font-size: 2em;
   padding: 20px 70px;
+}
+
+.search .epbp-loader {
+  text-align: center;
+}
+.search .epbp-loader img {
+}
+
+.search .ep-bp-search-facets .epbp-loader {
+  margin-top: 20px;
 }
 
 .search #ep-bp-facets h5 {

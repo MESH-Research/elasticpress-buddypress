@@ -41,6 +41,9 @@ window.elasticPressBuddyPress = {
   },
 
   handleFacetChange: function( event ) {
+    $( '.epbp-loader' ).remove();
+    // TODO localize
+    $( '.ep-bp-search-facets' ).append( '<div class="epbp-loader"><img src="/app/plugins/elasticpress-buddypress/img/ajax-loader.gif"></div>' );
     elasticPressBuddyPress.page = 1;
     elasticPressBuddyPress.loadResults();
   },
@@ -60,7 +63,11 @@ window.elasticPressBuddyPress = {
     serializedFacets = $.param( serializedFacets );
 
     elasticPressBuddyPress.loading = true;
-    elasticPressBuddyPress.target.addClass( 'in-progress' );
+    if ( elasticPressBuddyPress.page > 1 ) {
+      elasticPressBuddyPress.target.append( '<div class="epbp-loader"><img src="/app/plugins/elasticpress-buddypress/img/ajax-loader.gif"></div>' );
+    } else {
+      elasticPressBuddyPress.target.addClass( 'in-progress' );
+    }
 
     // abort pending request, if any, before starting a new one
     if ( elasticPressBuddyPress.xhr && 'abort' in elasticPressBuddyPress.xhr ) {
@@ -98,6 +105,7 @@ window.elasticPressBuddyPress = {
             window.history.pushState( request.responseJSON, '', window.location.pathname + '?' + serializedFacets );
           }
 
+          $( '.epbp-loader' ).remove();
           elasticPressBuddyPress.target.removeClass( 'in-progress' );
           elasticPressBuddyPress.loading = false;
         }
@@ -129,19 +137,44 @@ window.elasticPressBuddyPress = {
     // makes no sense to offer the option to sort least relevant results first,
     // so hide order when sorting by score.
     // boss adds markup to all selects so we must hide those too for now.
-    /* TODO boss blocks this type of thing with the Select mangling. later
-    $( '#orderby' ).on( 'change', function() {
+    var updateOrderSelect = function() {
+
       if ( $( '#orderby' ).val() === '_score' ) {
-        //$( '#order' ).hide(); // theme-independent, hopefully
-        $( '#order' ).parents( '.buddyboss-select' ).hide(); // boss
+
+        // in case user had selected asc, reset
+        if ( $( '#order' ).val() !== 'desc' ) {
+          $( '#order [value="asc"]' ).attr( 'selected', false );
+          $( '#order [value="desc"]' ).attr( 'selected', true );
+          $( this ).trigger( 'change' );
+        }
+
+        $( '#order' ).hide(); // theme-independent, hopefully
+        $( '#order' ).parents( '.buddyboss-select' ).css( 'opacity', 0 ); // boss
+
       } else {
-        //$( '#order' ).show();
-        $( '#order' ).parents( '.buddyboss-select' ).show();
+
+        $( '#order' ).show();
+        $( '#order' ).parents( '.buddyboss-select' ).css( 'opacity', 1 );
+
       }
-    } ).trigger( 'change' );
-    */
+
+    }
+
+    $( '#orderby' ).on( 'change', updateOrderSelect );
+
+    // trigger the #orderby change handler once boss Selects have initialized
+    var observer = new MutationObserver( function() {
+      if ( $( '.ep-bp-search-facets' ).children( '.buddyboss-select' ).length && $( '#orderby' ).val() === '_score' ) {
+        updateOrderSelect();
+        observer.disconnect();
+      }
+    } );
+
+    observer.observe( $( '.ep-bp-search-facets' )[0], { childList: true } );
 
     $( '#s' ).on( 'keyup', function( e ) {
+      $( '.epbp-loader' ).remove();
+      $( '.ep-bp-search-facets' ).append( '<div class="epbp-loader"><img src="/app/plugins/elasticpress-buddypress/img/ajax-loader.gif"></div>' );
       $( '#ep-bp-facets [name=s]' ).val( $( '#s' ).val() );
       elasticPressBuddyPress.page = 1;
       elasticPressBuddyPress.loadResults();
