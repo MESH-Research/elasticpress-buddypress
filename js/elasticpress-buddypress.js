@@ -46,14 +46,18 @@ window.elasticPressBuddyPress = {
   },
 
   loadResults: function() {
-    var params = $( '.ep-bp-search-facets' ).serializeArray();
+    var serializedFacets = $( '.ep-bp-search-facets' ).serializeArray();
 
-    params.push( {
+    serializedFacets.push( {
       name: 'paged',
       value: elasticPressBuddyPress.page
     } );
 
-    params = $.param( params );
+    for ( var i = 0; i < serializedFacets.length; i++ ) {
+      serializedFacets[ i ].value = $.trim( serializedFacets[ i ].value );
+    }
+
+    serializedFacets = $.param( serializedFacets );
 
     elasticPressBuddyPress.loading = true;
     elasticPressBuddyPress.target.addClass( 'in-progress' );
@@ -64,7 +68,7 @@ window.elasticPressBuddyPress = {
     }
 
     // TODO set ajax path with wp_localize_script() from EPR_REST_Posts_Controller property
-    elasticPressBuddyPress.xhr = $.getJSON( '/wp-json/epr/v1/query?' + params )
+    elasticPressBuddyPress.xhr = $.getJSON( '/wp-json/epr/v1/query?' + serializedFacets )
       .success( function( data ) {
         // clear existing results unless we're infinite scrolling
         if ( elasticPressBuddyPress.page === 1 ) {
@@ -91,7 +95,7 @@ window.elasticPressBuddyPress = {
       .complete( function( request ) {
         if ( request.statusText !== 'abort' ) {
           if ( window.history && window.history.pushState ) {
-            window.history.pushState( request.responseJSON, '', window.location.pathname + '?' + params );
+            window.history.pushState( request.responseJSON, '', window.location.pathname + '?' + serializedFacets );
           }
 
           elasticPressBuddyPress.target.removeClass( 'in-progress' );
@@ -109,7 +113,7 @@ window.elasticPressBuddyPress = {
     $( '#ep-bp-facets' ).find( 'select' ).on( 'change', elasticPressBuddyPress.handleFacetChange );
     $( '#ep-bp-facets' ).find( 'input' ).on( 'keyup', elasticPressBuddyPress.handleFacetChange );
 
-    $( '#s' ).val( $( '#ep-bp-facets [name=s]' ).val() );
+    $( '#s' ).val( $.trim( $( '#ep-bp-facets [name=s]' ).val() ) );
 
     // disable fade effects in titlebar. really a theme thing.
     $.fx.off = true;
