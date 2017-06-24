@@ -178,11 +178,8 @@ function ep_bp_translate_args( $query ) {
  */
 function ep_bp_post_types( $post_types = [] ) {
 	return array_unique( array_merge( $post_types, [
-		'bp_doc' => 'bp_doc',
-		'bp_docs_folder' => 'bp_docs_folder',
-		'forum' => 'forum',
-		'reply' => 'reply',
-		'topic' => 'topic',
+		bbp_get_topic_post_type() => bbp_get_topic_post_type(),
+		bbp_get_reply_post_type() => bbp_get_reply_post_type(),
 	] ) );
 }
 
