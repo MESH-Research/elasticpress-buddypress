@@ -24,6 +24,10 @@
 .search .epbp-loader img {
 }
 
+.search .avatar-65 {
+  border-radius: 37px;
+}
+
 .search .ep-bp-search-facets .epbp-loader {
   margin-top: 20px;
 }
