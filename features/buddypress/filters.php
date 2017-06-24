@@ -98,15 +98,6 @@ function ep_bp_filter_the_permalink( $permalink ) {
 
 
 /**
- * Remove xprofile from highest priority of matched fields, so other fields have more boost.
- * TODO this causes a 400 bad request.
- */
-function ep_bp_filter_ep_match_phrase_boost( $boost, $search_fields ) {
-	$search_fields = array_diff( $search_fields, [ 'terms.xprofile.name' ] );
-	return $search_fields;
-}
-
-/**
  * Adjust args to handle facets
  */
 function ep_bp_filter_ep_formatted_args( $formatted_args ) {
@@ -125,6 +116,12 @@ function ep_bp_filter_ep_formatted_args( $formatted_args ) {
 			}
 		}
 	}
+
+	// Remove xprofile from highest priority of matched fields, so other fields have more boost.
+	$formatted_args['query']['bool']['should'][0]['multi_match']['fields'] = array_values( array_diff(
+		$formatted_args['query']['bool']['should'][0]['multi_match']['fields'],
+		[ 'terms.xprofile.name' ]
+	) );
 
 	return $formatted_args;
 }

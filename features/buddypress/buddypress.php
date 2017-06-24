@@ -68,7 +68,6 @@ function ep_bp_setup() {
 	add_filter( 'ep_sync_taxonomies', 'ep_bp_whitelist_taxonomies' );
 	add_filter( 'ep_search_request_path', 'ep_bp_filter_ep_search_request_path' );
 	add_filter( 'ep_search_results_array', 'ep_bp_filter_ep_search_results_array' );
-	//add_filter( 'ep_match_phrase_boost', 'ep_bp_filter_ep_match_phrase_boost', 10, 2 );
 	add_filter( 'ep_config_mapping', 'ep_bp_filter_ep_config_mapping' );
 
 	add_action( 'ep_wp_cli_pre_index', function() {
