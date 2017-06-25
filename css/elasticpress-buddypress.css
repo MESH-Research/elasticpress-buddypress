@@ -55,7 +55,13 @@
 }
 
 .search .post-wrap {
-  padding: 20px 70px;
+  padding: 10px 70px;
+}
+.search .hentry .whitespace {
+  height: 0;
+}
+.search #content article {
+  margin-bottom: 0;
 }
 
 .search .avatar {
