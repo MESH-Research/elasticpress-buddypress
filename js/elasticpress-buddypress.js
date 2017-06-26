@@ -80,6 +80,10 @@ window.elasticPressBuddyPress = {
     // TODO set ajax path with wp_localize_script() from EPR_REST_Posts_Controller property
     elasticPressBuddyPress.xhr = $.getJSON( '/wp-json/epr/v1/query?' + serializedFacets )
       .success( function( data ) {
+        if ( window.history && window.history.pushState ) {
+          window.history.pushState( request.responseJSON, '', window.location.pathname + '?' + serializedFacets );
+        }
+
         // clear existing results unless we're infinite scrolling
         if ( elasticPressBuddyPress.page === 1 ) {
           elasticPressBuddyPress.target.html( '' );
@@ -104,10 +108,6 @@ window.elasticPressBuddyPress = {
       } )
       .complete( function( request ) {
         if ( request.statusText !== 'abort' ) {
-          if ( window.history && window.history.pushState ) {
-            window.history.pushState( request.responseJSON, '', window.location.pathname + '?' + serializedFacets );
-          }
-
           $( '.epbp-loader' ).remove();
           elasticPressBuddyPress.target.removeClass( 'in-progress' );
           elasticPressBuddyPress.loading = false;
