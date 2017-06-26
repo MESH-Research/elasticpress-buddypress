@@ -71,6 +71,11 @@ function ep_bp_setup() {
 	add_filter( 'ep_config_mapping', 'ep_bp_filter_ep_config_mapping' );
 
 	add_action( 'ep_wp_cli_pre_index', function() {
+		// replace the bbpress filter with a filter when ep syncs
+		// bbpress is overzealous and excludes more posts than it should
+		remove_action( 'pre_get_posts', 'bbp_pre_get_posts_normalize_forum_visibility', 4 );
+		add_filter( 'ep_post_sync_kill', 'ep_bp_filter_ep_post_sync_kill', 10, 3 );
+
 		// prevent infinite loops as bbpress waffles with reply titles
 		add_filter( 'bbp_get_topic_id', function( $bbp_topic_id, $topic_id ) {
 			if ( $bbp_topic_id === 0 && $topic_id === 0 ) {

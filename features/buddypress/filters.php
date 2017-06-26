@@ -268,6 +268,18 @@ function ep_bp_filter_ep_search_results_array( $results ) {
 }
 
 /**
+ * filter out private bbpress content this way instead of a meta_query since that also excludes some non-replies.
+ * this takes the place of bbp_pre_get_posts_normalize_forum_visibility()
+ */
+function ep_bp_filter_ep_post_sync_kill( $kill, $post_args, $post_id ) {
+	$meta = get_post_meta( $post_id );
+	if ( isset( $meta['_bbp_forum_id'] ) && array_intersect( $meta['_bbp_forum_id'], bbp_exclude_forum_ids( 'array' ) ) ) {
+		$kill = true;
+	}
+	return $kill;
+}
+
+/**
  * Unless we change post_type from text to keyword, searches for some of our buddypress fake "post" types return no results.
  */
 function ep_bp_filter_ep_config_mapping( $mapping ) {
