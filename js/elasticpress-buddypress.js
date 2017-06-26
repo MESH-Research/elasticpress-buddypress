@@ -176,11 +176,14 @@ window.elasticPressBuddyPress = {
     observer.observe( $( '.ep-bp-search-facets' )[0], { childList: true } );
 
     $( '#s' ).on( 'keyup', function( e ) {
-      $( '.epbp-loader' ).remove();
-      $( '.ep-bp-search-facets' ).append( elasticPressBuddyPress.loaderDiv );
-      $( '#ep-bp-facets [name=s]' ).val( $( '#s' ).val() );
-      elasticPressBuddyPress.page = 1;
-      elasticPressBuddyPress.loadResults();
+      // only process change if the value of the input actually changed (not some other key press)
+      if ( $( '#s' ).val() !== $( '#ep-bp-facets [name=s]' ).val() ) {
+        $( '.epbp-loader' ).remove();
+        $( '.ep-bp-search-facets' ).append( elasticPressBuddyPress.loaderDiv );
+        $( '#ep-bp-facets [name=s]' ).val( $( '#s' ).val() );
+        elasticPressBuddyPress.page = 1;
+        elasticPressBuddyPress.loadResults();
+      }
     } );
 
     $( window ).on( 'scroll', function ( event ) {
