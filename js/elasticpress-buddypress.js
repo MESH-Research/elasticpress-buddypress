@@ -81,7 +81,7 @@ window.elasticPressBuddyPress = {
     elasticPressBuddyPress.xhr = $.getJSON( '/wp-json/epr/v1/query?' + serializedFacets )
       .success( function( data ) {
         if ( window.history && window.history.pushState ) {
-          window.history.pushState( request.responseJSON, '', window.location.pathname + '?' + serializedFacets );
+          window.history.pushState( data, '', window.location.pathname + '?' + serializedFacets );
         }
 
         // clear existing results unless we're infinite scrolling
