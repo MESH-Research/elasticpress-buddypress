@@ -52,11 +52,17 @@ function ep_bp_network_select() {
 			$networks[] = $network;
 		}
 	}
+
+
+	if ( ! isset( $_REQUEST['index'] ) ) {
+		$_REQUEST['index'] = [ ep_get_index_name() ];
+	}
+
 	?>
 		<select multiple name="index[]" id="index" size="<?php echo count( $networks ); ?>">
 		<?php foreach ( $networks as $network ) {
 			switch_to_blog( get_main_site_for_network( $network ) );
-			$selected = ( ! isset( $_REQUEST['index'] ) || in_array( ep_get_index_name(), $_REQUEST['index'] ) );
+			$selected = ( in_array( ep_get_index_name(), $_REQUEST['index'] ) );
 			printf( '<option value="%1$s"%3$s>%2$s</option>',
 				ep_get_index_name(),
 				get_bloginfo(),
