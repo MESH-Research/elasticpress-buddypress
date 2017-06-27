@@ -127,6 +127,19 @@ function ep_bp_filter_ep_formatted_args( $formatted_args ) {
 		[ 'terms.xprofile.name' ]
 	) );
 
+	// Add a match block to give extra boost to matches in post name
+	$formatted_args['query']['bool']['should'] = array_values( array_merge(
+		[ [
+			'multi_match' => [
+				'query' => $formatted_args['query']['bool']['should'][0]['multi_match']['query'],
+				'type' => 'phrase',
+				'fields' => ['post_title'],
+				'boost' => 4
+			]
+		] ],
+		$formatted_args['query']['bool']['should']
+	) );
+
 	// if search query is empty, remove "should" clause entirely since results are incomplete otherwise
 	if ( empty( $_REQUEST['s'] ) ) {
 		$formatted_args['query']['bool']['should'] = [];
