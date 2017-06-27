@@ -194,9 +194,9 @@ window.elasticPressBuddyPress = {
       );
 
       if(
-        $( window ).scrollTop() >= targetScrollTop &&
-          ! elasticPressBuddyPress.loading &&
-          ! elasticPressBuddyPress.target.children( '.epbp-msg' ).length
+        ! elasticPressBuddyPress.target.children( '.epbp-msg' ).length &&
+        ! elasticPressBuddyPress.loading &&
+        ( $( window ).scrollTop() >= targetScrollTop || elasticPressBuddyPress.target.children().length < 10 )
       ) {
         elasticPressBuddyPress.page++;
         elasticPressBuddyPress.xhr = elasticPressBuddyPress.loadResults();
