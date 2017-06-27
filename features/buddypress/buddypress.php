@@ -112,11 +112,13 @@ function ep_bp_feature_box_summary() {
  * Register the feature
  */
 function ep_bp_register_feature() {
-	ep_register_feature( 'buddypress', [
-		'title' => 'BuddyPress',
-		'setup_cb' => 'ep_bp_setup',
-		'requirements_status_cb' => 'ep_bp_requirements_status',
-		'feature_box_summary_cb' => 'ep_bp_feature_box_summary',
-		'requires_install_reindex' => false,
-	] );
+	if ( function_exists( 'ep_register_feature' ) ) {
+		ep_register_feature( 'buddypress', [
+			'title' => 'BuddyPress',
+			'setup_cb' => 'ep_bp_setup',
+			'requirements_status_cb' => 'ep_bp_requirements_status',
+			'feature_box_summary_cb' => 'ep_bp_feature_box_summary',
+			'requires_install_reindex' => false,
+		] );
+	}
 }
