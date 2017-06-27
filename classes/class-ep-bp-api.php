@@ -52,7 +52,7 @@ class EP_BP_API {
 			'post_date'         => $group->date_created,
 			'post_date_gmt'     => $group->date_created,
 			'post_title'        => $this->prepare_text_content( $group->name ),
-			'post_excerpt'      => $this->prepare_text_content( $group->description ),
+			'post_excerpt'      => '',
 			'post_content'      => $this->prepare_text_content( $group->description ),
 			'post_status'       => 'publish',
 			'post_name'         => $this->prepare_text_content( $group->name ),
@@ -123,10 +123,10 @@ class EP_BP_API {
 			'post_date'         => $user->user_registered,
 			'post_date_gmt'     => $user->user_registered,
 			'post_title'        => $this->prepare_text_content( $user->display_name ),
-			'post_excerpt'      => $this->prepare_text_content( make_clickable( bp_get_member_permalink() ) ),
+			'post_excerpt'      => '',
 			'post_content'      => $this->prepare_text_content( make_clickable( bp_get_member_permalink() ) ),
 			'post_status'       => 'publish',
-			'post_name'         => $this->prepare_text_content( $user->display_name ),
+			'post_name'         => '',
 			'post_modified'     => $user->user_registered,
 			'post_modified_gmt' => $user->user_registered,
 			'post_parent'       => 0,
@@ -156,7 +156,7 @@ class EP_BP_API {
 	 * @return array user data
 	 */
 	private function get_user_data( $user ) {
-		if ( $user instanceof WP_User ) {
+		if ( is_object( $user ) ) {
 			$user_data = [
 				'raw'          => $user->user_login,
 				'login'        => $user->user_login,
