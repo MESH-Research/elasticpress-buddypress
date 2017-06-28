@@ -154,6 +154,9 @@ window.elasticPressBuddyPress = {
       if ( request.statusText !== 'abort' ) {
         elasticPressBuddyPress.clearLoading();
       }
+
+      // keep loading more results to account for first pages with fewer than 10 results
+      elasticPressBuddyPress.handleScroll();
     }
     var serializedFacets = ( function() {
       var parsedFacets = $( '.ep-bp-search-facets' ).serializeArray();
