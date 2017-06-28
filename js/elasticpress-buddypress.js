@@ -48,6 +48,23 @@ window.elasticPressBuddyPress = {
     } );
   },
 
+  // show loading indicators and clear existing results if necessary
+  showLoading: function() {
+    elasticPressBuddyPress.loading = true;
+    if ( elasticPressBuddyPress.page > 1 ) {
+      elasticPressBuddyPress.target.append( elasticPressBuddyPress.loaderDiv );
+    } else {
+      elasticPressBuddyPress.target.addClass( 'in-progress' );
+    }
+  },
+
+  // remove loading indicators
+  clearLoading: function() {
+    $( '.epbp-loader' ).remove();
+    elasticPressBuddyPress.target.removeClass( 'in-progress' );
+    elasticPressBuddyPress.loading = false;
+  },
+
   // change handler for search facets
   handleFacetChange: function() {
     $( '.epbp-loader' ).remove();
@@ -68,27 +85,69 @@ window.elasticPressBuddyPress = {
     }
   },
 
-  // initiate a new xhr to fetch results, then render them
+  // initiate a new xhr to fetch results, then render them (or an appropriate message if no results for whatever reason)
   loadResults: function() {
-    var serializedFacets = $( '.ep-bp-search-facets' ).serializeArray();
+    var handleSuccess = function( data ) {
+      // clear existing results unless we're infinite scrolling
+      if ( elasticPressBuddyPress.page === 1 ) {
+        elasticPressBuddyPress.target.html( '' );
+      }
 
-    serializedFacets.push( {
-      name: 'paged',
-      value: elasticPressBuddyPress.page
-    } );
+      if ( data.posts.length ) {
+        // remove results which are already listed on other network(s)
+        // this is done serverside too but only affects one page at a time
+        // doing it again here prevents dupes when they appear on different pages
+        $.each( data.posts, function( i, thisPost ) {
+          $.each( elasticPressBuddyPress.target.children( 'article' ), function( j, thatPost ) {
+            if (
+              $( thisPost ).attr( 'id' ).split('-')[1] === $( thatPost ).attr( 'id' ).split('-')[1] &&
+                $( thisPost ).find( '.entry-title' ).text() === $( thatPost ).find( '.entry-title' ).text() &&
+                $( thisPost ).find( '.entry-title a' ).attr( 'href' ) !== $( thatPost ).find( '.entry-title a' ).attr( 'href' )
+            ) {
+              delete data.posts[i];
+            }
+          } );
+        } );
 
-    for ( var i = 0; i < serializedFacets.length; i++ ) {
-      serializedFacets[ i ].value = $.trim( serializedFacets[ i ].value );
+        elasticPressBuddyPress.target.append( data.posts.join( '' ) );
+
+        if ( window.history && window.history.pushState ) {
+          window.history.pushState( data, '', window.location.pathname + '?' + serializedFacets );
+        }
+      } else {
+        if ( elasticPressBuddyPress.page > 1 ) {
+          elasticPressBuddyPress.target.append( elasticPressBuddyPress.noMoreResultsDiv );
+        } else {
+          elasticPressBuddyPress.target.append( elasticPressBuddyPress.noResultsDiv );
+        }
+      }
     }
-
-    serializedFacets = $.param( serializedFacets );
-
-    elasticPressBuddyPress.loading = true;
-    if ( elasticPressBuddyPress.page > 1 ) {
-      elasticPressBuddyPress.target.append( elasticPressBuddyPress.loaderDiv );
-    } else {
-      elasticPressBuddyPress.target.addClass( 'in-progress' );
+    var handleError = function( request ) {
+      if ( request.statusText !== 'abort' ) {
+        elasticPressBuddyPress.target.html( elasticPressBuddyPress.errorDiv );
+      }
     }
+    var handleComplete = function( request ) {
+      if ( request.statusText !== 'abort' ) {
+        elasticPressBuddyPress.clearLoading();
+      }
+    }
+    var serializedFacets = ( function() {
+      var parsedFacets = $( '.ep-bp-search-facets' ).serializeArray();
+
+      parsedFacets.push( {
+        name: 'paged',
+        value: elasticPressBuddyPress.page
+      } );
+
+      for ( var i = 0; i < parsedFacets.length; i++ ) {
+        parsedFacets[ i ].value = $.trim( parsedFacets[ i ].value );
+      }
+
+      return $.param( parsedFacets );
+    } )();
+
+    elasticPressBuddyPress.showLoading();
 
     // abort pending request, if any, before starting a new one
     if ( elasticPressBuddyPress.xhr && 'abort' in elasticPressBuddyPress.xhr ) {
@@ -97,53 +156,9 @@ window.elasticPressBuddyPress = {
 
     // TODO set ajax path with wp_localize_script() from EPR_REST_Posts_Controller property
     elasticPressBuddyPress.xhr = $.getJSON( '/wp-json/epr/v1/query?' + serializedFacets )
-      .success( function( data ) {
-        // clear existing results unless we're infinite scrolling
-        if ( elasticPressBuddyPress.page === 1 ) {
-          elasticPressBuddyPress.target.html( '' );
-        }
-
-        if ( data.posts.length ) {
-          // remove results which are already listed on other network(s)
-          // this is done serverside too but only affects one page at a time
-          // doing it again here prevents dupes when they appear on different pages
-          $.each( data.posts, function( i, thisPost ) {
-            $.each( elasticPressBuddyPress.target.children( 'article' ), function( j, thatPost ) {
-              if (
-                $( thisPost ).attr( 'id' ).split('-')[1] === $( thatPost ).attr( 'id' ).split('-')[1] &&
-                $( thisPost ).find( '.entry-title' ).text() === $( thatPost ).find( '.entry-title' ).text() &&
-                $( thisPost ).find( '.entry-title a' ).attr( 'href' ) !== $( thatPost ).find( '.entry-title a' ).attr( 'href' )
-              ) {
-                delete data.posts[i];
-              }
-            } );
-          } );
-
-          elasticPressBuddyPress.target.append( data.posts.join( '' ) );
-
-          if ( window.history && window.history.pushState ) {
-            window.history.pushState( data, '', window.location.pathname + '?' + serializedFacets );
-          }
-        } else {
-          if ( elasticPressBuddyPress.page > 1 ) {
-            elasticPressBuddyPress.target.append( elasticPressBuddyPress.noMoreResultsDiv );
-          } else {
-            elasticPressBuddyPress.target.append( elasticPressBuddyPress.noResultsDiv );
-          }
-        }
-      } )
-      .error( function( request ) {
-        if ( request.statusText !== 'abort' ) {
-          elasticPressBuddyPress.target.html( elasticPressBuddyPress.errorDiv );
-        }
-      } )
-      .complete( function( request ) {
-        if ( request.statusText !== 'abort' ) {
-          $( '.epbp-loader' ).remove();
-          elasticPressBuddyPress.target.removeClass( 'in-progress' );
-          elasticPressBuddyPress.loading = false;
-        }
-      } );
+      .success( handleSuccess )
+      .error( handleError )
+      .complete( handleComplete );
   },
 
   // automatically hide & show relevant order options
