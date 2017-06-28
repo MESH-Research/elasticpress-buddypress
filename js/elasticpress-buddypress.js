@@ -141,9 +141,6 @@ window.elasticPressBuddyPress = {
 
     $( '#s' ).val( $.trim( $( '#ep-bp-facets [name=s]' ).val() ) );
 
-    // disable fade effects in titlebar. really a theme thing.
-    $.fx.off = true;
-
     // prevent native form submission since we're running on ajax instead
     $( '#searchform' ).on( 'submit', function( e ) {
       e.preventDefault();
