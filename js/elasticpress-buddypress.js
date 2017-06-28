@@ -85,12 +85,13 @@ window.elasticPressBuddyPress = {
     }
   },
 
-  // initiate a new xhr to fetch results, then render them (or an appropriate message if no results for whatever reason)
+  // initiate a new xhr to fetch results, then render them (or an appropriate message if no results)
   loadResults: function() {
     var handleSuccess = function( data ) {
       // clear existing results unless we're infinite scrolling
       if ( elasticPressBuddyPress.page === 1 ) {
         elasticPressBuddyPress.target.html( '' );
+        window.scrollTo( 0, 0 );
       }
 
       if ( data.posts.length ) {
