@@ -140,9 +140,14 @@ function ep_bp_filter_ep_formatted_args( $formatted_args ) {
 		$formatted_args['query']['bool']['should']
 	) );
 
-	// if search query is empty, remove "should" clause entirely since results are incomplete otherwise
 	if ( empty( $_REQUEST['s'] ) ) {
+		// remove "should" clause entirely since results are incomplete otherwise
 		$formatted_args['query']['bool']['should'] = [];
+
+		// "relevancy" has no significance without a search query as context, just sort by most recent
+		$formatted_args['sort'] = [ [
+			'post_date' => [ 'order' => 'desc' ]
+		] ];
 	}
 
 	return $formatted_args;
