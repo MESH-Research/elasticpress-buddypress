@@ -209,6 +209,33 @@ window.elasticPressBuddyPress = {
     }
   },
 
+  // combine topic & reply facets to simplify UX
+  combineDiscussionTypeFacets: function() {
+    var realFacetButtons = $( '#ep_bp_post_type_facet' ).children( ':contains(Topics), :contains(Replies)' );
+    var fakeFacetButton = $( '<span>Discussions</span>' );
+
+    // if the real facets have different active states, i.e. topics=active & replies=inactive,
+    // something is wrong or maybe someone is being clever manually changing the filters/url.
+    // either way, we can't combine them without changing the results, so just abort
+    if ( $( realFacetButtons[0] ).attr( 'class' ) !== $( realFacetButtons[1] ).attr( 'class' ) ) {
+      return;
+    }
+
+    realFacetButtons.hide();
+
+    fakeFacetButton
+      .addClass( realFacetButtons.attr( 'class' ) ) // only uses the class of the first button
+      .appendTo( '#ep_bp_post_type_facet' )
+      .on( 'click', function() {
+        if ( fakeFacetButton.hasClass( 'active' ) ) {
+          fakeFacetButton.removeClass( 'active' ).addClass( 'inactive' );
+        } else {
+          fakeFacetButton.removeClass( 'inactive' ).addClass( 'active' );
+        }
+        realFacetButtons.trigger( 'click' );
+      } );
+  },
+
   // set up tabselect, event handlers, etc.
   init: function() {
     // trigger the #orderby change handler once boss Selects have initialized
@@ -225,6 +252,8 @@ window.elasticPressBuddyPress = {
 
     elasticPressBuddyPress.initTabSelect( 'select[name=post_type\\[\\]]', '#ep_bp_post_type_facet' );
     elasticPressBuddyPress.initTabSelect( 'select[name=index\\[\\]]', '#ep_bp_index_facet' );
+
+    elasticPressBuddyPress.combineDiscussionTypeFacets();
 
     // ensure consistent search input values
     $( '#s' ).val( $.trim( $( '#ep-bp-facets [name=s]' ).val() ) );
