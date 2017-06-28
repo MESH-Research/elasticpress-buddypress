@@ -86,6 +86,21 @@ window.elasticPressBuddyPress = {
         }
 
         if ( data.posts.length ) {
+          // remove results which are already listed on other network(s)
+          // this is done serverside too but only affects one page at a time
+          // doing it again here prevents dupes when they appear on different pages
+          $.each( data.posts, function( i, thisPost ) {
+            $.each( elasticPressBuddyPress.target.children( 'article' ), function( j, thatPost ) {
+              if (
+                $( thisPost ).attr( 'id' ).split('-')[1] === $( thatPost ).attr( 'id' ).split('-')[1] &&
+                $( thisPost ).find( '.entry-title' ).text() === $( thatPost ).find( '.entry-title' ).text() &&
+                $( thisPost ).find( '.entry-title a' ).attr( 'href' ) !== $( thatPost ).find( '.entry-title a' ).attr( 'href' )
+              ) {
+                delete data.posts[i];
+              }
+            } );
+          } );
+
           elasticPressBuddyPress.target.append( data.posts.join( '' ) );
 
           if ( window.history && window.history.pushState ) {
