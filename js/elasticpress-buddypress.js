@@ -187,11 +187,10 @@ window.elasticPressBuddyPress = {
     } );
 
     $( window ).on( 'scroll', function ( event ) {
-      var targetScrollTop = 0.75 * (
+      var targetScrollTop =
         elasticPressBuddyPress.target.offset().top +
         elasticPressBuddyPress.target.outerHeight() -
-        window.innerHeight
-      );
+        window.innerHeight * 3;
 
       if(
         ! elasticPressBuddyPress.target.children( '.epbp-msg' ).length &&
