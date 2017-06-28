@@ -1,6 +1,10 @@
 window.elasticPressBuddyPress = {
 
+  // markup for various UI elements
   loaderDiv: '<div class="epbp-loader"><img src="/app/plugins/elasticpress-buddypress/img/ajax-loader.gif"></div>',
+  noMoreResultsDiv: '<div class="epbp-msg no-more-results">No more results.</div>',
+  noResultsDiv: '<div class="epbp-msg no-results">No results.</div>',
+  errorDiv: '<div class="epbp-msg error">Something went wrong! Please try a different query.</div>',
 
   // are we presently awaiting results?
   loading: false,
@@ -14,6 +18,7 @@ window.elasticPressBuddyPress = {
   // element to which results are appended ( set in init() since it doesn't exist until document.ready )
   target: null,
 
+  // helper function to customize jQuery.tabselect initialization for multiselect search facets
   initTabSelect: function( formElement, targetElement ) {
     var tabElements = [];
     var selectedTabs = [];
@@ -43,14 +48,27 @@ window.elasticPressBuddyPress = {
     } );
   },
 
-  handleFacetChange: function( event ) {
+  // change handler for search facets
+  handleFacetChange: function() {
     $( '.epbp-loader' ).remove();
-    // TODO localize
     $( '.ep-bp-search-facets' ).append( elasticPressBuddyPress.loaderDiv );
     elasticPressBuddyPress.page = 1;
     elasticPressBuddyPress.loadResults();
   },
 
+  // "change" (really, keyup) handler for search input
+  handleSearchInputChange: function() {
+    // only process change if the value of the input actually changed (not some other key press)
+    if ( $( '#s' ).val() !== $( '#ep-bp-facets [name=s]' ).val() ) {
+      $( '.epbp-loader' ).remove();
+      $( '.ep-bp-search-facets' ).append( elasticPressBuddyPress.loaderDiv );
+      $( '#ep-bp-facets [name=s]' ).val( $( '#s' ).val() );
+      elasticPressBuddyPress.page = 1;
+      elasticPressBuddyPress.loadResults();
+    }
+  },
+
+  // initiate a new xhr to fetch results, then render them
   loadResults: function() {
     var serializedFacets = $( '.ep-bp-search-facets' ).serializeArray();
 
@@ -108,17 +126,15 @@ window.elasticPressBuddyPress = {
           }
         } else {
           if ( elasticPressBuddyPress.page > 1 ) {
-            elasticPressBuddyPress.target.append( '<div class="epbp-msg no-more-results">No more results.</div>' );
+            elasticPressBuddyPress.target.append( elasticPressBuddyPress.noMoreResultsDiv );
           } else {
-            elasticPressBuddyPress.target.append( '<div class="epbp-msg no-results">No results.</div>' );
+            elasticPressBuddyPress.target.append( elasticPressBuddyPress.noResultsDiv );
           }
         }
       } )
       .error( function( request ) {
         if ( request.statusText !== 'abort' ) {
-          elasticPressBuddyPress.target.html(
-            '<div class="epbp-msg error">Something went wrong! Please try a different query.</div>'
-          );
+          elasticPressBuddyPress.target.html( elasticPressBuddyPress.errorDiv );
         }
       } )
       .complete( function( request ) {
@@ -130,6 +146,32 @@ window.elasticPressBuddyPress = {
       } );
   },
 
+  // automatically hide & show relevant order options
+  updateOrderSelect: function() {
+    // makes no sense to offer the option to sort least relevant results first,
+    // so hide order when sorting by score.
+    // boss adds markup to all selects so we must hide those too for now.
+    if ( $( '#orderby' ).val() === '_score' ) {
+
+      // in case user had selected asc, reset
+      if ( $( '#order' ).val() !== 'desc' ) {
+        $( '#order [value="asc"]' ).attr( 'selected', false );
+        $( '#order [value="desc"]' ).attr( 'selected', true );
+        $( this ).trigger( 'change' );
+      }
+
+      $( '#order' ).hide(); // theme-independent, hopefully
+      $( '#order' ).parents( '.buddyboss-select' ).css( 'opacity', 0 ); // boss
+
+    } else {
+
+      $( '#order' ).show();
+      $( '#order' ).parents( '.buddyboss-select' ).css( 'opacity', 1 );
+
+    }
+  },
+
+  // set up tabselect, event handlers, etc.
   init: function() {
     elasticPressBuddyPress.target = $( '#content' );
 
@@ -149,54 +191,19 @@ window.elasticPressBuddyPress = {
       e.preventDefault();
     } );
 
-    // makes no sense to offer the option to sort least relevant results first,
-    // so hide order when sorting by score.
-    // boss adds markup to all selects so we must hide those too for now.
-    var updateOrderSelect = function() {
-
-      if ( $( '#orderby' ).val() === '_score' ) {
-
-        // in case user had selected asc, reset
-        if ( $( '#order' ).val() !== 'desc' ) {
-          $( '#order [value="asc"]' ).attr( 'selected', false );
-          $( '#order [value="desc"]' ).attr( 'selected', true );
-          $( this ).trigger( 'change' );
-        }
-
-        $( '#order' ).hide(); // theme-independent, hopefully
-        $( '#order' ).parents( '.buddyboss-select' ).css( 'opacity', 0 ); // boss
-
-      } else {
-
-        $( '#order' ).show();
-        $( '#order' ).parents( '.buddyboss-select' ).css( 'opacity', 1 );
-
-      }
-
-    }
-
-    $( '#orderby' ).on( 'change', updateOrderSelect );
+    $( '#orderby' ).on( 'change', elasticPressBuddyPress.updateOrderSelect );
 
     // trigger the #orderby change handler once boss Selects have initialized
     var observer = new MutationObserver( function() {
       if ( $( '.ep-bp-search-facets' ).children( '.buddyboss-select' ).length && $( '#orderby' ).val() === '_score' ) {
-        updateOrderSelect();
+        elasticPressBuddyPress.updateOrderSelect();
         observer.disconnect();
       }
     } );
 
     observer.observe( $( '.ep-bp-search-facets' )[0], { childList: true } );
 
-    $( '#s' ).on( 'keyup', function( e ) {
-      // only process change if the value of the input actually changed (not some other key press)
-      if ( $( '#s' ).val() !== $( '#ep-bp-facets [name=s]' ).val() ) {
-        $( '.epbp-loader' ).remove();
-        $( '.ep-bp-search-facets' ).append( elasticPressBuddyPress.loaderDiv );
-        $( '#ep-bp-facets [name=s]' ).val( $( '#s' ).val() );
-        elasticPressBuddyPress.page = 1;
-        elasticPressBuddyPress.loadResults();
-      }
-    } );
+    $( '#s' ).on( 'keyup', elasticPressBuddyPress.handleSearchInputChange );
 
     $( window ).on( 'scroll', function ( event ) {
       var targetScrollTop =
