@@ -239,7 +239,7 @@ function ep_bp_filter_result_titles( $title ) {
 			break;
 	}
 
-	$tag = sprintf( '<span class="post_type %1$s">%2$s</span>',
+	$tag = sprintf( '<span class="post_type %1$s">%2$s</span> ',
 		$name,
 		$label
 	);
