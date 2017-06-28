@@ -94,12 +94,17 @@ window.elasticPressBuddyPress = {
 
     if(
       ! elasticPressBuddyPress.target.children( '.epbp-msg' ).length &&
-        ! elasticPressBuddyPress.loading &&
-        ( $( window ).scrollTop() >= targetScrollTop || elasticPressBuddyPress.target.children().length < 10 )
+      ! elasticPressBuddyPress.loading &&
+      ( $( window ).scrollTop() >= targetScrollTop || elasticPressBuddyPress.target.children().length < 10 )
     ) {
       elasticPressBuddyPress.page++;
       elasticPressBuddyPress.xhr = elasticPressBuddyPress.loadResults();
     }
+  },
+
+  // form submission handler. everything loads via xhr, so just prevent default handler.
+  handleSubmit: function( e ) {
+    e.preventDefault();
   },
 
   // initiate a new xhr to fetch results, then render them (or an appropriate message if no results)
@@ -230,15 +235,9 @@ window.elasticPressBuddyPress = {
     $( '#orderby' ).on( 'change', elasticPressBuddyPress.updateOrderSelect );
     $( '#s' ).on( 'keyup', elasticPressBuddyPress.handleSearchInputChange );
     $( window ).on( 'scroll', elasticPressBuddyPress.handleScroll );
-
-    // prevent native form submission since we're running on ajax instead
-    $( '#searchform' ).on( 'submit', function( e ) {
-      e.preventDefault();
-    } );
-    $( '#ep-bp-facets' ).on( 'submit', function( e ) {
-      e.preventDefault();
-    } );
+    $( '#searchform, #ep-bp-facets' ).on( 'submit', elasticPressBuddyPress.handleSubmit );
   }
+
 }
 
 $( elasticPressBuddyPress.init );
