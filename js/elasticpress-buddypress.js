@@ -85,6 +85,23 @@ window.elasticPressBuddyPress = {
     }
   },
 
+  // infinite scroll
+  handleScroll: function() {
+    var targetScrollTop =
+      elasticPressBuddyPress.target.offset().top +
+      elasticPressBuddyPress.target.outerHeight() -
+      window.innerHeight * 3;
+
+    if(
+      ! elasticPressBuddyPress.target.children( '.epbp-msg' ).length &&
+        ! elasticPressBuddyPress.loading &&
+        ( $( window ).scrollTop() >= targetScrollTop || elasticPressBuddyPress.target.children().length < 10 )
+    ) {
+      elasticPressBuddyPress.page++;
+      elasticPressBuddyPress.xhr = elasticPressBuddyPress.loadResults();
+    }
+  },
+
   // initiate a new xhr to fetch results, then render them (or an appropriate message if no results)
   loadResults: function() {
     var handleSuccess = function( data ) {
@@ -189,26 +206,6 @@ window.elasticPressBuddyPress = {
 
   // set up tabselect, event handlers, etc.
   init: function() {
-    elasticPressBuddyPress.target = $( '#content' );
-
-    elasticPressBuddyPress.initTabSelect( 'select[name=post_type\\[\\]]', '#ep_bp_post_type_facet' );
-    elasticPressBuddyPress.initTabSelect( 'select[name=index\\[\\]]', '#ep_bp_index_facet' );
-
-    $( '#ep-bp-facets' ).find( 'select' ).on( 'change', elasticPressBuddyPress.handleFacetChange );
-    $( '#ep-bp-facets' ).find( 'input' ).on( 'keyup', elasticPressBuddyPress.handleFacetChange );
-
-    $( '#s' ).val( $.trim( $( '#ep-bp-facets [name=s]' ).val() ) );
-
-    // prevent native form submission since we're running on ajax instead
-    $( '#searchform' ).on( 'submit', function( e ) {
-      e.preventDefault();
-    } );
-    $( '#ep-bp-facets' ).on( 'submit', function( e ) {
-      e.preventDefault();
-    } );
-
-    $( '#orderby' ).on( 'change', elasticPressBuddyPress.updateOrderSelect );
-
     // trigger the #orderby change handler once boss Selects have initialized
     var observer = new MutationObserver( function() {
       if ( $( '.ep-bp-search-facets' ).children( '.buddyboss-select' ).length && $( '#orderby' ).val() === '_score' ) {
@@ -219,22 +216,27 @@ window.elasticPressBuddyPress = {
 
     observer.observe( $( '.ep-bp-search-facets' )[0], { childList: true } );
 
+    elasticPressBuddyPress.target = $( '#content' );
+
+    elasticPressBuddyPress.initTabSelect( 'select[name=post_type\\[\\]]', '#ep_bp_post_type_facet' );
+    elasticPressBuddyPress.initTabSelect( 'select[name=index\\[\\]]', '#ep_bp_index_facet' );
+
+    // ensure consistent search input values
+    $( '#s' ).val( $.trim( $( '#ep-bp-facets [name=s]' ).val() ) );
+
+    // event handlers
+    $( '#ep-bp-facets' ).find( 'select' ).on( 'change', elasticPressBuddyPress.handleFacetChange );
+    $( '#ep-bp-facets' ).find( 'input' ).on( 'keyup', elasticPressBuddyPress.handleFacetChange );
+    $( '#orderby' ).on( 'change', elasticPressBuddyPress.updateOrderSelect );
     $( '#s' ).on( 'keyup', elasticPressBuddyPress.handleSearchInputChange );
+    $( window ).on( 'scroll', elasticPressBuddyPress.handleScroll );
 
-    $( window ).on( 'scroll', function ( event ) {
-      var targetScrollTop =
-        elasticPressBuddyPress.target.offset().top +
-        elasticPressBuddyPress.target.outerHeight() -
-        window.innerHeight * 3;
-
-      if(
-        ! elasticPressBuddyPress.target.children( '.epbp-msg' ).length &&
-        ! elasticPressBuddyPress.loading &&
-        ( $( window ).scrollTop() >= targetScrollTop || elasticPressBuddyPress.target.children().length < 10 )
-      ) {
-        elasticPressBuddyPress.page++;
-        elasticPressBuddyPress.xhr = elasticPressBuddyPress.loadResults();
-      }
+    // prevent native form submission since we're running on ajax instead
+    $( '#searchform' ).on( 'submit', function( e ) {
+      e.preventDefault();
+    } );
+    $( '#ep-bp-facets' ).on( 'submit', function( e ) {
+      e.preventDefault();
     } );
   }
 }
