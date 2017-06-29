@@ -90,7 +90,7 @@ window.elasticPressBuddyPress = {
     var targetScrollTop =
       elasticPressBuddyPress.target.offset().top +
       elasticPressBuddyPress.target.outerHeight() -
-      window.innerHeight * 3;
+      window.innerHeight * 5;
 
     if(
       ! elasticPressBuddyPress.target.children( '.epbp-msg' ).length &&
