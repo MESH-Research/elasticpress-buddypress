@@ -309,3 +309,14 @@ function ep_bp_filter_ep_config_mapping( $mapping ) {
 	];
 	return $mapping;
 }
+
+/**
+ * Elasticpress doesn't turn on integration if the search query is empty.
+ * We consider that a valid use case to return all results (according to filters) so enable it anyway.
+ */
+function ep_bp_filter_ep_elasticpress_enabled( $enabled, $query ) {
+	if ( method_exists( $query, 'is_search' ) && $query->is_search() && isset( $query->query_vars['s'] ) ) {
+		$enabled = true;
+	}
+	return $enabled;
+}
