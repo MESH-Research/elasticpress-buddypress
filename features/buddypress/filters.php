@@ -141,8 +141,8 @@ function ep_bp_filter_ep_formatted_args( $formatted_args ) {
 	) );
 
 	if ( empty( $_REQUEST['s'] ) ) {
-		// remove "should" clause entirely since results are incomplete otherwise
-		$formatted_args['query']['bool']['should'] = [];
+		// remove query entirely since results are incomplete otherwise
+		unset( $formatted_args['query'] );
 
 		// "relevancy" has no significance without a search query as context, just sort by most recent
 		$formatted_args['sort'] = [ [
