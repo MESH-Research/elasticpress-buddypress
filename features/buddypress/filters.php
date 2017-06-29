@@ -228,6 +228,13 @@ function ep_bp_whitelist_taxonomies( $taxonomies ) {
 function ep_bp_filter_result_titles( $title ) {
 	global $post;
 
+	// if we're filtering the_title_attribute() rather than the_title(), bail
+	foreach ( debug_backtrace() as $bt ) {
+		if ( isset( $bt['function'] ) && 'the_title_attribute' === $bt['function'] ) {
+			return $title;
+		}
+	}
+
 	switch ( $post->post_type ) {
 		case EP_BP_API::GROUP_TYPE_NAME:
 			$name = EP_BP_API::GROUP_TYPE_NAME;
@@ -244,7 +251,7 @@ function ep_bp_filter_result_titles( $title ) {
 			break;
 	}
 
-	$tag = sprintf( '<span class="post_type %1$s">%2$s</span> ',
+	$tag = sprintf( '<span class="post_type %1$s">%2$s</span>',
 		$name,
 		$label
 	);
