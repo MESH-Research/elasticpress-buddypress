@@ -86,7 +86,9 @@ class EP_BP_API {
 	 * @return bool|array
 	 */
 	public function prepare_member( $user ) {
-		$xprofile_terms = ( function() use ( $user ) {
+		$post_excerpt = make_clickable( bp_get_member_permalink() );
+
+		$xprofile_terms = ( function() use ( $user, &$post_excerpt ) {
 			$fields = [];
 
 			if ( bp_has_profile( [ 'user_id' => $user->ID ] ) ) {
@@ -107,6 +109,14 @@ class EP_BP_API {
 									'name' => bp_get_the_profile_field_value(),
 									'parent' => bp_get_the_profile_group_name(),
 								];
+
+								// TODO make filterable/optional
+								if (
+									'about' === strtolower( bp_get_the_profile_field_name() ) &&
+									! empty( bp_get_the_profile_field_value() )
+								) {
+									$post_excerpt = $this->prepare_text_content( bp_get_the_profile_field_value() );
+								}
 							}
 						}
 					}
@@ -123,7 +133,7 @@ class EP_BP_API {
 			'post_date'         => $user->user_registered,
 			'post_date_gmt'     => $user->user_registered,
 			'post_title'        => $this->prepare_text_content( $user->display_name ),
-			'post_excerpt'      => make_clickable( bp_get_member_permalink() ),
+			'post_excerpt'      => $post_excerpt,
 			'post_content'      => '',
 			'post_status'       => 'publish',
 			'post_name'         => '',
