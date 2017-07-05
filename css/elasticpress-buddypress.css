@@ -35,6 +35,12 @@
 .search #ep-bp-facets h5 {
   padding: 1em 0 0.5em;
 }
+/* "select all" links for multiselects */
+.search #ep-bp-facets h5 label a {
+  cursor: pointer;
+  font-size: 80%;
+  margin-left: 0.5em;
+}
 
 .search #ep-bp-facets input,
 .search #ep-bp-facets select {

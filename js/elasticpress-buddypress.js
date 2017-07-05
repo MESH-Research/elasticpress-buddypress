@@ -48,6 +48,29 @@ window.elasticPressBuddyPress = {
     } );
   },
 
+  // add links to select all for multiselect facet
+  initSelectAll: function( selectId ) {
+    var header = $( '.ep-bp-search-facets' ).find( '[for=' + selectId + ']' );
+    var selectAllLink = $( '<a>Select all</a>' );
+
+    selectAllLink
+      .appendTo( header )
+      .on( 'click', elasticPressBuddyPress.handleSelectAllClick );
+  },
+
+  handleSelectAllClick: function( e ) {
+    // TODO would be nice not to rely on such an elaborate selector
+    var tabSelectContainer = $( this ).parent().parent().next( 'select[multiple]' ).next();
+
+    $.each( tabSelectContainer.children(), function( i, tab ) {
+      if ( $( tab ).hasClass( 'inactive' ) ) {
+        $( tab ).trigger( 'click' );
+      }
+    } );
+
+    e.preventDefault();
+  },
+
   // show loading indicators and clear existing results if necessary
   showLoading: function() {
     elasticPressBuddyPress.loading = true;
@@ -255,6 +278,9 @@ window.elasticPressBuddyPress = {
 
     elasticPressBuddyPress.initTabSelect( 'select[name=post_type\\[\\]]', '#ep_bp_post_type_facet' );
     elasticPressBuddyPress.initTabSelect( 'select[name=index\\[\\]]', '#ep_bp_index_facet' );
+
+    elasticPressBuddyPress.initSelectAll( 'post_type' );
+    elasticPressBuddyPress.initSelectAll( 'index' );
 
     elasticPressBuddyPress.combineDiscussionTypeFacets();
 
