@@ -81,6 +81,11 @@
 
 .search .entry-title {
   margin-bottom: 0;
+  line-height: 20px;
+}
+
+.search .entry-title a .post_type {
+  margin-top: 0 !important;
 }
 
 .search .post_type {
