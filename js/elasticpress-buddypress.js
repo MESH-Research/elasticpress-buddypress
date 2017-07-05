@@ -137,6 +137,10 @@ window.elasticPressBuddyPress = {
       if ( elasticPressBuddyPress.page === 1 ) {
         elasticPressBuddyPress.target.html( '' );
         window.scrollTo( 0, 0 );
+
+        if ( window.history && window.history.pushState ) {
+          window.history.pushState( data, '', window.location.pathname + '?' + serializedFacets );
+        }
       }
 
       if ( data.posts.length ) {
@@ -156,10 +160,6 @@ window.elasticPressBuddyPress = {
         } );
 
         elasticPressBuddyPress.target.append( data.posts.join( '' ) );
-
-        if ( window.history && window.history.pushState ) {
-          window.history.pushState( data, '', window.location.pathname + '?' + serializedFacets );
-        }
       } else {
         if ( elasticPressBuddyPress.page > 1 ) {
           elasticPressBuddyPress.target.append( elasticPressBuddyPress.noMoreResultsDiv );
