@@ -75,24 +75,26 @@ window.elasticPressBuddyPress = {
   // show loading indicators and clear existing results if necessary
   showLoading: function() {
     elasticPressBuddyPress.loading = true;
+
     if ( elasticPressBuddyPress.page > 1 ) {
       elasticPressBuddyPress.target.append( elasticPressBuddyPress.loaderDiv );
     } else {
+      $( '.ep-bp-search-facets' ).append( elasticPressBuddyPress.loaderDiv );
       elasticPressBuddyPress.target.addClass( 'in-progress' );
     }
   },
 
   // remove loading indicators
   clearLoading: function() {
-    $( '.epbp-loader' ).remove();
-    elasticPressBuddyPress.target.removeClass( 'in-progress' );
     elasticPressBuddyPress.loading = false;
+
+    elasticPressBuddyPress.target.removeClass( 'in-progress' );
+
+    $( '.epbp-loader' ).remove();
   },
 
   // change handler for search facets
   handleFacetChange: function() {
-    $( '.epbp-loader' ).remove();
-    $( '.ep-bp-search-facets' ).append( elasticPressBuddyPress.loaderDiv );
     elasticPressBuddyPress.page = 1;
     elasticPressBuddyPress.loadResults();
   },
@@ -101,8 +103,6 @@ window.elasticPressBuddyPress = {
   handleSearchInputChange: function() {
     // only process change if the value of the input actually changed (not some other key press)
     if ( $( '#s' ).val() !== $( '#ep-bp-facets [name=s]' ).val() ) {
-      $( '.epbp-loader' ).remove();
-      $( '.ep-bp-search-facets' ).append( elasticPressBuddyPress.loaderDiv );
       $( '#ep-bp-facets [name=s]' ).val( $( '#s' ).val() );
       elasticPressBuddyPress.page = 1;
       elasticPressBuddyPress.loadResults();
