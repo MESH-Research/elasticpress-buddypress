@@ -122,7 +122,7 @@ window.elasticPressBuddyPress = {
       ( $( window ).scrollTop() >= targetScrollTop || elasticPressBuddyPress.target.children().length < 10 )
     ) {
       elasticPressBuddyPress.page++;
-      elasticPressBuddyPress.xhr = elasticPressBuddyPress.loadResults();
+      elasticPressBuddyPress.loadResults();
     }
   },
 
