@@ -151,8 +151,7 @@ window.elasticPressBuddyPress = {
           $.each( elasticPressBuddyPress.target.children( 'article' ), function( j, thatPost ) {
             if (
               $( thisPost ).attr( 'id' ).split('-')[1] === $( thatPost ).attr( 'id' ).split('-')[1] &&
-                $( thisPost ).find( '.entry-title' ).text() === $( thatPost ).find( '.entry-title' ).text() &&
-                $( thisPost ).find( '.entry-title a' ).text() !== $( thatPost ).find( '.entry-title a' ).text()
+              $( thisPost ).find( '.entry-title' ).text() === $( thatPost ).find( '.entry-title' ).text()
             ) {
               delete data.posts[i];
             }
