@@ -9,7 +9,7 @@
 class EPR_REST_Posts_Controller extends WP_REST_Controller {
 
 	// include debug output in REST response
-	const DEBUG = true;
+	const DEBUG = false;
 
 	/**
 	 * Constructor.
