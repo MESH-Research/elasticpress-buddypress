@@ -179,7 +179,7 @@ window.elasticPressBuddyPress = {
       }
 
       // keep loading more results to account for first pages with fewer than 10 results
-      elasticPressBuddyPress.handleScroll();
+      $( window ).trigger( 'scroll' );
     }
     var serializedFacets = function() {
       var parsedFacets = $( '.ep-bp-search-facets' ).serializeArray();
