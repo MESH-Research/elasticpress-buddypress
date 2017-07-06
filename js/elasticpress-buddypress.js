@@ -58,6 +58,7 @@ window.elasticPressBuddyPress = {
       .on( 'click', elasticPressBuddyPress.handleSelectAllClick );
   },
 
+  // handle "select all" clicks
   handleSelectAllClick: function( e ) {
     // TODO would be nice not to rely on such an elaborate selector
     var tabSelectContainer = $( this ).parent().parent().next( 'select[multiple]' ).next();
