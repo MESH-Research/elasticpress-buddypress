@@ -139,7 +139,7 @@ window.elasticPressBuddyPress = {
         window.scrollTo( 0, 0 );
 
         if ( window.history && window.history.pushState ) {
-          window.history.pushState( data, '', window.location.pathname + '?' + serializedFacets );
+          window.history.pushState( data, '', window.location.pathname + '?' + serializedFacets() );
         }
       }
 
@@ -181,7 +181,7 @@ window.elasticPressBuddyPress = {
       // keep loading more results to account for first pages with fewer than 10 results
       elasticPressBuddyPress.handleScroll();
     }
-    var serializedFacets = ( function() {
+    var serializedFacets = function() {
       var parsedFacets = $( '.ep-bp-search-facets' ).serializeArray();
 
       parsedFacets.push( {
@@ -194,7 +194,7 @@ window.elasticPressBuddyPress = {
       }
 
       return $.param( parsedFacets );
-    } )();
+    }
 
     elasticPressBuddyPress.showLoading();
 
@@ -204,7 +204,7 @@ window.elasticPressBuddyPress = {
     }
 
     // TODO set ajax path with wp_localize_script() from EPR_REST_Posts_Controller property
-    elasticPressBuddyPress.xhr = $.getJSON( '/wp-json/epr/v1/query?' + serializedFacets )
+    elasticPressBuddyPress.xhr = $.getJSON( '/wp-json/epr/v1/query?' + serializedFacets() )
       .success( handleSuccess )
       .error( handleError )
       .complete( handleComplete );
