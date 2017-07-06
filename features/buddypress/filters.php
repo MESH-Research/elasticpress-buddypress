@@ -285,7 +285,7 @@ function ep_bp_filter_ep_search_results_array( $results ) {
 			if (
 				$this_post['ID'] === $that_post['ID'] &&
 				$this_post['post_type'] === $that_post['post_type'] &&
-				$this_post['permalink'] !== $that_post['permalink']
+				$this_post['name'] === $that_post['name']
 			) {
 				unset( $results['posts'][ $k ] );
 			}

@@ -152,7 +152,7 @@ window.elasticPressBuddyPress = {
             if (
               $( thisPost ).attr( 'id' ).split('-')[1] === $( thatPost ).attr( 'id' ).split('-')[1] &&
                 $( thisPost ).find( '.entry-title' ).text() === $( thatPost ).find( '.entry-title' ).text() &&
-                $( thisPost ).find( '.entry-title a' ).attr( 'href' ) !== $( thatPost ).find( '.entry-title a' ).attr( 'href' )
+                $( thisPost ).find( '.entry-title a' ).text() !== $( thatPost ).find( '.entry-title a' ).text()
             ) {
               delete data.posts[i];
             }
