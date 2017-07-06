@@ -74,6 +74,8 @@ window.elasticPressBuddyPress = {
 
   // show loading indicators and clear existing results if necessary
   showLoading: function() {
+    elasticPressBuddyPress.clearLoading();
+
     elasticPressBuddyPress.loading = true;
 
     if ( elasticPressBuddyPress.page > 1 ) {
