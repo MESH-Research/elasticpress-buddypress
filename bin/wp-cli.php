@@ -53,7 +53,7 @@ class ElasticPress_BuddyPress_CLI_Command extends WP_CLI_Command {
 	 *
 	 * Parameters are passed directly to ElasticPress_CLI_Command->index()
 	 *
-	 * e.g. wp elasticpress-buddypress index_from_all_networks --post_type=topic
+	 * e.g. wp elasticpress-buddypress index_from_all_networks --post-type=topic
 	 *
 	 * @param $args
 	 * @param $assoc_args
