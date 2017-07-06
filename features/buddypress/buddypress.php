@@ -57,6 +57,8 @@ function ep_bp_setup() {
 				remove_filter( 'the_title', 'ep_bp_filter_result_titles', 1, 20 );
 				remove_filter( 'author_link', 'ep_bp_filter_result_author_link' );
 			} );
+
+			add_filter( 'ep_elasticpress_enabled', 'ep_bp_filter_ep_elasticpress_enabled', 20, 2 ); // after ep_integrate_search_queries()
 		}
 	} );
 
@@ -69,7 +71,6 @@ function ep_bp_setup() {
 	add_filter( 'ep_search_request_path', 'ep_bp_filter_ep_search_request_path' );
 	add_filter( 'ep_search_results_array', 'ep_bp_filter_ep_search_results_array' );
 	add_filter( 'ep_config_mapping', 'ep_bp_filter_ep_config_mapping' );
-	add_filter( 'ep_elasticpress_enabled', 'ep_bp_filter_ep_elasticpress_enabled', 20, 2 ); // after ep_integrate_search_queries()
 
 	add_action( 'ep_wp_cli_pre_index', function() {
 		// replace the bbpress filter with a filter when ep syncs
