@@ -51,7 +51,7 @@ class EPR_REST_Posts_Controller extends WP_REST_Controller {
 		$response = new WP_REST_Response;
 
 		$debug = [];
-		$posts = [];
+		$response_data = [ 'posts' => [] ];
 
 		add_action( 'ep_add_query_log', function( $ep_query ) use ( &$response, &$debug ) {
 			$debug['ep_query'] = $ep_query;
@@ -71,15 +71,16 @@ class EPR_REST_Posts_Controller extends WP_REST_Controller {
 				ob_start();
 				the_post();
 				get_template_part( 'content', get_post_format() );
-				$posts[] = ob_get_contents();
+				$response_data['posts'][] = ob_get_contents();
 				ob_end_clean();
 			}
 		}
 
-		$response->set_data( [
-			'posts' => $posts,
-			'debug' => ( self::DEBUG ) ? $debug : null,
-		] );
+		if ( self::DEBUG ) {
+			$response_data['debug'] = $debug;
+		}
+
+		$response->set_data( $response_data );
 
 		return $response;
 	}
