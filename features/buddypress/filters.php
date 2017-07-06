@@ -179,6 +179,13 @@ function ep_bp_translate_args( $query ) {
 
 	$query->set( 'post_type', $_REQUEST['post_type'] );
 
+	if ( ! isset( $_REQUEST['index'] ) ) {
+		// TODO find a way to avoid removing & adding this filter again
+		remove_filter( 'ep_index_name', 'ep_bp_filter_ep_index_name', 10, 2 );
+		$_REQUEST['index'] = [ ep_get_index_name() ];
+		add_filter( 'ep_index_name', 'ep_bp_filter_ep_index_name', 10, 2 );
+	}
+
 	if ( isset( $_REQUEST['orderby'] ) && ! empty( $_REQUEST['orderby'] ) ) {
 		$query->set( 'orderby', $_REQUEST['orderby'] );
 	}

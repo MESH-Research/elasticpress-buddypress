@@ -53,11 +53,6 @@ function ep_bp_network_select() {
 		}
 	}
 
-
-	if ( ! isset( $_REQUEST['index'] ) ) {
-		$_REQUEST['index'] = [ ep_get_index_name() ];
-	}
-
 	?>
 		<select multiple name="index[]" id="index" size="<?php echo count( $networks ); ?>">
 		<?php foreach ( $networks as $network ) {
