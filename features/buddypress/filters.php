@@ -328,7 +328,7 @@ function ep_bp_filter_ep_config_mapping( $mapping ) {
  * We consider that a valid use case to return all results (according to filters) so enable it anyway.
  */
 function ep_bp_filter_ep_elasticpress_enabled( $enabled, $query ) {
-	if ( method_exists( $query, 'is_search' ) && $query->is_search() && isset( $query->query_vars['s'] ) ) {
+	if ( method_exists( $query, 'is_search' ) && $query->is_search() && isset( $_REQUEST['s'] ) ) {
 		$enabled = true;
 	}
 	return $enabled;
