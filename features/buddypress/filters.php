@@ -288,7 +288,7 @@ function ep_bp_filter_result_author_link( $link ) {
  */
 function ep_bp_filter_ep_search_results_array( $results ) {
 	foreach ( $results['posts'] as $k => $this_post ) {
-		foreach ( array_slice( $results['posts'], $k ) as $that_post ) {
+		foreach ( array_slice( $results['posts'], $k + 1 ) as $that_post ) {
 			if (
 				$this_post['ID'] === $that_post['ID'] &&
 				$this_post['post_title'] === $that_post['post_title']
