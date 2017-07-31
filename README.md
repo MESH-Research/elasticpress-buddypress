@@ -11,7 +11,6 @@ Required plugins:
     buddypress
     elasticpress
     elasticpress-buddypress
-    debug-bar-elasticpress ( if you use debug-bar - recommended )
 
 __BuddyPress content types depend on the mapping for posts provided by ElasticPress, so you must set up that mapping before indexing groups and members.__ You can do that by indexing posts with the `--setup` flag (which will also delete the index first!):
 
