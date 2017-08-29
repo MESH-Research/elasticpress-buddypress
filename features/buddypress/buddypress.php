@@ -99,6 +99,10 @@ function ep_bp_requirements_status( $status ) {
 		$status->code = 2;
 		$status->message = __( 'BuddyPress is not active.', 'elasticpress' );
 	}
+	if ( ! class_exists( 'bbPress' ) ) {
+		$status->code = 3;
+		$status->message = __( 'bbPress is not active.', 'elasticpress' );
+	}
 	return $status;
 }
 
