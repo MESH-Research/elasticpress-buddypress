@@ -95,14 +95,15 @@ function ep_bp_setup() {
  * @return EP_Feature_Requirements_Status
  */
 function ep_bp_requirements_status( $status ) {
-	if ( ! class_exists( 'BuddyPress' ) ) {
-		$status->code = 2;
-		$status->message = __( 'BuddyPress is not active.', 'elasticpress' );
+	$required_classes = [ 'BuddyPress', 'bbPress' ];
+
+	foreach ( $required_classes as $class ) {
+		if ( ! class_exists( $class ) ) {
+			$status->code = 2;
+			$status->message = __( "$class is not active.", 'elasticpress' );
+		}
 	}
-	if ( ! class_exists( 'bbPress' ) ) {
-		$status->code = 3;
-		$status->message = __( 'bbPress is not active.', 'elasticpress' );
-	}
+
 	return $status;
 }
 
