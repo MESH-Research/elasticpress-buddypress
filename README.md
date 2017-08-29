@@ -9,6 +9,7 @@ Built for [Humanities Commons](https://hcommons.org).
 Required plugins:
 
     buddypress
+    bbpress
     elasticpress
     elasticpress-buddypress
 
