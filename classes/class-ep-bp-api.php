@@ -36,6 +36,20 @@ class EP_BP_API {
 	private $type;
 
 	/**
+	 * List of all xprofile field ids for cache clearing purposes.
+	 * See _delete_member_object_cache().
+	 */
+	private $xprofile_field_ids;
+
+	/**
+	 * Constructor.
+	 */
+	public function __construct() {
+		global $wpdb;
+		$this->xprofile_field_ids = $wpdb->get_col( 'SELECT id FROM wp_bp_xprofile_fields' );
+	}
+
+	/**
 	 * Prepare a group for syncing
 	 * Must be inside the groups loop.
 	 *
@@ -79,25 +93,50 @@ class EP_BP_API {
 	}
 
 	/**
+	 * Reduce memory usage by clearing relevant object cache keys for a user.
+	 *
+	 * This doesn't completely eliminate leaks but it helps.
+	 *
+	 * @param stdClass $user User for which to clear object cache keys.
+	 */
+	public function _delete_member_object_cache( stdClass $user ) {
+		foreach ( $this->xprofile_field_ids as $field_id ) {
+			wp_cache_delete( $user->ID . ':' . $field_id, 'bp_xprofile_data' );
+		}
+
+		wp_cache_delete( $user->ID, 'user_meta' );
+		wp_cache_delete( 'bp_core_userdata_' . $user->ID, 'bp' );
+		wp_cache_delete( 'bp_user_username_' . $user->ID, 'bp' );
+		wp_cache_delete( $user->ID, 'bp_member_member_type' );
+	}
+
+	/**
 	 * Prepare a member for syncing
 	 * Must be inside the members loop.
 	 *
-	 * @param int $group_id
+	 * @param stdClass $user BP member object
 	 * @return bool|array
 	 */
-	public function prepare_member( $user ) {
+	public function prepare_member( stdClass $user ) {
 		$post_excerpt = make_clickable( bp_get_member_permalink() );
 
-		$xprofile_terms = ( function() use ( $user, &$post_excerpt ) {
+		$xprofile_terms = ( function() use ( &$user, &$post_excerpt ) {
 			$fields = [];
 
-			if ( bp_has_profile( [ 'user_id' => $user->ID ] ) ) {
+			$args = [
+				'hide_empty_fields' => true,
+				'hide_empty_groups' => true,
+				'update_meta_cache' => false,
+				'user_id' => $user->ID,
+			];
+
+			if ( bp_has_profile( $args ) ) {
 				while ( bp_profile_groups() ) {
 					bp_the_profile_group();
 
 					if (
-						bp_profile_group_has_fields() &&
-						apply_filters( 'ep_bp_index_xprofile_group_' . bp_get_the_profile_group_slug(), true )
+						apply_filters( 'ep_bp_index_xprofile_group_' . bp_get_the_profile_group_slug(), true ) &&
+						bp_profile_group_has_fields()
 					) {
 						while ( bp_profile_fields() ) {
 							bp_the_profile_field();
@@ -283,6 +322,7 @@ class EP_BP_API {
 	 */
 	public function bulk_index_members( $args = [] ) {
 		global $members_template;
+		global $wp_object_cache;
 
 		$this->type = self::MEMBER_TYPE_NAME;
 
@@ -291,6 +331,7 @@ class EP_BP_API {
 		$args = array_merge( [
 			'per_page' => self::MAX_BULK_MEMBERS_PER_PAGE,
 			'page' => 1,
+			'populate_extras' => false,
 		], $args );
 
 		$querystring = bp_ajax_querystring( 'members' ) . '&' . http_build_query( $args );
@@ -299,8 +340,10 @@ class EP_BP_API {
 			while ( bp_members() ) {
 				bp_the_member();
 				$member_args = $this->prepare_member( $members_template->member );
-				$members[ $members_template->member->id ][] = '{ "index": { "_id": "' . $members_template->member->id . '" } }';
-				$members[ $members_template->member->id ][] = addcslashes( wp_json_encode( $member_args ), "\n" );
+				$members[ bp_get_member_user_id() ][] = '{ "index": { "_id": "' . bp_get_member_user_id() . '" } }';
+				$members[ bp_get_member_user_id() ][] = addcslashes( wp_json_encode( $member_args ), "\n" );
+
+				$this->_delete_member_object_cache( $members_template->member );
 			}
 
 			$this->send_request( $members );
@@ -311,6 +354,12 @@ class EP_BP_API {
 					$members_template->total_member_count
 				) );
 			}
+
+			//ob_start();
+			//$wp_object_cache->stats();
+			//var_dump( str_replace( '<li>', PHP_EOL . '<li>', ob_get_clean() ) );
+
+			//var_dump( memory_get_usage() );
 
 			$this->bulk_index_members( [
 				'page' => $args['page'] + 1,
