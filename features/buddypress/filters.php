@@ -122,16 +122,22 @@ function ep_bp_filter_ep_formatted_args( $formatted_args ) {
 	}
 
 	// Remove xprofile from highest priority of matched fields, so other fields have more boost.
+	$existing_fields = ( isset( $formatted_args['query']['bool']['should'][0]['multi_match']['fields'] ) )
+		? $formatted_args['query']['bool']['should'][0]['multi_match']['fields']
+		: [];
 	$formatted_args['query']['bool']['should'][0]['multi_match']['fields'] = array_values( array_diff(
-		$formatted_args['query']['bool']['should'][0]['multi_match']['fields'],
+		$existing_fields,
 		[ 'terms.xprofile.name' ]
 	) );
 
 	// Add a match block to give extra boost to matches in post name
+	$existing_query = ( isset( $formatted_args['query']['bool']['should'][0]['multi_match']['query'] ) )
+		? $formatted_args['query']['bool']['should'][0]['multi_match']['query']
+		: [];
 	$formatted_args['query']['bool']['should'] = array_values( array_merge(
 		[ [
 			'multi_match' => [
-				'query' => $formatted_args['query']['bool']['should'][0]['multi_match']['query'],
+				'query' => $existing_query,
 				'type' => 'phrase',
 				'fields' => ['post_title'],
 				'boost' => 4
