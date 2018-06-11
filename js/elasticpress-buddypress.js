@@ -114,7 +114,7 @@ window.elasticPressBuddyPress = {
   // infinite scroll
   handleScroll: function() {
     // No infinite scroll on mobile.
-    if ( $( 'body' ).hasClass( 'mobile' ) ) {
+    if ( $( 'body' ).hasClass( 'is-mobile' ) ) {
       return;
     }
 
@@ -275,6 +275,10 @@ window.elasticPressBuddyPress = {
     var observer = new MutationObserver( function() {
       if ( $( '.ep-bp-search-facets' ).children( '.buddyboss-select' ).length && $( '#orderby' ).val() === '_score' ) {
         elasticPressBuddyPress.updateOrderSelect();
+
+        // mobile search input
+        $( '.is-mobile .ep-bp-search-facets [name=s]' ).attr( 'type', 'text' );
+
         observer.disconnect();
       }
     } );
@@ -301,11 +305,8 @@ window.elasticPressBuddyPress = {
     $( '#s' ).on( 'keyup', elasticPressBuddyPress.handleSearchInputChange );
     $( window ).on( 'scroll', elasticPressBuddyPress.handleScroll );
     $( '#searchform, #ep-bp-facets' ).on( 'submit', elasticPressBuddyPress.handleSubmit );
-
-    // mobile search input
-    $( '.mobile .ep-bp-search-facets [name=s]' ).attr( 'type', 'text' );
   }
 
 }
 
-$( elasticPressBuddyPress.init );
+jQuery( document ).ready( elasticPressBuddyPress.init );

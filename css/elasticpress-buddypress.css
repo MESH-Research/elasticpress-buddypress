@@ -151,7 +151,7 @@
   opacity: 0.5;
 }
 
-.mobile #ep-bp-facets [name=s] {
+.is-mobile #ep-bp-facets [name=s] {
   margin-top: 1em;
 }
 
