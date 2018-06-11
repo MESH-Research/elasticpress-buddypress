@@ -113,6 +113,11 @@ window.elasticPressBuddyPress = {
 
   // infinite scroll
   handleScroll: function() {
+    // No infinite scroll on mobile.
+    if ( $( 'body' ).hasClass( 'mobile' ) ) {
+      return;
+    }
+
     var targetScrollTop =
       elasticPressBuddyPress.target.offset().top +
       elasticPressBuddyPress.target.outerHeight() -
@@ -296,6 +301,9 @@ window.elasticPressBuddyPress = {
     $( '#s' ).on( 'keyup', elasticPressBuddyPress.handleSearchInputChange );
     $( window ).on( 'scroll', elasticPressBuddyPress.handleScroll );
     $( '#searchform, #ep-bp-facets' ).on( 'submit', elasticPressBuddyPress.handleSubmit );
+
+    // mobile search input
+    $( '.mobile .ep-bp-search-facets [name=s]' ).attr( 'type', 'text' );
   }
 
 }

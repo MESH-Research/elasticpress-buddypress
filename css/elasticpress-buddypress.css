@@ -150,3 +150,12 @@
 .search .in-progress {
   opacity: 0.5;
 }
+
+.mobile #ep-bp-facets [name=s] {
+  margin-top: 1em;
+}
+
+.search-results .entry-meta.mobile,
+.search-results .entry-meta .post-author {
+  display: none !important;
+}
