@@ -305,6 +305,8 @@ window.elasticPressBuddyPress = {
     $( '#s' ).on( 'keyup', elasticPressBuddyPress.handleSearchInputChange );
     $( window ).on( 'scroll', elasticPressBuddyPress.handleScroll );
     $( '#searchform, #ep-bp-facets' ).on( 'submit', elasticPressBuddyPress.handleSubmit );
+
+    elasticPressBuddyPress.loadResults();
   }
 
 }
