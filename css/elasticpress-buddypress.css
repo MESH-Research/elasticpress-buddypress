@@ -155,7 +155,6 @@
   margin-top: 1em;
 }
 
-.search-results .entry-meta.mobile,
-.search-results .entry-meta .post-author {
+.is-mobile.search-results .entry-meta {
   display: none !important;
 }
