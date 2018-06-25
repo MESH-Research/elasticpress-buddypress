@@ -118,6 +118,11 @@ window.elasticPressBuddyPress = {
       return;
     }
 
+    // No infinite scroll unless explicitly enabled.
+    if ( ! elasticPressBuddyPress.infiniteScrollEnabled ) {
+      return;
+    }
+
     var targetScrollTop =
       elasticPressBuddyPress.target.offset().top +
       elasticPressBuddyPress.target.outerHeight() -
@@ -145,6 +150,8 @@ window.elasticPressBuddyPress = {
       if ( elasticPressBuddyPress.page === 1 ) {
         elasticPressBuddyPress.target.html( '' );
         window.scrollTo( 0, 0 );
+      } else {
+        $('.btn.more').remove();
       }
 
       if ( data.posts.length ) {
@@ -163,6 +170,14 @@ window.elasticPressBuddyPress = {
         } );
 
         elasticPressBuddyPress.target.append( data.posts.join( '' ) );
+
+        $( '<a href="#" class="btn more">More results</a>' )
+          .appendTo( elasticPressBuddyPress.target )
+          .on( 'click', function( e ) {
+            e.preventDefault();
+            elasticPressBuddyPress.page++;
+            elasticPressBuddyPress.loadResults();
+          } );
       } else {
         if ( elasticPressBuddyPress.page > 1 ) {
           elasticPressBuddyPress.target.append( elasticPressBuddyPress.noMoreResultsDiv );
@@ -290,6 +305,9 @@ window.elasticPressBuddyPress = {
     elasticPressBuddyPress.initSelectAll( 'index' );
 
     elasticPressBuddyPress.combineDiscussionTypeFacets();
+
+    // Disable infinite scroll by default.
+    elasticPressBuddyPress.infiniteScrollEnabled = false;
 
     // ensure consistent search input values
     $( '#s' ).val( $.trim( $( '#ep-bp-facets [name=s]' ).val() ) );

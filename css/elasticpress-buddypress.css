@@ -151,6 +151,11 @@
   opacity: 0.5;
 }
 
+.search .btn.more {
+  display: block;
+  margin: 2em;
+}
+
 .is-mobile #ep-bp-facets [name=s] {
   margin-top: 1em;
 }
