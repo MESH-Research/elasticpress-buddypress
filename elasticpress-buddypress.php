@@ -1,9 +1,15 @@
 <?php
 /**
- * Plugin Name: ElasticPress BuddyPress
- * Version: alpha
- * Description: ElasticPress custom feature to support BuddyPress content.
- * Text Domain: elasticpress-buddypress
+ * Plugin Name:     ElasticPress BuddyPress
+ * Plugin URI:      https://github.com/mlaa/elasticpress-buddypress.git
+ * Description:     ElasticPress custom feature to index BuddyPress group & members.
+ * Author:          MLA
+ * Author URI:      https://github.com/mlaa
+ * Text Domain:     elasticpress-buddypress
+ * Domain Path:     /languages
+ * Version:         0.1.0
+ *
+ * @package         Elasticpress_Buddypress
  */
 
 require_once dirname( __FILE__ ) . '/classes/class-ep-bp-api.php';

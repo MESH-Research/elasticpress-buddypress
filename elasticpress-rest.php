@@ -1,9 +1,8 @@
 <?php
-
 /**
- * Plugin Name: ElasticPress REST
- * Version: alpha
- * Description: ElasticPress custom feature to support live filtering via a custom WordPress REST API endpoint.
+ * REST endpoint for search results.
+ *
+ * @package ElasticPress_BuddyPress
  */
 
 class EPR_REST_Posts_Controller extends WP_REST_Controller {

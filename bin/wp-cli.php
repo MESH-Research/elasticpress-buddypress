@@ -1,4 +1,10 @@
 <?php
+/**
+ * WP CLI commands.
+ *
+ * @package ElasticPress_BuddyPress
+ */
+
  if ( ! defined( 'ABSPATH' ) ) {
     exit; // Exit if accessed directly.
 }
