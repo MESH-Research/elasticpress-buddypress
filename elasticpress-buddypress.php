@@ -25,7 +25,9 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 
 add_action( 'plugins_loaded', 'ep_bp_register_feature' );
 
-add_action( 'rest_api_init', function () {
-	$controller = new EPR_REST_Posts_Controller;
-	$controller->register_routes();
-} );
+add_action(
+	'rest_api_init', function () {
+		$controller = new EPR_REST_Posts_Controller;
+		$controller->register_routes();
+	}
+);

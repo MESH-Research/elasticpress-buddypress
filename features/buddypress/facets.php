@@ -10,7 +10,7 @@
 function ep_bp_post_type_select() {
 	// buddypress fake "post" types
 	$post_types = [
-		EP_BP_API::GROUP_TYPE_NAME => 'Groups',
+		EP_BP_API::GROUP_TYPE_NAME  => 'Groups',
 		EP_BP_API::MEMBER_TYPE_NAME => 'Members',
 	];
 
@@ -24,14 +24,17 @@ function ep_bp_post_type_select() {
 
 	?>
 	<select multiple name="post_type[]" id="post_type" size="<?php echo count( $post_types ); ?>">
-	<?php foreach ( $post_types as $name => $label ) {
+	<?php
+	foreach ( $post_types as $name => $label ) {
 		$selected = ( ! isset( $_REQUEST['post_type'] ) || in_array( $name, $_REQUEST['post_type'] ) );
-		printf( '<option value="%1$s"%3$s>%2$s</option>',
+		printf(
+			'<option value="%1$s"%3$s>%2$s</option>',
 			$name,
 			$label,
 			( $selected ) ? ' selected' : ''
 		);
-	} ?>
+	}
+	?>
 	</select>
 	<span id="ep_bp_post_type_facet"></span>
 	<?php
@@ -55,16 +58,19 @@ function ep_bp_network_select() {
 
 	?>
 		<select multiple name="index[]" id="index" size="<?php echo count( $networks ); ?>">
-		<?php foreach ( $networks as $network ) {
+		<?php
+		foreach ( $networks as $network ) {
 			switch_to_blog( get_main_site_for_network( $network ) );
 			$selected = ( in_array( ep_get_index_name(), $_REQUEST['index'] ) );
-			printf( '<option value="%1$s"%3$s>%2$s</option>',
+			printf(
+				'<option value="%1$s"%3$s>%2$s</option>',
 				ep_get_index_name(),
 				get_bloginfo(),
 				( $selected ) ? ' selected' : ''
 			);
 			restore_current_blog();
-		} ?>
+		}
+		?>
 	</select>
 	<span id="ep_bp_index_facet"></span>
 	<?php
@@ -78,12 +84,13 @@ function ep_bp_network_select() {
 function ep_bp_orderby_select() {
 	$options = [
 		'_score' => 'Relevance',
-		'date' => 'Date',
+		'date'   => 'Date',
 	];
 	echo '<select name="orderby" id="orderby">';
 	foreach ( $options as $value => $label ) {
 		$selected = ( isset( $_REQUEST['orderby'] ) && $value === $_REQUEST['orderby'] );
-		printf( '<option value="%1$s"%3$s>%2$s</option>',
+		printf(
+			'<option value="%1$s"%3$s>%2$s</option>',
 			$value,
 			$label,
 			( $selected ) ? ' selected' : ''
@@ -98,12 +105,13 @@ function ep_bp_orderby_select() {
 function ep_bp_order_select() {
 	$options = [
 		'desc' => 'Descending',
-		'asc' => 'Ascending',
+		'asc'  => 'Ascending',
 	];
 	echo '<select name="order" id="order">';
 	foreach ( $options as $value => $label ) {
 		$selected = ( isset( $_REQUEST['order'] ) && $value === $_REQUEST['order'] );
-		printf( '<option value="%1$s"%3$s>%2$s</option>',
+		printf(
+			'<option value="%1$s"%3$s>%2$s</option>',
 			$value,
 			$label,
 			( $selected ) ? ' selected' : ''

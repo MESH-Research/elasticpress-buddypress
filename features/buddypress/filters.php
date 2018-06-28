@@ -8,7 +8,7 @@
  * Filter search request path to search groups & members as well as posts.
  */
 function ep_bp_filter_ep_search_request_path( $path ) {
-	//return str_replace( '/post/', '/post,' . EP_BP_API::GROUP_TYPE_NAME . ',' . EP_BP_API::MEMBER_TYPE_NAME . '/', $path );
+	// return str_replace( '/post/', '/post,' . EP_BP_API::GROUP_TYPE_NAME . ',' . EP_BP_API::MEMBER_TYPE_NAME . '/', $path );
 	return str_replace( '/post/', '/', $path );
 }
 
@@ -31,36 +31,33 @@ function ep_bp_filter_ep_index_name( $index_name, $blog_id ) {
 		 * results in 400/413 error if > 1000 shards being searched
 		 * see ep_bp_filter_ep_default_index_number_of_shards()
 		 */
-		//$index_names = [ '_all' ];
-
+		// $index_names = [ '_all' ];
 		/**
 		 * METHOD 2: all main sites for all networks
 		 * most practical if there are lots of sites (enough to worry about exceeded the shard query limit of 1000)
 		 */
 		foreach ( get_networks() as $network ) {
 			$network_main_site_id = get_main_site_for_network( $network );
-			$index_names[] = ep_get_index_name( $network_main_site_id );
+			$index_names[]        = ep_get_index_name( $network_main_site_id );
 		}
 
 		/**
 		 * METHOD 3: some blogs, e.g. 50 most recently active
 		 * compromise if one of the prior two methods doesn't work for some reason.
 		 */
-		//if ( bp_is_root_blog() ) {
-		//	$querystring =  bp_ajax_querystring( 'blogs' ) . '&' . http_build_query( [
-		//		'type' => 'active',
-		//		'search_terms' => false, // do not limit results based on current search query
-		//		'per_page' => 50, // TODO setting this too high results in a query url which is too long (400, 413 errors)
-		//	] );
-
-		//	if ( bp_has_blogs( $querystring ) ) {
-		//		while ( bp_blogs() ) {
-		//			bp_the_blog();
-		//			$index_names[] = ep_get_index_name( bp_get_blog_id() );
-		//		}
-		//	}
-		//}
-
+		// if ( bp_is_root_blog() ) {
+		// $querystring =  bp_ajax_querystring( 'blogs' ) . '&' . http_build_query( [
+		// 'type' => 'active',
+		// 'search_terms' => false, // do not limit results based on current search query
+		// 'per_page' => 50, // TODO setting this too high results in a query url which is too long (400, 413 errors)
+		// ] );
+		// if ( bp_has_blogs( $querystring ) ) {
+		// while ( bp_blogs() ) {
+		// bp_the_blog();
+		// $index_names[] = ep_get_index_name( bp_get_blog_id() );
+		// }
+		// }
+		// }
 		// handle facets
 		if ( isset( $_REQUEST['index'] ) ) {
 			$index_names = $_REQUEST['index'];
@@ -90,9 +87,9 @@ function ep_bp_filter_the_permalink( $permalink ) {
 	global $wp_query, $post;
 
 	if ( $wp_query->is_search ) {
-		if ( in_array( $post->post_type,  [ EP_BP_API::GROUP_TYPE_NAME, EP_BP_API::MEMBER_TYPE_NAME ] ) ) {
+		if ( in_array( $post->post_type, [ EP_BP_API::GROUP_TYPE_NAME, EP_BP_API::MEMBER_TYPE_NAME ] ) ) {
 			$permalink = $post->permalink;
-		} else if ( in_array( $post->post_type,  [ 'reply' ] ) ) {
+		} elseif ( in_array( $post->post_type, [ 'reply' ] ) ) {
 			$permalink = bbp_get_topic_permalink( $post->post_parent ) . "#post-{$post->ID}";
 		}
 	}
@@ -125,35 +122,43 @@ function ep_bp_filter_ep_formatted_args( $formatted_args ) {
 	$existing_fields = ( isset( $formatted_args['query']['bool']['should'][0]['multi_match']['fields'] ) )
 		? $formatted_args['query']['bool']['should'][0]['multi_match']['fields']
 		: [];
-	$formatted_args['query']['bool']['should'][0]['multi_match']['fields'] = array_values( array_diff(
-		$existing_fields,
-		[ 'terms.xprofile.name' ]
-	) );
+	$formatted_args['query']['bool']['should'][0]['multi_match']['fields'] = array_values(
+		array_diff(
+			$existing_fields,
+			[ 'terms.xprofile.name' ]
+		)
+	);
 
 	// Add a match block to give extra boost to matches in post name
-	$existing_query = ( isset( $formatted_args['query']['bool']['should'][0]['multi_match']['query'] ) )
+	$existing_query                            = ( isset( $formatted_args['query']['bool']['should'][0]['multi_match']['query'] ) )
 		? $formatted_args['query']['bool']['should'][0]['multi_match']['query']
 		: [];
-	$formatted_args['query']['bool']['should'] = array_values( array_merge(
-		[ [
-			'multi_match' => [
-				'query' => $existing_query,
-				'type' => 'phrase',
-				'fields' => ['post_title'],
-				'boost' => 4
-			]
-		] ],
-		$formatted_args['query']['bool']['should']
-	) );
+	$formatted_args['query']['bool']['should'] = array_values(
+		array_merge(
+			[
+				[
+					'multi_match' => [
+						'query'  => $existing_query,
+						'type'   => 'phrase',
+						'fields' => [ 'post_title' ],
+						'boost'  => 4,
+					],
+				],
+			],
+			$formatted_args['query']['bool']['should']
+		)
+	);
 
 	if ( empty( $_REQUEST['s'] ) ) {
 		// remove query entirely since results are incomplete otherwise
 		unset( $formatted_args['query'] );
 
 		// "relevancy" has no significance without a search query as context, just sort by most recent
-		$formatted_args['sort'] = [ [
-			'post_date' => [ 'order' => 'desc' ]
-		] ];
+		$formatted_args['sort'] = [
+			[
+				'post_date' => [ 'order' => 'desc' ],
+			],
+		];
 	}
 
 	return $formatted_args;
@@ -172,12 +177,14 @@ function ep_bp_translate_args( $query ) {
 		return;
 	}
 
-	$fallback_post_types = apply_filters( 'ep_bp_fallback_post_type_facet_selection', [
-		EP_BP_API::GROUP_TYPE_NAME,
-		EP_BP_API::MEMBER_TYPE_NAME,
-		'topic',
-		'reply',
-	] );
+	$fallback_post_types = apply_filters(
+		'ep_bp_fallback_post_type_facet_selection', [
+			EP_BP_API::GROUP_TYPE_NAME,
+			EP_BP_API::MEMBER_TYPE_NAME,
+			'topic',
+			'reply',
+		]
+	);
 
 	if ( ! isset( $_REQUEST['post_type'] ) || empty( $_REQUEST['post_type'] ) ) {
 		$_REQUEST['post_type'] = $fallback_post_types;
@@ -201,10 +208,14 @@ function ep_bp_translate_args( $query ) {
 	}
 
 	// search xprofile field values
-	$query->set( 'search_fields', array_unique( array_merge_recursive(
-		(array) $query->get( 'search_fields' ),
-		[ 'taxonomies' => [ 'xprofile' ] ]
-	), SORT_REGULAR ) );
+	$query->set(
+		'search_fields', array_unique(
+			array_merge_recursive(
+				(array) $query->get( 'search_fields' ),
+				[ 'taxonomies' => [ 'xprofile' ] ]
+			), SORT_REGULAR
+		)
+	);
 }
 
 /**
@@ -214,10 +225,14 @@ function ep_bp_translate_args( $query ) {
  * @return array
  */
 function ep_bp_post_types( $post_types = [] ) {
-	return array_unique( array_merge( $post_types, [
-		bbp_get_topic_post_type() => bbp_get_topic_post_type(),
-		bbp_get_reply_post_type() => bbp_get_reply_post_type(),
-	] ) );
+	return array_unique(
+		array_merge(
+			$post_types, [
+				bbp_get_topic_post_type() => bbp_get_topic_post_type(),
+				bbp_get_reply_post_type() => bbp_get_reply_post_type(),
+			]
+		)
+	);
 }
 
 /**
@@ -228,10 +243,12 @@ function ep_bp_post_types( $post_types = [] ) {
  * @return  array
  */
 function ep_bp_whitelist_taxonomies( $taxonomies ) {
-	return array_merge( $taxonomies, [
-		get_taxonomy( bp_get_member_type_tax_name() ),
-		get_taxonomy( 'bp_group_type' ),
-	] );
+	return array_merge(
+		$taxonomies, [
+			get_taxonomy( bp_get_member_type_tax_name() ),
+			get_taxonomy( 'bp_group_type' ),
+		]
+	);
 }
 
 /**
@@ -250,21 +267,22 @@ function ep_bp_filter_result_titles( $title ) {
 
 	switch ( $post->post_type ) {
 		case EP_BP_API::GROUP_TYPE_NAME:
-			$name = EP_BP_API::GROUP_TYPE_NAME;
+			$name  = EP_BP_API::GROUP_TYPE_NAME;
 			$label = 'Group';
 			break;
 		case EP_BP_API::MEMBER_TYPE_NAME:
-			$name = EP_BP_API::MEMBER_TYPE_NAME;
+			$name  = EP_BP_API::MEMBER_TYPE_NAME;
 			$label = 'Member';
 			break;
 		default:
 			$post_type_object = get_post_type_object( $post->post_type );
-			$name = $post_type_object->name;
-			$label = $post_type_object->labels->singular_name;
+			$name             = $post_type_object->name;
+			$label            = $post_type_object->labels->singular_name;
 			break;
 	}
 
-	$tag = sprintf( '<span class="post_type %1$s">%2$s</span>',
+	$tag = sprintf(
+		'<span class="post_type %1$s">%2$s</span>',
 		$name,
 		$label
 	);

@@ -33,10 +33,12 @@ class EPR_REST_Posts_Controller extends WP_REST_Controller {
 	 * @see register_rest_route()
 	 */
 	public function register_routes() {
-		register_rest_route( $this->namespace, $this->rest_base, [
-			'methods' => 'GET',
-			'callback' => [ $this, 'get_items' ],
-		] );
+		register_rest_route(
+			$this->namespace, $this->rest_base, [
+				'methods'  => 'GET',
+				'callback' => [ $this, 'get_items' ],
+			]
+		);
 	}
 
 	/**
@@ -49,19 +51,23 @@ class EPR_REST_Posts_Controller extends WP_REST_Controller {
 
 		$response = new WP_REST_Response;
 
-		$debug = [];
+		$debug         = [];
 		$response_data = [ 'posts' => [] ];
 
-		add_action( 'ep_add_query_log', function( $ep_query ) use ( &$response, &$debug ) {
-			$debug['ep_query'] = $ep_query;
+		add_action(
+			'ep_add_query_log', function( $ep_query ) use ( &$response, &$debug ) {
+				$debug['ep_query'] = $ep_query;
 
-			$response->set_status( $ep_query['request']['response']['code'] );
-		} );
+				$response->set_status( $ep_query['request']['response']['code'] );
+			}
+		);
 
-		$wp_query->query( array_merge(
-			[ 'ep_integrate' => true ],
-			$data->get_query_params()
-		) );
+		$wp_query->query(
+			array_merge(
+				[ 'ep_integrate' => true ],
+				$data->get_query_params()
+			)
+		);
 
 		$debug['wp_query'] = $wp_query;
 

@@ -63,7 +63,7 @@ class EP_BP_API {
 			'post_mime_type'    => '',
 			'permalink'         => bp_get_group_permalink(),
 			'terms'             => $this->prepare_terms( $group ),
-			//'post_meta'         => $this->prepare_meta( $group ),
+			// 'post_meta'         => $this->prepare_meta( $group ),
 			'post_meta'         => [],
 			'date_terms'        => [],
 			'comment_count'     => 0,
@@ -113,9 +113,9 @@ class EP_BP_API {
 							if ( apply_filters( 'ep_bp_index_xprofile_field_' . bp_get_the_profile_field_id(), true ) ) {
 								$fields[] = [
 									'term_id' => bp_get_the_profile_field_id(),
-									'slug' => bp_get_the_profile_field_name(),
-									'name' => bp_get_the_profile_field_value(),
-									'parent' => bp_get_the_profile_group_name(),
+									'slug'    => bp_get_the_profile_field_name(),
+									'name'    => bp_get_the_profile_field_value(),
+									'parent'  => bp_get_the_profile_group_name(),
 								];
 
 								// TODO make filterable/optional
@@ -152,7 +152,7 @@ class EP_BP_API {
 			'post_mime_type'    => '',
 			'permalink'         => bp_get_member_permalink(),
 			'terms'             => array_merge( $this->prepare_terms( $user ), $xprofile_terms ),
-			//'post_meta'         => $this->prepare_meta( $user ),
+			// 'post_meta'         => $this->prepare_meta( $user ),
 			'post_meta'         => [],
 			'date_terms'        => [],
 			'comment_count'     => 0,
@@ -198,7 +198,7 @@ class EP_BP_API {
 	 * Allows bulk_index_* functions to loop through objects and fire off successive requests of a reasonable size.
 	 *
 	 * @param string $type type of object e.g. 'member' or 'group'
-	 * @param array $objects see prepare_member() and prepare_group() for expected array format
+	 * @param array  $objects see prepare_member() and prepare_group() for expected array format
 	 * @return object decoded response
 	 */
 	private function send_request( $objects ) {
@@ -250,17 +250,19 @@ class EP_BP_API {
 
 		$groups = [];
 
-		$args = array_merge( [
-			'per_page' => self::MAX_BULK_GROUPS_PER_PAGE,
-			'page' => 1,
-		], $args );
+		$args = array_merge(
+			[
+				'per_page' => self::MAX_BULK_GROUPS_PER_PAGE,
+				'page'     => 1,
+			], $args
+		);
 
 		$querystring = bp_ajax_querystring( 'groups' ) . '&' . http_build_query( $args );
 
 		if ( bp_has_groups( $querystring ) ) {
 			while ( bp_groups() ) {
 				bp_the_group();
-				$group_args = $this->prepare_group( $groups_template->group );
+				$group_args                              = $this->prepare_group( $groups_template->group );
 				$groups[ $groups_template->group->id ][] = '{ "index": { "_id": "' . $groups_template->group->id . '" } }';
 				$groups[ $groups_template->group->id ][] = addcslashes( wp_json_encode( $group_args ), "\n" );
 			}
@@ -268,15 +270,20 @@ class EP_BP_API {
 			$this->send_request( $groups );
 
 			if ( self::DEBUG_CLI_OUTPUT ) {
-				WP_CLI::log( sprintf( 'Processed %d/%d entries. . .',
-					$groups_template->group_count + self::MAX_BULK_GROUPS_PER_PAGE * ( $args['page'] - 1 ),
-					$groups_template->total_group_count
-				) );
+				WP_CLI::log(
+					sprintf(
+						'Processed %d/%d entries. . .',
+						$groups_template->group_count + self::MAX_BULK_GROUPS_PER_PAGE * ( $args['page'] - 1 ),
+						$groups_template->total_group_count
+					)
+				);
 			}
 
-			$this->bulk_index_groups( [
-				'page' => $args['page'] + 1,
-			] );
+			$this->bulk_index_groups(
+				[
+					'page' => $args['page'] + 1,
+				]
+			);
 		}
 
 		return true;
@@ -296,17 +303,19 @@ class EP_BP_API {
 
 		$members = [];
 
-		$args = array_merge( [
-			'per_page' => self::MAX_BULK_MEMBERS_PER_PAGE,
-			'page' => 1,
-		], $args );
+		$args = array_merge(
+			[
+				'per_page' => self::MAX_BULK_MEMBERS_PER_PAGE,
+				'page'     => 1,
+			], $args
+		);
 
 		$querystring = bp_ajax_querystring( 'members' ) . '&' . http_build_query( $args );
 
 		if ( bp_has_members( $querystring ) ) {
 			while ( bp_members() ) {
 				bp_the_member();
-				$member_args = $this->prepare_member( $members_template->member );
+				$member_args                                = $this->prepare_member( $members_template->member );
 				$members[ $members_template->member->id ][] = '{ "index": { "_id": "' . $members_template->member->id . '" } }';
 				$members[ $members_template->member->id ][] = addcslashes( wp_json_encode( $member_args ), "\n" );
 			}
@@ -314,15 +323,20 @@ class EP_BP_API {
 			$this->send_request( $members );
 
 			if ( self::DEBUG_CLI_OUTPUT ) {
-				WP_CLI::log( sprintf( 'Processed %d/%d entries. . .',
-					$members_template->member_count + self::MAX_BULK_MEMBERS_PER_PAGE * ( $args['page'] - 1 ),
-					$members_template->total_member_count
-				) );
+				WP_CLI::log(
+					sprintf(
+						'Processed %d/%d entries. . .',
+						$members_template->member_count + self::MAX_BULK_MEMBERS_PER_PAGE * ( $args['page'] - 1 ),
+						$members_template->total_member_count
+					)
+				);
 			}
 
-			$this->bulk_index_members( [
-				'page' => $args['page'] + 1,
-			] );
+			$this->bulk_index_members(
+				[
+					'page' => $args['page'] + 1,
+				]
+			);
 		}
 
 		return true;
@@ -387,7 +401,7 @@ class EP_BP_API {
 				}
 			} else {
 
-				if ( true !== $excluded_public_keys && ! in_array( $key, $excluded_public_keys )  ) {
+				if ( true !== $excluded_public_keys && ! in_array( $key, $excluded_public_keys ) ) {
 					$allow_index = true;
 				}
 			}
@@ -408,7 +422,7 @@ class EP_BP_API {
 	 * @return string
 	 */
 	private function prepare_text_content( $content ) {
-		//$content = strip_tags( $content ); // preserve links in results.
+		// $content = strip_tags( $content ); // preserve links in results.
 		$content = preg_replace( '#[\n\r]+#s', ' ', $content );
 
 		return $content;
@@ -459,14 +473,14 @@ class EP_BP_API {
 			$terms_dic = array();
 
 			foreach ( $object_terms as $term ) {
-				if( ! isset( $terms_dic[ $term->term_id ] ) ) {
+				if ( ! isset( $terms_dic[ $term->term_id ] ) ) {
 					$terms_dic[ $term->term_id ] = array(
-						'term_id'  => $term->term_id,
-						'slug'     => $term->slug,
-						'name'     => $term->name,
-						'parent'   => $term->parent
+						'term_id' => $term->term_id,
+						'slug'    => $term->slug,
+						'name'    => $term->name,
+						'parent'  => $term->parent,
 					);
-					if( $allow_hierarchy ){
+					if ( $allow_hierarchy ) {
 						$terms_dic = $this->get_parent_terms( $terms_dic, $term, $taxonomy->name );
 					}
 				}
@@ -485,7 +499,7 @@ class EP_BP_API {
 	public static function factory() {
 		static $instance = false;
 
-		if ( ! $instance  ) {
+		if ( ! $instance ) {
 			$instance = new self();
 		}
 

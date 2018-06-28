@@ -5,13 +5,12 @@
  * @package ElasticPress_BuddyPress
  */
 
- if ( ! defined( 'ABSPATH' ) ) {
-    exit; // Exit if accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly.
 }
 
 /**
  * CLI Commands for ElasticPress BuddyPress
- *
  */
 class ElasticPress_BuddyPress_CLI_Command extends WP_CLI_Command {
 
