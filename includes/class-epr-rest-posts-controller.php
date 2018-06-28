@@ -5,9 +5,12 @@
  * @package ElasticPress_BuddyPress
  */
 
+/**
+ * REST Controller.
+ */
 class EPR_REST_Posts_Controller extends WP_REST_Controller {
 
-	// include debug output in REST response
+	// Include debug output in REST response.
 	const DEBUG = false;
 
 	/**
@@ -27,9 +30,6 @@ class EPR_REST_Posts_Controller extends WP_REST_Controller {
 	/**
 	 * Registers the routes for the objects of the controller.
 	 *
-	 * @since alpha
-	 * @access public
-	 *
 	 * @see register_rest_route()
 	 */
 	public function register_routes() {
@@ -42,8 +42,9 @@ class EPR_REST_Posts_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Query ElasticPress using query vars
+	 * Query ElasticPress using query vars.
 	 *
+	 * @param WP_REST_Request $data Request data.
 	 * @return WP_REST_Response
 	 */
 	public function get_items( $data ) {

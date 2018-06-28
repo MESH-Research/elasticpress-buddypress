@@ -5,15 +5,17 @@
  * @package ElasticPress_BuddyPress
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Exit if accessed directly.
-}
-
 /**
  * CLI Commands for ElasticPress BuddyPress
  */
 class ElasticPress_BuddyPress_CLI_Command extends WP_CLI_Command {
 
+	/**
+	 * Index groups and/or members.
+	 *
+	 * @param array $args Expects one arg, either "groups" or "members".
+	 * @param array $assoc_args Not used.
+	 */
 	public function index( $args, $assoc_args ) {
 
 		if ( ! isset( $args[0] ) || 'groups' === $args[0] ) {
@@ -60,22 +62,22 @@ class ElasticPress_BuddyPress_CLI_Command extends WP_CLI_Command {
 	 *
 	 * e.g. wp elasticpress-buddypress index_from_all_networks --post-type=topic
 	 *
-	 * @param $args
-	 * @param $assoc_args
+	 * @param array $args Passed to $ep_cli.
+	 * @param array $assoc_args Passed to $ep_cli.
 	 */
 	public function index_from_all_networks( $args, $assoc_args ) {
 		$ep_cli = new ElasticPress_CLI_Command;
 
-		// $network_index_name must be defined outside the filter closure to avoid an infinite loop
+		// $network_index_name must be defined outside the filter closure to avoid an infinite loop.
 		$network_index_name = ep_get_index_name();
 
-		// ensure index name is constant while we loop through all networks for posts
+		// Ensure index name is constant while we loop through all networks for posts.
 		$filter_network_index_name = function() use ( $network_index_name ) {
 			return $network_index_name;
 		};
 
-		// index posts on all networks using the filtered index name
-		// this way all posts across all networks get indexed once on every network
+		// Index posts on all networks using the filtered index name.
+		// This way all posts across all networks get indexed once on every network.
 		foreach ( get_networks() as $query_network ) {
 			switch_to_blog( get_main_site_for_network( $query_network ) );
 			add_filter( 'ep_index_name', $filter_network_index_name );

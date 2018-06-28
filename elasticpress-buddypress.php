@@ -12,15 +12,17 @@
  * @package         Elasticpress_Buddypress
  */
 
-require_once dirname( __FILE__ ) . '/classes/class-ep-bp-api.php';
-require_once dirname( __FILE__ ) . '/features/buddypress/buddypress.php';
-require_once dirname( __FILE__ ) . '/features/buddypress/filters.php';
-require_once dirname( __FILE__ ) . '/features/buddypress/facets.php';
-
-require_once dirname( __FILE__ ) . '/elasticpress-rest.php';
+/**
+ * Load required files.
+ */
+require_once dirname( __FILE__ ) . '/includes/class-ep-bp-api.php';
+require_once dirname( __FILE__ ) . '/includes/class-epr-rest-posts-controller.php';
+require_once dirname( __FILE__ ) . '/includes/features/buddypress/buddypress.php';
+require_once dirname( __FILE__ ) . '/includes/features/buddypress/filters.php';
+require_once dirname( __FILE__ ) . '/includes/features/buddypress/facets.php';
 
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
-	require_once dirname( __FILE__ ) . '/bin/wp-cli.php';
+	require_once dirname( __FILE__ ) . '/includes/class-elasticpress-buddypress-cli-command.php';
 }
 
 add_action( 'plugins_loaded', 'ep_bp_register_feature' );

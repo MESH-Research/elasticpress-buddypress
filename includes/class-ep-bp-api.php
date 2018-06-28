@@ -1,12 +1,17 @@
 <?php
 /**
  * Functions to add ElasticPress support for BuddyPress non-post content like group and members.
+ *
+ * @package         Elasticpress_Buddypress
+ */
+
+/**
  * Inspired by EP_API.
  */
 class EP_BP_API {
 
 	/**
-	 * enable detailed CLI output while indexing
+	 * Enable detailed CLI output while indexing.
 	 */
 	const DEBUG_CLI_OUTPUT = true;
 
@@ -32,6 +37,8 @@ class EP_BP_API {
 
 	/**
 	 * Type of object currently being processed
+	 *
+	 * @var string
 	 */
 	private $type;
 
@@ -39,8 +46,8 @@ class EP_BP_API {
 	 * Prepare a group for syncing
 	 * Must be inside the groups loop.
 	 *
-	 * @param int $group_id
-	 * @return bool|array
+	 * @param BP_Groups_Group $group Group to prepare.
+	 * @return array
 	 */
 	public function prepare_group( $group ) {
 		$groupmeta = groups_get_groupmeta( $group->id );
@@ -63,7 +70,6 @@ class EP_BP_API {
 			'post_mime_type'    => '',
 			'permalink'         => bp_get_group_permalink(),
 			'terms'             => $this->prepare_terms( $group ),
-			// 'post_meta'         => $this->prepare_meta( $group ),
 			'post_meta'         => [],
 			'date_terms'        => [],
 			'comment_count'     => 0,
@@ -82,8 +88,8 @@ class EP_BP_API {
 	 * Prepare a member for syncing
 	 * Must be inside the members loop.
 	 *
-	 * @param int $group_id
-	 * @return bool|array
+	 * @param WP_User $user User to prepare.
+	 * @return array
 	 */
 	public function prepare_member( $user ) {
 		global $members_template;
@@ -118,7 +124,7 @@ class EP_BP_API {
 									'parent'  => bp_get_the_profile_group_name(),
 								];
 
-								// TODO make filterable/optional
+								// TODO make filterable/optional.
 								if (
 									'about' === strtolower( bp_get_the_profile_field_name() ) &&
 									! empty( bp_get_the_profile_field_value() )
@@ -152,7 +158,6 @@ class EP_BP_API {
 			'post_mime_type'    => '',
 			'permalink'         => bp_get_member_permalink(),
 			'terms'             => array_merge( $this->prepare_terms( $user ), $xprofile_terms ),
-			// 'post_meta'         => $this->prepare_meta( $user ),
 			'post_meta'         => [],
 			'date_terms'        => [],
 			'comment_count'     => 0,
@@ -170,7 +175,7 @@ class EP_BP_API {
 	/**
 	 * Normalized author data for any object type.
 	 *
-	 * @param WP_User $user
+	 * @param WP_User $user User.
 	 * @return array user data
 	 */
 	private function get_user_data( $user ) {
@@ -197,9 +202,8 @@ class EP_BP_API {
 	 * Send a request to EP_API.
 	 * Allows bulk_index_* functions to loop through objects and fire off successive requests of a reasonable size.
 	 *
-	 * @param string $type type of object e.g. 'member' or 'group'
-	 * @param array  $objects see prepare_member() and prepare_group() for expected array format
-	 * @return object decoded response
+	 * @param array $objects See prepare_member() and prepare_group() for expected array format.
+	 * @return stdClass
 	 */
 	private function send_request( $objects ) {
 		$flatten = [];
@@ -211,7 +215,7 @@ class EP_BP_API {
 
 		$path = trailingslashit( ep_get_index_name( bp_get_root_blog_id() ) ) . "{$this->type}/_bulk";
 
-		// make sure to add a new line at the end or the request will fail
+		// Make sure to add a new line at the end or the request will fail.
 		$body = rtrim( implode( "\n", $flatten ) ) . "\n";
 
 		$request_args = array(
@@ -240,8 +244,8 @@ class EP_BP_API {
 	 * The equivalent functionality for posts in EP_API is spread out over several functions.
 	 * This is a "condensed" adapted version that handles all required preparation as well as indexing.
 	 *
-	 * @param array $args passed to bp_has_groups()
-	 * @return bool success
+	 * @param array $args Passed to bp_has_groups().
+	 * @return bool
 	 */
 	public function bulk_index_groups( $args = [] ) {
 		global $groups_template;
@@ -293,7 +297,7 @@ class EP_BP_API {
 	 * Bulk index all members.
 	 * See also bulk_index_groups()
 	 *
-	 * @param array $args passed to bp_has_members()
+	 * @param array $args Passed to bp_has_members().
 	 * @return bool success
 	 */
 	public function bulk_index_members( $args = [] ) {
@@ -345,84 +349,10 @@ class EP_BP_API {
 	/**
 	 * Ripped straight from EP_API.
 	 *
-	 * @param object $object group or member. must match $this->type
-	 * @return array
-	 */
-	public function prepare_meta( $object ) {
-		switch ( $this->type ) {
-			case self::MEMBER_TYPE_NAME:
-				$meta = get_user_meta( $object->ID );
-				break;
-			case self::GROUP_TYPE_NAME:
-				$meta = groups_get_groupmeta( $object->id );
-				break;
-		}
-
-		$post = $object;
-
-		if ( empty( $meta ) ) {
-			return array();
-		}
-
-		$prepared_meta = array();
-
-		/**
-		 * Filter index-able private meta
-		 *
-		 * Allows for specifying private meta keys that may be indexed in the same manor as public meta keys.
-		 *
-		 * @since 1.7
-		 *
-		 * @param         array Array of index-able private meta keys.
-		 * @param WP_Post $post The current post to be indexed.
-		 */
-		$allowed_protected_keys = apply_filters( 'ep_prepare_meta_allowed_protected_keys', array(), $post );
-
-		/**
-		 * Filter non-indexed public meta
-		 *
-		 * Allows for specifying public meta keys that should be excluded from the ElasticPress index.
-		 *
-		 * @since 1.7
-		 *
-		 * @param         array Array of public meta keys to exclude from index.
-		 * @param WP_Post $post The current post to be indexed.
-		 */
-		$excluded_public_keys = apply_filters( 'ep_prepare_meta_excluded_public_keys', array(), $post );
-
-		foreach ( $meta as $key => $value ) {
-
-			$allow_index = false;
-
-			if ( is_protected_meta( $key ) ) {
-
-				if ( true === $allowed_protected_keys || in_array( $key, $allowed_protected_keys ) ) {
-					$allow_index = true;
-				}
-			} else {
-
-				if ( true !== $excluded_public_keys && ! in_array( $key, $excluded_public_keys ) ) {
-					$allow_index = true;
-				}
-			}
-
-			if ( true === $allow_index || apply_filters( 'ep_prepare_meta_whitelist_key', false, $key, $post ) ) {
-				$prepared_meta[ $key ] = maybe_unserialize( $value );
-			}
-		}
-
-		return $prepared_meta;
-
-	}
-
-	/**
-	 * Ripped straight from EP_API.
-	 *
-	 * @param  string $content
+	 * @param  string $content Text content.
 	 * @return string
 	 */
 	private function prepare_text_content( $content ) {
-		// $content = strip_tags( $content ); // preserve links in results.
 		$content = preg_replace( '#[\n\r]+#s', ' ', $content );
 
 		return $content;
@@ -432,9 +362,7 @@ class EP_BP_API {
 	 * Prepare terms to send to ES.
 	 * Modified from EP_API.
 	 *
-	 * @param WP_User|BP_Groups_Group $object user or group
-	 *
-	 * @since 0.1.0
+	 * @param WP_User|BP_Groups_Group $object user or group.
 	 * @return array
 	 */
 	private function prepare_terms( $object ) {
@@ -462,7 +390,7 @@ class EP_BP_API {
 		foreach ( $selected_taxonomies as $taxonomy ) {
 
 			$object_terms = wpmn_get_object_terms(
-				( isset( $object->ID ) ) ? $object->ID : $object->id, // groups have lowercase id property, members upper
+				( isset( $object->ID ) ) ? $object->ID : $object->id, // Groups have lowercase id property, members upper.
 				$taxonomy->name
 			);
 
@@ -509,13 +437,19 @@ class EP_BP_API {
 }
 
 /**
- * Accessor functions for methods in above class. See doc blocks above for function details.
+ * Accessor function.
+ *
+ * @param array $args See bulk_index_groups().
  */
-
 function ep_bp_bulk_index_groups( $args ) {
 	return EP_BP_API::factory()->bulk_index_groups( $args );
 }
 
+/**
+ * Accessor function.
+ *
+ * @param array $args See bulk_index_members().
+ */
 function ep_bp_bulk_index_members( $args ) {
 	return EP_BP_API::factory()->bulk_index_members( $args );
 }

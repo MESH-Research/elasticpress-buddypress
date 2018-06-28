@@ -1,79 +1,57 @@
 <?php
 /**
- * filters for the ElasticPress BuddyPress feature
+ * Filters for the ElasticPress BuddyPress feature.
+ *
+ * @package Elasticpress_Buddypress
  */
-
 
 /**
  * Filter search request path to search groups & members as well as posts.
+ *
+ * @param string $path Search request path.
  */
 function ep_bp_filter_ep_search_request_path( $path ) {
-	// return str_replace( '/post/', '/post,' . EP_BP_API::GROUP_TYPE_NAME . ',' . EP_BP_API::MEMBER_TYPE_NAME . '/', $path );
 	return str_replace( '/post/', '/', $path );
 }
 
 /**
  * Filter index name to include all sub-blogs when on a root blog.
  * This is optional and only affects multinetwork installs.
+ *
+ * @param string $index_name Index.
+ * @param int    $blog_id Blog.
  */
 function ep_bp_filter_ep_index_name( $index_name, $blog_id ) {
-	// since we call ep_get_index_name() which uses this filter, we need to disable the filter while this function runs.
+	// Since we call ep_get_index_name() which uses this filter, we need to disable the filter while this function runs.
 	remove_filter( 'ep_index_name', 'ep_bp_filter_ep_index_name', 10, 2 );
 
 	$index_names = [ $index_name ];
 
-	// checking is_search() prevents changing index name while indexing
-	// only one of the below methods should be active. the others are left here for reference.
+	// Checking is_search() prevents changing index name while indexing.
 	if ( is_search() ) {
-		/**
-		 * METHOD 1: all indices
-		 * only works if the number of shards being sufficiently low
-		 * results in 400/413 error if > 1000 shards being searched
-		 * see ep_bp_filter_ep_default_index_number_of_shards()
-		 */
-		// $index_names = [ '_all' ];
-		/**
-		 * METHOD 2: all main sites for all networks
-		 * most practical if there are lots of sites (enough to worry about exceeded the shard query limit of 1000)
-		 */
 		foreach ( get_networks() as $network ) {
 			$network_main_site_id = get_main_site_for_network( $network );
 			$index_names[]        = ep_get_index_name( $network_main_site_id );
 		}
 
-		/**
-		 * METHOD 3: some blogs, e.g. 50 most recently active
-		 * compromise if one of the prior two methods doesn't work for some reason.
-		 */
-		// if ( bp_is_root_blog() ) {
-		// $querystring =  bp_ajax_querystring( 'blogs' ) . '&' . http_build_query( [
-		// 'type' => 'active',
-		// 'search_terms' => false, // do not limit results based on current search query
-		// 'per_page' => 50, // TODO setting this too high results in a query url which is too long (400, 413 errors)
-		// ] );
-		// if ( bp_has_blogs( $querystring ) ) {
-		// while ( bp_blogs() ) {
-		// bp_the_blog();
-		// $index_names[] = ep_get_index_name( bp_get_blog_id() );
-		// }
-		// }
-		// }
-		// handle facets
+		// Handle facets.
 		if ( isset( $_REQUEST['index'] ) ) {
 			$index_names = $_REQUEST['index'];
 		}
 	}
 
-	// restore filter now that we're done abusing ep_get_index_name()
+	// Restore filter now that we're done abusing ep_get_index_name().
 	add_filter( 'ep_index_name', 'ep_bp_filter_ep_index_name', 10, 2 );
 
 	return implode( ',', array_unique( $index_names ) );
 }
 
 /**
- * this is an attempt at limiting the total number of shards to make searching lots of sites in multinetwork feasible
- * not necessary unless querying lots of sites at once.
- * doesn't seem to hurt to leave it enabled in any case though.
+ * This is an attempt at limiting the total number of shards to make searching lots of sites in multinetwork feasible.
+ * Not necessary unless querying lots of sites at once.
+ *
+ * @param int $number_of_shards Shard count.
+ * @return int
  */
 function ep_bp_filter_ep_default_index_number_of_shards( $number_of_shards ) {
 	$number_of_shards = 1;
@@ -82,6 +60,9 @@ function ep_bp_filter_ep_default_index_number_of_shards( $number_of_shards ) {
 
 /**
  * Filter the search results loop to fix some bad permalinks.
+ *
+ * @param string $permalink Permalink.
+ * @return string
  */
 function ep_bp_filter_the_permalink( $permalink ) {
 	global $wp_query, $post;
@@ -99,18 +80,21 @@ function ep_bp_filter_the_permalink( $permalink ) {
 
 
 /**
- * Adjust args to handle facets
+ * Adjust args to handle facets.
+ *
+ * @param array $formatted_args Args from EP.
+ * @return array
  */
 function ep_bp_filter_ep_formatted_args( $formatted_args ) {
-	// because we changed the mapping for post_type with ep_bp_filter_ep_config_mapping(), change query accordingly
+	// Because we changed the mapping for post_type with ep_bp_filter_ep_config_mapping(), change query accordingly.
 	foreach ( $formatted_args['post_filter']['bool']['must'] as &$must ) {
-		// maybe term, maybe terms - depends on whether or not the value of "post_type.raw" is an array. need to handle both.
+		// Maybe term, maybe terms - depends on whether or not the value of "post_type.raw" is an array. need to handle both.
 		foreach ( [ 'term', 'terms' ] as $key ) {
 			if ( isset( $must[ $key ]['post_type.raw'] ) ) {
 				$must[ $key ]['post_type'] = $must[ $key ]['post_type.raw'];
 				unset( $must[ $key ]['post_type.raw'] );
 
-				// re-index 'must' array keys using array_values (non-sequential keys pose problems for elasticpress)
+				// Re-index 'must' array keys using array_values (non-sequential keys pose problems for elasticpress).
 				if ( is_array( $must[ $key ]['post_type'] ) ) {
 					$must[ $key ]['post_type'] = array_values( $must[ $key ]['post_type'] );
 				}
@@ -129,7 +113,7 @@ function ep_bp_filter_ep_formatted_args( $formatted_args ) {
 		)
 	);
 
-	// Add a match block to give extra boost to matches in post name
+	// Add a match block to give extra boost to matches in post name.
 	$existing_query                            = ( isset( $formatted_args['query']['bool']['should'][0]['multi_match']['query'] ) )
 		? $formatted_args['query']['bool']['should'][0]['multi_match']['query']
 		: [];
@@ -150,10 +134,10 @@ function ep_bp_filter_ep_formatted_args( $formatted_args ) {
 	);
 
 	if ( empty( $_REQUEST['s'] ) ) {
-		// remove query entirely since results are incomplete otherwise
+		// Remove query entirely since results are incomplete otherwise.
 		unset( $formatted_args['query'] );
 
-		// "relevancy" has no significance without a search query as context, just sort by most recent
+		// "Relevancy" has no significance without a search query as context, just sort by most recent.
 		$formatted_args['sort'] = [
 			[
 				'post_date' => [ 'order' => 'desc' ],
@@ -167,7 +151,7 @@ function ep_bp_filter_ep_formatted_args( $formatted_args ) {
 /**
  * Translate args to ElasticPress compat format.
  *
- * @param WP_Query $query
+ * @param WP_Query $query Search query.
  */
 function ep_bp_translate_args( $query ) {
 	/**
@@ -193,7 +177,7 @@ function ep_bp_translate_args( $query ) {
 	$query->set( 'post_type', $_REQUEST['post_type'] );
 
 	if ( ! isset( $_REQUEST['index'] ) ) {
-		// TODO find a way to avoid removing & adding this filter again
+		// TODO find a way to avoid removing & adding this filter again.
 		remove_filter( 'ep_index_name', 'ep_bp_filter_ep_index_name', 10, 2 );
 		$_REQUEST['index'] = [ ep_get_index_name() ];
 		add_filter( 'ep_index_name', 'ep_bp_filter_ep_index_name', 10, 2 );
@@ -207,7 +191,7 @@ function ep_bp_translate_args( $query ) {
 		$query->set( 'paged', $_REQUEST['paged'] );
 	}
 
-	// search xprofile field values
+	// Search xprofile field values.
 	$query->set(
 		'search_fields', array_unique(
 			array_merge_recursive(
@@ -239,7 +223,6 @@ function ep_bp_post_types( $post_types = [] ) {
  * Index BP taxonomies
  *
  * @param   array $taxonomies Index taxonomies array.
- * @param   array $post Post properties array.
  * @return  array
  */
 function ep_bp_whitelist_taxonomies( $taxonomies ) {
@@ -252,13 +235,15 @@ function ep_bp_whitelist_taxonomies( $taxonomies ) {
 }
 
 /**
- * inject "post" type into search result titles
- * TODO make configurable via ep feature settings api
+ * Inject "post" type labels into search result titles.
+ * TODO make configurable via ep feature settings api.
+ *
+ * @param string $title Post title.
  */
 function ep_bp_filter_result_titles( $title ) {
 	global $post;
 
-	// if we're filtering the_title_attribute() rather than the_title(), bail
+	// If we're filtering the_title_attribute() rather than the_title(), bail.
 	foreach ( debug_backtrace() as $bt ) {
 		if ( isset( $bt['function'] ) && 'the_title_attribute' === $bt['function'] ) {
 			return $title;
@@ -296,6 +281,9 @@ function ep_bp_filter_result_titles( $title ) {
 
 /**
  * Change author links to point to profiles rather than /author/username
+ *
+ * @param string $link Author link.
+ * @return string
  */
 function ep_bp_filter_result_author_link( $link ) {
 	$link = str_replace( '/author/', '/members/', $link );
@@ -309,6 +297,9 @@ function ep_bp_filter_result_author_link( $link ) {
  *
  * IMPORTANT: there is an equivalent clientside function that handles dupes which appear on different pages.
  * Update that also if you change the logic here.
+ *
+ * @param array $results Search results.
+ * @return array
  */
 function ep_bp_filter_ep_search_results_array( $results ) {
 	foreach ( $results['posts'] as $k => $this_post ) {
@@ -326,8 +317,13 @@ function ep_bp_filter_ep_search_results_array( $results ) {
 }
 
 /**
- * filter out private bbpress content this way instead of a meta_query since that also excludes some non-replies.
- * this takes the place of bbp_pre_get_posts_normalize_forum_visibility()
+ * Filter out private bbpress content this way instead of a meta_query since that also excludes some non-replies.
+ * This takes the place of bbp_pre_get_posts_normalize_forum_visibility().
+ *
+ * @param bool  $kill If true, don't sync the post.
+ * @param array $post_args Post args.
+ * @param array $post_id Post id.
+ * @return bool
  */
 function ep_bp_filter_ep_post_sync_kill( $kill, $post_args, $post_id ) {
 	$meta = get_post_meta( $post_id );
@@ -339,6 +335,8 @@ function ep_bp_filter_ep_post_sync_kill( $kill, $post_args, $post_id ) {
 
 /**
  * Unless we change post_type from text to keyword, searches for some of our buddypress fake "post" types return no results.
+ *
+ * @param array $mapping Elasticsearch index mapping.
  */
 function ep_bp_filter_ep_config_mapping( $mapping ) {
 	$mapping['mappings']['post']['properties']['post_type'] = [
@@ -350,6 +348,10 @@ function ep_bp_filter_ep_config_mapping( $mapping ) {
 /**
  * Elasticpress doesn't turn on integration if the search query is empty.
  * We consider that a valid use case to return all results (according to filters) so enable it anyway.
+ *
+ * @param bool     $enabled Integration enabled.
+ * @param WP_Query $query Search query.
+ * @return bool
  */
 function ep_bp_filter_ep_elasticpress_enabled( $enabled, $query ) {
 	if ( method_exists( $query, 'is_search' ) && $query->is_search() && isset( $_REQUEST['s'] ) ) {

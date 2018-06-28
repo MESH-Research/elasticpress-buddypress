@@ -1,20 +1,21 @@
 <?php
 /**
- * functions that output search facet markup for the ElasticPress BuddyPress feature
+ * Functions that output search facet markup for the ElasticPress BuddyPress feature.
+ *
+ * @package Elasticpress_Buddypress
  */
 
 /**
- * output HTML for post type facet <select>
- * TODO filterable
+ * Output HTML for post type facet <select>.
  */
 function ep_bp_post_type_select() {
-	// buddypress fake "post" types
+	// BP fake "post" types.
 	$post_types = [
 		EP_BP_API::GROUP_TYPE_NAME  => 'Groups',
 		EP_BP_API::MEMBER_TYPE_NAME => 'Members',
 	];
 
-	// actual post types
+	// Actual post types.
 	foreach ( ep_get_indexable_post_types() as $post_type ) {
 		$post_type_object = get_post_type_object( $post_type );
 		if ( apply_filters( 'ep_bp_show_post_type_facet_' . $post_type_object->name, true ) ) {
@@ -41,11 +42,10 @@ function ep_bp_post_type_select() {
 }
 
 /**
- * output HTML for network facet
- * TODO find a way to avoid removing/adding index name filter
+ * Output HTML for network facet.
  */
 function ep_bp_network_select() {
-	// short-circuit our own index name filter to build the list
+	// Short-circuit our own index name filter to build the list.
 	remove_filter( 'ep_index_name', 'ep_bp_filter_ep_index_name', 10, 2 );
 
 	$networks = [];
@@ -74,12 +74,12 @@ function ep_bp_network_select() {
 	</select>
 	<span id="ep_bp_index_facet"></span>
 	<?php
-	// restore index name filter
+	// Restore index name filter.
 	add_filter( 'ep_index_name', 'ep_bp_filter_ep_index_name', 10, 2 );
 }
 
 /**
- * output HTML for orderby facet
+ * Output HTML for orderby facet.
  */
 function ep_bp_orderby_select() {
 	$options = [
@@ -100,7 +100,7 @@ function ep_bp_orderby_select() {
 }
 
 /**
- * output HTML for order facet
+ * Output HTML for order facet.
  */
 function ep_bp_order_select() {
 	$options = [
@@ -122,7 +122,7 @@ function ep_bp_order_select() {
 
 /**
  * Add search facets to sidebar.
- * TODO widgetize?
+ * TODO widgetize!
  */
 function ep_bp_get_sidebar() {
 	?>
@@ -141,7 +141,6 @@ function ep_bp_get_sidebar() {
 	</aside>
 	<?php
 
-	// only once. TODO
 	remove_action( 'is_active_sidebar', '__return_true' );
 	remove_action( 'dynamic_sidebar_before', 'ep_bp_get_sidebar' );
 }
