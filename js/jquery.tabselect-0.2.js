@@ -5,6 +5,13 @@
 // by Fredi Bach
 // fredibach.ch
 
+/**
+ * Note 09-17-21 - Mike Thicke
+ *
+ * This plugin is not longer maintained and the website does not exist. This
+ * appears to be the latest version of the plugin.
+ */
+
 (function($) {
 
     $.tabSelect = function(element, options) {
@@ -64,21 +71,11 @@
         }
 
         plugin.onChange = function(){
-			if (plugin.settings.formElement != undefined){
-				if ($(plugin.settings.formElement).is("select")){
-					$(plugin.settings.formElement).find('option').each(function(){
-						$(this).removeAttr('selected');
-					});
-					var selection = plugin.getAllSelected();
-					$(plugin.settings.formElement).find('option').each(function(){
-						if (selection.indexOf($(this).val()) !== -1){
-							$(this).attr('selected','selected');
-						}
-					});
-				} else {
-					$(plugin.settings.formElement).val(plugin.getAllSelected());
-				}
-			}
+			// The default onChange handler assumes that the value of select
+			// option is the same as the content of the associate span element,
+			// which is not true for how we're using in on Humanities Commons.
+			// Further, it seems to be causing problems with the DOM, so the
+			// code was removed. 09-17-21 Mike
 			plugin.settings.onChange(plugin.getAllSelected());
         }
 
