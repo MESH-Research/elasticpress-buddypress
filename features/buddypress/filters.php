@@ -3,7 +3,6 @@
  * filters for the ElasticPress BuddyPress feature
  */
 
-
 /**
  * Filter search request path to search groups & members as well as posts.
  */
@@ -168,7 +167,11 @@ function ep_bp_translate_args( $query ) {
 	/**
 	 * Make sure this is an ElasticPress search query
 	 */
-	if ( ! ep_elasticpress_enabled( $query ) || ! $query->is_search() ) {
+	$indexables = ElasticPress\Indexables::factory()->get_all();
+	if ( empty( $indexables ) ) {
+		return;
+	}
+	if ( ! $indexables[0]->elasticpress_enabled( $query ) || ! $query->is_search() ) {
 		return;
 	}
 
