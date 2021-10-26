@@ -15,7 +15,9 @@ function ep_bp_post_type_select() {
 	];
 
 	// actual post types
-	foreach ( ep_get_indexable_post_types() as $post_type ) {
+	$elasticpress_post = new ElasticPress\Indexable\Post\Post();
+	$indexable_post_types = $elasticpress_post->get_indexable_post_types();
+	foreach ( $indexable_post_types as $post_type ) {
 		$post_type_object = get_post_type_object( $post_type );
 		if ( apply_filters( 'ep_bp_show_post_type_facet_' . $post_type_object->name, true ) ) {
 			$post_types[ $post_type_object->name ] = $post_type_object->label;
