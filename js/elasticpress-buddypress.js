@@ -186,7 +186,9 @@ window.elasticPressBuddyPress = {
         }
       }
     }
-    var handleError = function( request ) {
+    var handleError = function( request, textStatus, error ) {
+      var err = textStatus + ", " + error;
+      console.log( "Request Failed: " + err );
       if ( request.statusText !== 'abort' ) {
         elasticPressBuddyPress.target.html( elasticPressBuddyPress.errorDiv );
       }
@@ -224,7 +226,7 @@ window.elasticPressBuddyPress = {
     // TODO set ajax path with wp_localize_script() from EPR_REST_Posts_Controller property
     elasticPressBuddyPress.xhr = $.getJSON( '/wp-json/epr/v1/query?' + serializedFacets )
       .success( handleSuccess )
-      .error( handleError )
+      .fail( handleError )
       .complete( handleComplete );
   },
 
