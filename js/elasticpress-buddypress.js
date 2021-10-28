@@ -193,9 +193,13 @@ window.elasticPressBuddyPress = {
         elasticPressBuddyPress.target.html( elasticPressBuddyPress.errorDiv );
       }
     }
-    var handleComplete = function( request ) {
-      if ( request.statusText !== 'abort' ) {
+    var handleAlways = function( data, textStatus, errorThrown ) {
+      if ( textStatus !== 'abort' ) {
         elasticPressBuddyPress.clearLoading();
+      }
+
+      if ( typeof data.debug !== 'undefined' && typeof data.debug.ep_query !== 'undefined' ) {
+        console.log( 'ElasticSearch response: ' + data.debug.ep_query.request.response.code + ' ' + data.debug.ep_query.request.response.message );
       }
 
       // keep loading more results to account for first pages with fewer than 10 results
@@ -227,7 +231,7 @@ window.elasticPressBuddyPress = {
     elasticPressBuddyPress.xhr = $.getJSON( '/wp-json/epr/v1/query?' + serializedFacets )
       .success( handleSuccess )
       .fail( handleError )
-      .complete( handleComplete );
+      .always( handleAlways );
   },
 
   // automatically hide & show relevant order options
