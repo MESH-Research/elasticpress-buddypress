@@ -35,6 +35,14 @@ class EP_BP_API {
 	 */
 	private $type;
 
+	public function prepare_meta_types( $post_meta ) {
+		$indexables = ElasticPress\Indexables::factory()->get_all();
+		if ( empty( $indexables ) ) {
+			return [];
+		}
+		return $indexables[0]->prepare_meta_types( $post_meta );
+	}
+
 	/**
 	 * Prepare a group for syncing
 	 * Must be inside the groups loop.
@@ -73,7 +81,7 @@ class EP_BP_API {
 			'guid'              => bp_get_group_permalink(),
 		];
 
-		$args['meta'] = EP_API::factory()->prepare_meta_types( $args['post_meta'] );
+		$args['meta'] = $this->prepare_meta_types( $args['post_meta'] );
 
 		return $args;
 	}
@@ -115,7 +123,7 @@ class EP_BP_API {
 									'term_id' => bp_get_the_profile_field_id(),
 									'slug' => bp_get_the_profile_field_name(),
 									'name' => bp_get_the_profile_field_value(),
-									'parent' => bp_get_the_profile_group_name(),
+									'parent' => bp_get_the_profile_group_id(),
 								];
 
 								// TODO make filterable/optional
@@ -162,7 +170,7 @@ class EP_BP_API {
 			'guid'              => bp_get_member_permalink(),
 		];
 
-		$args['meta'] = EP_API::factory()->prepare_meta_types( $args['post_meta'] );
+		$args['meta'] = $this->prepare_meta_types( $args['post_meta'] );
 
 		return $args;
 	}
@@ -209,7 +217,7 @@ class EP_BP_API {
 			$flatten[] = $object[1];
 		}
 
-		$path = trailingslashit( ep_get_index_name( bp_get_root_blog_id() ) ) . "{$this->type}/_bulk";
+		$path = trailingslashit( ep_get_index_name( bp_get_root_blog_id() ) ) . "post/_bulk";
 
 		// make sure to add a new line at the end or the request will fail
 		$body = rtrim( implode( "\n", $flatten ) ) . "\n";
@@ -220,7 +228,7 @@ class EP_BP_API {
 			'timeout' => 30,
 		);
 
-		$request = ep_remote_request( $path, apply_filters( 'ep_bulk_index_posts_request_args', $request_args, $body ) );
+		$request = ElasticPress\Elasticsearch::factory()->remote_request( $path, apply_filters( 'ep_bulk_index_posts_request_args', $request_args, $body ) );
 
 		if ( is_wp_error( $request ) ) {
 			return $request;
