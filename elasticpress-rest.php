@@ -67,10 +67,10 @@ class EPR_REST_Posts_Controller extends WP_REST_Controller {
 
 		while ( have_posts() ) {
 			the_post();
-			// Prevent topics in private groups from showing in search results
-			if ( 'topic' === $wp_query->post->post_type ) {
-				$group_post = get_post( $wp_query->post->post_parent );
-				if ( $group_post->post_status != 'publish' ) {
+			// Prevent posts in private groups from showing in search results
+			if ( $wp_query->post->post_parent ) {
+				$parent_post = get_post( $wp_query->post->post_parent );
+				if ( $parent_post->post_status != 'publish' ) {
 					continue;
 				}
 			}
