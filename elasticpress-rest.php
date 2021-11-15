@@ -65,14 +65,19 @@ class EPR_REST_Posts_Controller extends WP_REST_Controller {
 
 		$debug['wp_query'] = $wp_query;
 
-		if ( have_posts() ) {
-			while ( have_posts() ) {
-				ob_start();
-				the_post();
-				get_template_part( 'content', get_post_format() );
-				$response_data['posts'][] = ob_get_contents();
-				ob_end_clean();
+		while ( have_posts() ) {
+			the_post();
+			// Prevent topics in private groups from showing in search results
+			if ( 'topic' === $wp_query->post->post_type ) {
+				$group_post = get_post( $wp_query->post->post_parent );
+				if ( $group_post->post_status != 'publish' ) {
+					continue;
+				}
 			}
+			ob_start();
+			get_template_part( 'content', get_post_format() );
+			$response_data['posts'][] = ob_get_contents();
+			ob_end_clean();
 		}
 
 		if ( self::DEBUG ) {
