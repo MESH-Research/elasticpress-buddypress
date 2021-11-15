@@ -3,6 +3,8 @@
     exit; // Exit if accessed directly.
 }
 
+use ElasticPress\Command as ElasticPress_CLI_Command;
+
 /**
  * CLI Commands for ElasticPress BuddyPress
  *
