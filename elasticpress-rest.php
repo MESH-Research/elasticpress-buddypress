@@ -67,9 +67,13 @@ class EPR_REST_Posts_Controller extends WP_REST_Controller {
 
 		while ( have_posts() ) {
 			the_post();
-			// Prevent posts in private groups from showing in search results
 			if ( $wp_query->post->post_parent ) {
 				$parent_post = get_post( $wp_query->post->post_parent );
+				// Prevent humcore_deposit posts with parents (ie. attachments) from showing in results
+				if ( $wp_query->post->post_type === 'humcore_deposit') {
+					continue;
+				}
+				// Prevent posts in private groups from showing in search results
 				if ( $parent_post->post_status != 'publish' ) {
 					continue;
 				}
