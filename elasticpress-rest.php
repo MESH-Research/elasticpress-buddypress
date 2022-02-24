@@ -58,11 +58,6 @@ class EPR_REST_Posts_Controller extends WP_REST_Controller {
 			$response->set_status( $ep_query['request']['response']['code'] );
 		} );
 
-		$wp_query->query( array_merge(
-			[ 'ep_integrate' => true ],
-			$data->get_query_params()
-		) );
-
 		$query_params = $data->get_query_params();
 		if ( array_key_exists( 'numberposts', $query_params ) ) {
 			$numberposts = $query_params['numberposts'];
