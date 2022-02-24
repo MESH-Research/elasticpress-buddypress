@@ -78,9 +78,9 @@ class EPR_REST_Posts_Controller extends WP_REST_Controller {
 
 		// Going to try to still get $numberposts results if some results get filtered out.
 		$result_count = 0;
+		$page_count = 0;
 		do {
 			$new_result_count = 0;
-			$page_count = 0;
 			$wp_query->query( 
 				array_merge(
 					$data->get_query_params(),
