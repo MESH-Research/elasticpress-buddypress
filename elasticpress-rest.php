@@ -115,32 +115,9 @@ class EPR_REST_Posts_Controller extends WP_REST_Controller {
 		} while ( $new_result_count > 0 && $result_count < $numberposts );
 
 		$response_data['pages'] = $page_count;
-/*
+
 		$debug['wp_query'] = $wp_query;
 
-		while ( have_posts() ) {
-			the_post();
-			if ( $wp_query->post->post_parent ) {
-				$parent_post = get_post( $wp_query->post->post_parent );
-				// Prevent humcore_deposit posts with parents (ie. attachments) from showing in results
-				if ( $wp_query->post->post_type === 'humcore_deposit') {
-					continue;
-				}
-				// Prevent posts in private groups from showing in search results
-				if ( $parent_post->post_status != 'publish' ) {
-					continue;
-				}
-			}
-			ob_start();
-			get_template_part( 'content', get_post_format() );
-			$response_data['posts'][] = ob_get_contents();
-			ob_end_clean();
-		}
-
-		if ( self::DEBUG ) {
-			$response_data['debug'] = $debug;
-		}
-*/
 		$response->set_data( $response_data );
 
 		return $response;
