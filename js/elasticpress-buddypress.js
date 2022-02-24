@@ -169,13 +169,14 @@ window.elasticPressBuddyPress = {
           } );
         } );
 
+        elasticPressBuddyPress.page += data.pages;
+
         elasticPressBuddyPress.target.append( data.posts.join( '' ) );
 
         $( '<a href="#" class="btn more">More results</a>' )
           .appendTo( elasticPressBuddyPress.target )
           .on( 'click', function( e ) {
             e.preventDefault();
-            elasticPressBuddyPress.page++;
             elasticPressBuddyPress.loadResults();
           } );
       } else {

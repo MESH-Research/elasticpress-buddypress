@@ -63,6 +63,59 @@ class EPR_REST_Posts_Controller extends WP_REST_Controller {
 			$data->get_query_params()
 		) );
 
+		$query_params = $data->get_query_params();
+		if ( array_key_exists( 'numberposts', $query_params ) ) {
+			$numberposts = $query_params['numberposts'];
+		} else {
+			$numberposts = 10;
+		}
+
+		if ( array_key_exists( 'paged', $query_params ) ) {
+			$paged = $query_params['paged'];
+		} else {
+			$paged = 1;
+		}
+
+		// Going to try to still get $numberposts results if some results get filtered out.
+		$result_count = 0;
+		do {
+			$new_result_count = 0;
+			$page_count = 0;
+			$wp_query->query( 
+				array_merge(
+					$data->get_query_params(),
+					[ 
+						'ep_integrate'   => true,
+						'posts_per_page' => $numberposts,
+						'paged'          => $paged + $page_count,
+					]
+				)
+			);
+			while( have_posts() ) {
+				the_post();
+				if ( $wp_query->post->post_parent ) {
+					$parent_post = get_post( $wp_query->post->post_parent );
+					// Prevent humcore_deposit posts with parents (ie. attachments) from showing in results
+					if ( $wp_query->post->post_type === 'humcore_deposit') {
+						continue;
+					}
+					// Prevent posts in private groups from showing in search results
+					if ( $parent_post->post_status != 'publish' ) {
+						continue;
+					}
+				}
+				ob_start();
+				get_template_part( 'content', get_post_format() );
+				$response_data['posts'][] = ob_get_contents();
+				ob_end_clean();
+				$new_result_count++;
+			}
+			$result_count += $new_result_count;
+			$page_count++;
+		} while ( $new_result_count > 0 && $result_count < $numberposts );
+
+		$response_data['pages'] = $page_count;
+/*
 		$debug['wp_query'] = $wp_query;
 
 		while ( have_posts() ) {
@@ -87,7 +140,7 @@ class EPR_REST_Posts_Controller extends WP_REST_Controller {
 		if ( self::DEBUG ) {
 			$response_data['debug'] = $debug;
 		}
-
+*/
 		$response->set_data( $response_data );
 
 		return $response;
