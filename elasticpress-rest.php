@@ -71,21 +71,49 @@ class EPR_REST_Posts_Controller extends WP_REST_Controller {
 			$paged = 1;
 		}
 
+		$today = getdate();
+		$starting_params = array_merge (
+			$data->get_query_params(),
+			[ 
+				'ep_integrate'   => true,
+				'posts_per_page' => $numberposts,
+				'paged'          => $paged,
+				'date_query'     => [
+					[
+						'before' => [
+							'year'  => $today['year'],
+							'month' => $today['mon'],
+							'day'   => $today['mday'],
+						],
+						'inclusive' => true,
+					]
+				]
+			]
+		);
+
 		// Going to try to still get $numberposts results if some results get filtered out.
 		$result_count = 0;
 		$page_count = 0;
+		$new_result_count = -1;
+		$tried_future_dates = false;
 		do {
+			$current_params = $starting_params;
+			// If we haven't found any posts with dates in the past, check for ones in the future.
+			// This means that embargoed deposits will show in search results, but at the end.
+			if ( $new_result_count === 0 ) {
+				$tried_future_dates = true;
+				$current_params['date_query'] = [
+						'after' => [
+							'year'  => $today['year'],
+							'month' => $today['mon'],
+							'day'   => $today['mday'],
+						],
+						'inclusive' => false,
+					];
+			}
 			$new_result_count = 0;
-			$wp_query->query( 
-				array_merge(
-					$data->get_query_params(),
-					[ 
-						'ep_integrate'   => true,
-						'posts_per_page' => $numberposts,
-						'paged'          => $paged + $page_count,
-					]
-				)
-			);
+			$current_params['paged'] = $paged + $page_count;
+			$wp_query->query( $current_params );
 			while( have_posts() ) {
 				the_post();
 				if ( $wp_query->post->post_parent ) {
@@ -107,7 +135,7 @@ class EPR_REST_Posts_Controller extends WP_REST_Controller {
 			}
 			$result_count += $new_result_count;
 			$page_count++;
-		} while ( $new_result_count > 0 && $result_count < $numberposts );
+		} while ( $result_count < $numberposts && ( $new_result_count > 0 || ! $tried_future_dates ) );
 
 		$response_data['pages'] = $page_count;
 
