@@ -51,7 +51,6 @@ class EPR_REST_Posts_Controller extends WP_REST_Controller {
 		$response = new WP_REST_Response;
 
 		$debug = [];
-		$response_data = [ 'posts' => [] ];
 
 		add_action( 'ep_add_query_log', function( $ep_query ) use ( &$response, &$debug ) {
 			$debug['ep_query'] = $ep_query;
@@ -71,8 +70,15 @@ class EPR_REST_Posts_Controller extends WP_REST_Controller {
 			$paged = 1;
 		}
 
+		if ( array_key_exists( 'future', $query_params ) ) {
+			$future = $query_params['future'] === 'future';
+		} else {
+			$future = false;
+		}
+
 		$today = getdate();
-		$starting_params = array_merge (
+
+		$query_params = array_merge (
 			$data->get_query_params(),
 			[ 
 				'ep_integrate'   => true,
@@ -91,58 +97,102 @@ class EPR_REST_Posts_Controller extends WP_REST_Controller {
 			]
 		);
 
-		// Going to try to still get $numberposts results if some results get filtered out.
-		$result_count = 0;
-		$page_count = 0;
-		$new_result_count = -1;
-		$tried_future_dates = false;
-		do {
-			$current_params = $starting_params;
-			// If we haven't found any posts with dates in the past, check for ones in the future.
-			// This means that embargoed deposits will show in search results, but at the end.
-			if ( $new_result_count === 0 ) {
-				$tried_future_dates = true;
-				$current_params['date_query'] = [
-						'after' => [
-							'year'  => $today['year'],
-							'month' => $today['mon'],
-							'day'   => $today['mday'],
-						],
-						'inclusive' => false,
-					];
-			}
-			$new_result_count = 0;
-			$current_params['paged'] = $paged + $page_count;
-			$wp_query->query( $current_params );
-			while( have_posts() ) {
-				the_post();
-				if ( $wp_query->post->post_parent ) {
-					$parent_post = get_post( $wp_query->post->post_parent );
-					// Prevent humcore_deposit posts with parents (ie. attachments) from showing in results
-					if ( $wp_query->post->post_type === 'humcore_deposit') {
-						continue;
-					}
-					// Prevent posts in private groups from showing in search results
-					if ( $parent_post->post_status != 'publish' ) {
-						continue;
-					}
-				}
-				ob_start();
-				get_template_part( 'content', get_post_format() );
-				$response_data['posts'][] = ob_get_contents();
-				ob_end_clean();
-				$new_result_count++;
-			}
-			$result_count += $new_result_count;
-			$page_count++;
-		} while ( $result_count < $numberposts && ( $new_result_count > 0 || ! $tried_future_dates ) );
-
-		$response_data['pages'] = $page_count;
+		// Retrieve past-dated posts unless the 'future' param has been set.
+		if ( ! $future ) {
+			[ $past_posts, $past_pages ] = $this->get_posts_to( $query_params, $numberposts );
+		} else {
+			$past_posts = [];
+			$past_pages = 0;
+		}
+		
+		// If not enough posts have been retrieved, get future-dated posts
+		if ( count( $past_posts ) < $numberposts ) {
+			$query_params['paged'] = 1;
+			$query_params['date_query'] = [
+				'after' => [
+					'year'  => $today['year'],
+					'month' => $today['mon'],
+					'day'   => $today['mday'],
+				],
+				'inclusive' => false,
+			];
+			[ $future_posts, $future_pages ] = $this->get_posts_to( $query_params, $numberposts );
+		} else {
+			$future_posts = [];
+			$future_pages = 0;
+		}
+		
+		$response_data = [
+			'posts'  => array_merge( $past_posts, $future_posts ),
+			'pages'  => $future_pages ? $future_pages : $past_pages,
+			'future' => $future_pages > 0
+		];
 
 		$debug['wp_query'] = $wp_query;
 
 		$response->set_data( $response_data );
 
 		return $response;
+	}
+
+
+	/**
+	 * Retrieve posts until there are no more or the target_count has been reached.
+	 *
+	 * Runs multiple query pages to account for possibly skipped results.
+	 *
+	 * @param Array $query_params The query parameters.
+	 * @param int   $target_count The desired number of posts to retrieve.
+	 *
+	 * @return [ Array, int ] The Array contains the post contents. 
+	 *                        The int indicates how many pages were retrieved.
+	 */
+	private function get_posts_to( $query_params, $target_count ) {
+		$starting_page =  intval( $query_params['paged'] );
+		$page_count = 0;
+		$posts = [];
+		do {
+			$query_params['paged'] = $starting_page + $page_count;
+			[ $new_posts, $skipped ] = $this->query_posts( $query_params );
+			$posts = array_merge( $posts, $new_posts );
+			$page_count++;
+		} while ( $skipped && count( $posts ) < $target_count );
+		return [ $posts, $page_count ];
+	}
+	
+	/**
+	 * Retrieve posts and output.
+	 *
+	 * @param Array $query_params The query parameters.
+	 *
+	 * @return [Array, boolean] The Array contains the post contents. 
+	 *                          The boolean indicates whether any posts were skipped.
+	 */
+	private function query_posts( $query_params ) {
+		global $wp_query;
+		$skipped = false;
+		$posts = [];
+		$wp_query->query( $query_params );
+		while( have_posts() ) {
+			the_post();
+			if ( $wp_query->post->post_parent ) {
+				$parent_post = get_post( $wp_query->post->post_parent );
+				// Prevent humcore_deposit posts with parents (ie. attachments) from showing in results
+				if ( $wp_query->post->post_type === 'humcore_deposit') {
+					$skipped = true;
+					continue;
+				}
+				// Prevent posts in private groups from showing in search results
+				if ( $parent_post->post_status != 'publish' ) {
+					$skipped = true;
+					continue;
+				}
+			}
+			ob_start();
+			get_template_part( 'content', get_post_format() );
+			$posts[] = ob_get_contents();
+			ob_end_clean();
+		}
+		return [ $posts, $skipped ];
 	}
 }

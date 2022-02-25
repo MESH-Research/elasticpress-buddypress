@@ -15,6 +15,9 @@ window.elasticPressBuddyPress = {
   // what page of results are we loading?
   page: 1,
 
+  // are we retrieving future-dated posts?
+  future: false,
+
   // element to which results are appended ( set in init() since it doesn't exist until document.ready )
   target: null,
 
@@ -170,6 +173,7 @@ window.elasticPressBuddyPress = {
         } );
 
         elasticPressBuddyPress.page += data.pages;
+        elasticPressBuddyPress.future = data.future;
 
         elasticPressBuddyPress.target.append( data.posts.join( '' ) );
 
@@ -212,6 +216,11 @@ window.elasticPressBuddyPress = {
       parsedFacets.push( {
         name: 'paged',
         value: elasticPressBuddyPress.page
+      } );
+
+      parsedFacets.push( {
+        name: 'future',
+        value: elasticPressBuddyPress.future
       } );
 
       for ( var i = 0; i < parsedFacets.length; i++ ) {
