@@ -3,6 +3,8 @@
  * filters for the ElasticPress BuddyPress feature
  */
 
+use ElasticPress\Elasticsearch as Elasticsearch;
+
 /**
  * Filter search request path to search groups & members as well as posts.
  */
@@ -180,6 +182,8 @@ function ep_bp_translate_args( $query ) {
 		EP_BP_API::MEMBER_TYPE_NAME,
 		'topic',
 		'reply',
+		'post',
+		'page',
 	] );
 
 	if ( ! isset( $_REQUEST['post_type'] ) || empty( $_REQUEST['post_type'] ) ) {
@@ -209,6 +213,83 @@ function ep_bp_translate_args( $query ) {
 		[ 'taxonomies' => [ 'xprofile' ] ]
 	), SORT_REGULAR ) );
 }
+
+/**
+ * Add user sites to search when their network index is selected.
+ *
+ * To have a site's content included in the search results, the ElasticPress
+ * plugin needs to be enabled for that site, which will generate an index for
+ * it. This function will add that index to the search when the base site's
+ * index is included.
+ *
+ * This function determines network membership by comparing index names. For
+ * example, if the base site index is hastachcommonsstagingorg-post-1002702,
+ * then a user site index could be
+ * humanitiesartsmediahastachcommonsstagingorg-post-1002706.
+ * 'hastachcommonsstagingorg' is a substring of
+ * 'humanitiesartsmediahastachcommonsstagingorg', and so the latter is a member
+ * site of the former.
+ *
+ * @param $index_name string The index(es) to be searched, separated by commas.
+ * @param $blog_id ID of the blog initiating the search.
+ *
+ * @return string Indexes to be searched including any user sites.
+ */
+function ep_bp_search_user_sites( $index_name, $blog_id ) {
+	$indexes = explode( ',', $index_name );
+
+	$path = '_cat/indices?format=json';
+	$response = Elasticsearch::factory()->remote_request( $path );
+
+	// If something goes wrong with the request, just bail and return the original index.
+	if ( is_wp_error( $response ) ) {
+		return $index_name;
+	}
+	$cluster_indexes = json_decode( $response['body'] );
+
+	$networks = get_networks();
+	$network_base_names = [];
+	foreach ( $networks as $network ) {
+		$network_base_names[] = preg_replace( '/\W/', '', $network->domain );
+	}
+
+	$new_indexes = [];
+	foreach ( $cluster_indexes as $cluster_index ) {
+		$cluster_index_base_name = explode( '-', $cluster_index->index )[0];
+		foreach ( $indexes as $existing_index ) {
+			if ( $existing_index === $cluster_index->index ) {
+				continue;
+			}
+			if ( in_array( $cluster_index_base_name, $network_base_names ) ) {
+				continue;
+			}
+			$existing_index_base_name = explode( '-', $existing_index )[0];
+			if ( strpos( $cluster_index_base_name, $existing_index_base_name ) !== false ) {
+				$add_to_index = true;
+				// Make sure that the index only gets added for its own network by checking
+				// that no longer network url contains this index.
+				foreach ( $network_base_names as $network_index_name ) {
+					if ( strlen( $network_index_name ) <= strlen( $existing_index_base_name ) ) {
+						continue;
+					}
+					if ( strpos( $cluster_index_base_name, $network_index_name ) !== false ) {
+						$add_to_index = false;
+						break;
+					}
+				}
+				if ( $add_to_index ) {
+					$new_indexes[] = $cluster_index->index;
+				}
+				break;
+			}
+		}
+	}
+
+	$indexes = array_merge( $indexes, $new_indexes );
+	return implode( ',', $indexes );
+}
+// Fire after ep_bp_filter_ep_index_name.
+add_filter( 'ep_index_name', 'ep_bp_search_user_sites', 20, 2 );
 
 /**
  * Index BP-related post types

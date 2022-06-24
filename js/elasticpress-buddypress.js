@@ -314,8 +314,8 @@ window.elasticPressBuddyPress = {
 
     elasticPressBuddyPress.target = $( '#content' );
 
-    elasticPressBuddyPress.initTabSelect( 'select[name=post_type\\[\\]]', '#ep_bp_post_type_facet' );
-    elasticPressBuddyPress.initTabSelect( 'select[name=index\\[\\]]', '#ep_bp_index_facet' );
+    elasticPressBuddyPress.initTabSelect( '#post_type', '#ep_bp_post_type_facet' );
+    elasticPressBuddyPress.initTabSelect( '#index', '#ep_bp_index_facet' );
 
     elasticPressBuddyPress.initSelectAll( 'post_type' );
     elasticPressBuddyPress.initSelectAll( 'index' );

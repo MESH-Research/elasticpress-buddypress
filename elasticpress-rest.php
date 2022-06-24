@@ -82,6 +82,7 @@ class EPR_REST_Posts_Controller extends WP_REST_Controller {
 			$data->get_query_params(),
 			[ 
 				'ep_integrate'   => true,
+				'search_fields'  => 'post_content',
 				'posts_per_page' => $numberposts,
 				'paged'          => $paged,
 				'date_query'     => [
@@ -188,6 +189,7 @@ class EPR_REST_Posts_Controller extends WP_REST_Controller {
 					continue;
 				}
 			}
+			//$posts[] = get_the_excerpt();
 			ob_start();
 			get_template_part( 'content', get_post_format() );
 			$posts[] = ob_get_contents();
