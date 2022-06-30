@@ -149,15 +149,17 @@ class EPR_REST_Posts_Controller extends WP_REST_Controller {
 	 *                        The int indicates how many pages were retrieved.
 	 */
 	private function get_posts_to( $query_params, $target_count ) {
+		$max_page_count = 10; // Limit how many pages to fetch to prevent 504 errors.
 		$starting_page =  intval( $query_params['paged'] );
 		$page_count = 0;
 		$posts = [];
+		$existing_posts = [];
 		do {
 			$query_params['paged'] = $starting_page + $page_count;
-			[ $new_posts, $skipped ] = $this->query_posts( $query_params );
+			[ $new_posts, $existing_posts, $skipped ] = $this->query_posts( $query_params, $existing_posts );
 			$posts = array_merge( $posts, $new_posts );
 			$page_count++;
-		} while ( $skipped && count( $posts ) < $target_count );
+		} while ( $skipped && count( $posts ) < $target_count && $page_count < $max_page_count );
 		return [ $posts, $page_count ];
 	}
 	
@@ -169,13 +171,22 @@ class EPR_REST_Posts_Controller extends WP_REST_Controller {
 	 * @return [Array, boolean] The Array contains the post contents. 
 	 *                          The boolean indicates whether any posts were skipped.
 	 */
-	private function query_posts( $query_params ) {
+	private function query_posts( $query_params, $existing_posts = [] ) {
 		global $wp_query;
 		$skipped = false;
 		$posts = [];
 		$wp_query->query( $query_params );
+
 		while( have_posts() ) {
 			the_post();
+			// Checking for duplicate posts.
+			if ( 
+				array_key_exists( $wp_query->post->ID, $existing_posts ) && 
+				$existing_posts[ $wp_query->post->ID ] === $wp_query->post->post_title
+			) {
+				$skipped = true;
+				continue;
+			}
 			if ( $wp_query->post->post_parent ) {
 				$parent_post = get_post( $wp_query->post->post_parent );
 				// Prevent humcore_deposit posts with parents (ie. attachments) from showing in results
@@ -189,12 +200,12 @@ class EPR_REST_Posts_Controller extends WP_REST_Controller {
 					continue;
 				}
 			}
-			//$posts[] = get_the_excerpt();
+			$existing_posts[ $wp_query->post->ID ] = $wp_query->post->post_title;
 			ob_start();
 			get_template_part( 'content', get_post_format() );
 			$posts[] = ob_get_contents();
 			ob_end_clean();
 		}
-		return [ $posts, $skipped ];
+		return [ $posts, $existing_posts, $skipped ];
 	}
 }
