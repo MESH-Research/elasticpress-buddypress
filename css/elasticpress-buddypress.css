@@ -6,7 +6,6 @@
 .search .type-user .comments-link,
 .search .type-user .entry-actions,
 .search .type-user .post-date,
-.search .type-user .author,
 .search .type-humcore_deposit .comments-link,
 .search .type-humcore_deposit .entry-actions {
   display: none;
