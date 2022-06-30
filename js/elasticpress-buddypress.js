@@ -161,8 +161,8 @@ window.elasticPressBuddyPress = {
         // remove results which are already listed on other network(s)
         // this is done serverside too but only affects one page at a time
         // doing it again here prevents dupes when they appear on different pages
-        $.each( data.posts, function( i, thisPost ) {
-          $.each( elasticPressBuddyPress.target.children( 'article' ), function( j, thatPost ) {
+        $( data.posts ).each( function( i, thisPost ) {
+          $( elasticPressBuddyPress.target.children( 'article' ) ).each( function( j, thatPost ) {
             if (
               $( thisPost ).attr( 'id' ).split('-')[1] === $( thatPost ).attr( 'id' ).split('-')[1] &&
               $( thisPost ).find( '.entry-title' ).text() === $( thatPost ).find( '.entry-title' ).text()
@@ -211,6 +211,13 @@ window.elasticPressBuddyPress = {
       $( window ).trigger( 'scroll' );
     }
     var serializedFacets = ( function() {
+      /*
+      var post_type_facets = $('#post_type').serializeArray();
+      var network_facets = $('#index').serializeArray();
+      
+      var parsedFacets = [].concat( post_type_facets, network_facets );
+      */
+      
       var parsedFacets = $( '.ep-bp-search-facets' ).serializeArray();
 
       parsedFacets.push( {
