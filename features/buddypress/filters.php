@@ -236,6 +236,10 @@ function ep_bp_translate_args( $query ) {
  * @return string Indexes to be searched including any user sites.
  */
 function ep_bp_search_user_sites( $index_name, $blog_id ) {
+	if ( ! is_search() ) {
+		return $index_name;
+	}
+	
 	$indexes = explode( ',', $index_name );
 
 	$path = '_cat/indices?format=json';
@@ -366,29 +370,6 @@ function ep_bp_filter_result_titles( $title ) {
 function ep_bp_filter_result_author_link( $link ) {
 	$link = str_replace( '/author/', '/members/', $link );
 	return $link;
-}
-
-/**
- * Remove posts from results which are duplicates of other posts in all aspects except network.
- * e.g. for a member of two networks, if both results appear on a given page, only show the first.
- * No additional results are added to fill in gaps - infinite scroll with potentially < 10 results per page is acceptable.
- *
- * IMPORTANT: there is an equivalent clientside function that handles dupes which appear on different pages.
- * Update that also if you change the logic here.
- */
-function ep_bp_filter_ep_search_results_array( $results ) {
-	foreach ( $results['posts'] as $k => $this_post ) {
-		foreach ( array_slice( $results['posts'], $k + 1 ) as $that_post ) {
-			if (
-				$this_post['ID'] === $that_post['ID'] &&
-				$this_post['post_title'] === $that_post['post_title']
-			) {
-				unset( $results['posts'][ $k ] );
-			}
-		}
-	}
-
-	return $results;
 }
 
 /**
