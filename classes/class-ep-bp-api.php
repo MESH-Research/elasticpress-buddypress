@@ -307,6 +307,7 @@ class EP_BP_API {
 		$args = array_merge( [
 			'per_page' => self::MAX_BULK_MEMBERS_PER_PAGE,
 			'page' => 1,
+			'type' => 'newest'
 		], $args );
 
 		$querystring = bp_ajax_querystring( 'members' ) . '&' . http_build_query( $args );
